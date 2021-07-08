@@ -1,0 +1,25 @@
+Repository Made by:
+    - Camilo Laiton
+    Universidad Nacional de Colombia, Colombia
+    2021-1
+    GitHub: https://github.com/camilolaiton/
+
+    This file belongs to the private repository "master_thesis" where
+    I save all the files that are related to my thesis which is called
+    "Método para la segmentación de imágenes de resonancia magnética 
+    cerebrales usando una arquitectura de red neuronal basada en modelos
+    de atención".
+
+Description: The data that I am using for this repository is based on
+the Mindboggle-101 Data (https://mindboggle.info/data.html) and I 
+downloaded the files from https://osf.io/yhkde/. The paper for this 
+dataset is located in the folder "papers" from this repository and it 
+is called as "101 labeled brain images and a consistent human corticallabeling protocol".
+
+After that I took each individual from the FreeSurfer_output and extracted 
+the following files:
+    - 001.mgz
+    - aparcNMMjt+aseg.mgz
+
+These two represent the brain scan without any modification and the brain scan 
+with the parcellation.

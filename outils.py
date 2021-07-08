@@ -142,6 +142,7 @@ def plot_roi_modified(lut:dict, label:str, brain:nib, segBrain_data:np, segBrain
           plot_roi(roi_n, bg_img=brain, cmap=colors, title=label + f" orientation: {ori}", display_mode=ori, black_bg=True)
       else:
         plot_roi(roi_n, bg_img=brain, cmap=colors, title=label, black_bg=True, draw_cross=False)#, cut_coords=256)
+      plt.show()
     else:
       print("This label is not segmented in the aseg file.")
   else:
@@ -359,3 +360,42 @@ def get_segmented_structures(lut, segBrain_data):
       segmented_structures.append(f"{key}")
 
   return segmented_structures, (time.time() - start_time)
+
+def create_file_anat_structures(root:str, lut_file:dict, readConfig:dict):
+  """
+    Creates a file with the list of the existing anatomical structures per individual.
+
+    Parameters:
+      - root: String that contains the root path of the individuals.
+      - lut_file: Dictionary that contains FreeSurferColorLut.txt file.
+      - readConfig: dictionary that contains the configuration for reading a MRI.
+
+    Returns:
+      - None
+  """
+
+  mri_to_process = {}
+  i = 0
+
+  # Reading folders
+  for folder in os.walk(root):
+    if not i:
+      i += 1
+    else:
+      if ('anatomical_structures.txt' not in folder[2]):
+        mri_to_process[folder[0].split('/')[-1]] = {
+          'root': folder[0],  
+          'mri': folder[0] + '/' + 'aparcNMMjt+aseg.mgz', 
+        }
+
+  # Writing anatomical structures in each folder
+  for key, items in mri_to_process.items():
+    print(f"[+] Processing brain: {key}")
+    
+    _, canonical_data = readMRI(imagePath=items['mri'], config=readConfig)
+    structures, seconds = get_segmented_structures(lut_file, canonical_data)
+    print(f"[+] Structures read. Time {seconds} seconds.")
+
+    with open(items['root'] + '/anatomical_structures.txt', 'w') as ana_file:
+      for structure in structures:
+        ana_file.write(structure + '\n')

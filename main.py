@@ -47,8 +47,16 @@ def main():
     print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}")
 
     # outils.show_all_slices_per_view('z', brain_data, counter=70)
-    # structures, seconds = outils.get_segmented_structures(lut_file, canonical_data)
-    outils.plot_roi_modified(lut_file, 'left-pallidum', brain_nifti, canonical_data, canonical_img)
+    #structures, seconds = outils.get_segmented_structures(lut_file, canonical_data)
+    # outils.plot_roi_modified(lut_file, 'left-pallidum', brain_nifti, canonical_data, canonical_img)
+    #print(structures)
+    #print("TIME: ", seconds)
+    #print("len: ", len(structures))
+
+    outils.create_file_anat_structures(root='data/HLN-12', lut_file=lut_file, readConfig=config)
+    outils.create_file_anat_structures(root='data/Colin27', lut_file=lut_file, readConfig=config)
+    outils.create_file_anat_structures(root='data/MMRR-3T7T-2', lut_file=lut_file, readConfig=config)
+    outils.create_file_anat_structures(root='data/NKI-RS-22', lut_file=lut_file, readConfig=config)
 
 if __name__ == "__main__":
     main()

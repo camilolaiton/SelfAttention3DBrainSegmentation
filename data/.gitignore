@@ -1,0 +1,5 @@
+*gz
+._*
+*.zip
+!data.txt
+!FreeSurferColorLUT.txt

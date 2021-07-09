@@ -50,14 +50,18 @@ def main():
     # outils.show_all_slices_per_view('z', brain_data, counter=70)
     # outils.plot_roi_modified(lut_file, 'left-pallidum', brain_nifti, canonical_data, canonical_img)
 
+    prefix_path = 'data/'
     roots = [
-        'data/HLN-12',
-        'data/Colin27',
-        'data/MMRR-3T7T-2',
-        'data/NKI-RS-22',
-        'data/NKI-TRT-20',
+        'HLN-12',
+        'Colin27',
+        'MMRR-3T7T-2',
+        'NKI-RS-22',
+        'NKI-TRT-20',
+        'MMRR-21',
+        'OASIS-TRT-20',
     ]
-
+    roots = [prefix_path + root for root in roots]
+    
     outils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
 
 if __name__ == "__main__":

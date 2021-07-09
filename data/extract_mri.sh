@@ -12,6 +12,18 @@
 #         cerebrales usando una arquitectura de red neuronal basada en modelos
 #         de atención".
 
+# Usage example: $ bash extract_mri.sh ../other_directory/MMRR-21/
+# This bash script will extract the files listed below, create the respective folders
+# and put the extracted files where they belong.
+
+# Files:
+#   - 001.mgz
+#   - aparcNMMjt+aseg.mgz
+
+# Example: From MMRR-21-1.tar.gz this script creates the folder MMRR-21-1 and puts 001.mgz and
+# aparcNMMjt+aseg.mgz that belongs to MMRR-21-1
+
+
 orig_path="Users/arno.klein/Data/Mindboggle101/subjects"
 orig_file="mri/orig/001.mgz"
 strip_orig=8

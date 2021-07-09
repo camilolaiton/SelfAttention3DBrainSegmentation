@@ -27,37 +27,38 @@ def main():
         'normalize': False
     }
 
-    image_obj = nib.load(image_path)
+    # image_obj = nib.load(image_path)
 
-    canonical_img, canonical_data = outils.readMRI(imagePath=image_path, config=config)
+    # canonical_img, canonical_data = outils.readMRI(imagePath=image_path, config=config)
 
-    canonical_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
+    # canonical_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
 
     # brain_img, brain_data = readMRI(imagePath=brainPath, config=config)
 
-    brain_img = nib.load(brainPath)
-    brain_data = brain_img.get_fdata()
-    brain_nifti = nib.Nifti1Image(brain_data, affine=brain_img.affine)
+    # brain_img = nib.load(brainPath)
+    # brain_data = brain_img.get_fdata()
+    # brain_nifti = nib.Nifti1Image(brain_data, affine=brain_img.affine)
 
     #print(f'Type of the image {type(canonical_img)}')
     #print(canonical_img)
 
     # Obtengo el shape
-    height, width, depth = canonical_data.shape
-    print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}")
+
+    # height, width, depth = canonical_data.shape
+    # print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}")
 
     # outils.show_all_slices_per_view('z', brain_data, counter=70)
-    #structures, seconds = outils.get_segmented_structures(lut_file, canonical_data)
     # outils.plot_roi_modified(lut_file, 'left-pallidum', brain_nifti, canonical_data, canonical_img)
-    #print(structures)
-    #print("TIME: ", seconds)
-    #print("len: ", len(structures))
 
-    outils.create_file_anat_structures(root='data/HLN-12', lut_file=lut_file, readConfig=config)
-    outils.create_file_anat_structures(root='data/Colin27', lut_file=lut_file, readConfig=config)
-    outils.create_file_anat_structures(root='data/MMRR-3T7T-2', lut_file=lut_file, readConfig=config)
-    outils.create_file_anat_structures(root='data/NKI-RS-22', lut_file=lut_file, readConfig=config)
-    outils.create_file_anat_structures(root='data/NKI-TRT-20', lut_file=lut_file, readConfig=config)
+    roots = [
+        'data/HLN-12',
+        'data/Colin27',
+        'data/MMRR-3T7T-2',
+        'data/NKI-RS-22',
+        'data/NKI-TRT-20',
+    ]
+
+    outils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
 
 if __name__ == "__main__":
     main()

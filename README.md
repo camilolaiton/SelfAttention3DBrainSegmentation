@@ -13,9 +13,9 @@ cerebrales usando una arquitectura de red neuronal basada en modelos de atenció
 - **Camilo Laiton** [[CamiloLaiton]](https://github.com/camilolaiton)
 
 ## Tutors
-- **Ph.D. German Sánchez Torres**[CvLac](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000479918)
+- **Ph.D. German Sánchez Torres** [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000479918)
 
-- **Ph.D. John Willian Branch**[CvLac](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000027090)
+- **Ph.D. John Willian Branch** [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000027090)
 
 ------------
 If you want to communicate with me then go to my **Github Account** and there is my **Instagram's profile** or send me an email to **claiton@unal.edu.co**. Send me a message if you have any doubt.

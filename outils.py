@@ -361,7 +361,7 @@ def get_segmented_structures(lut, segBrain_data):
 
   return segmented_structures, (time.time() - start_time)
 
-def create_file_anat_structures(root:str, lut_file:dict, readConfig:dict):
+def create_file_anat_structures(roots:list, lut_file:dict, readConfig:dict):
   """
     Creates a file with the list of the existing anatomical structures per individual.
 
@@ -375,18 +375,19 @@ def create_file_anat_structures(root:str, lut_file:dict, readConfig:dict):
   """
 
   mri_to_process = {}
-  i = 0
 
-  # Reading folders
-  for folder in os.walk(root):
-    if not i:
-      i += 1
-    else:
-      if ('anatomical_structures.txt' not in folder[2]):
-        mri_to_process[folder[0].split('/')[-1]] = {
-          'root': folder[0],  
-          'mri': folder[0] + '/' + 'aparcNMMjt+aseg.mgz', 
-        }
+  for root in roots:
+    # Reading folders
+    i = 0
+    for folder in os.walk(root):
+      if not i:
+        i += 1
+      else:
+        if ('anatomical_structures.txt' not in folder[2]):
+          mri_to_process[folder[0].split('/')[-1]] = {
+            'root': folder[0],  
+            'mri': folder[0] + '/' + 'aparcNMMjt+aseg.mgz', 
+          }
 
   # Writing anatomical structures in each folder
   for key, items in mri_to_process.items():

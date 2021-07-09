@@ -59,6 +59,7 @@ def main():
         'NKI-TRT-20',
         'MMRR-21',
         'OASIS-TRT-20',
+        'Twins-2'
     ]
     roots = [prefix_path + root for root in roots]
     

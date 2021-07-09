@@ -57,6 +57,7 @@ def main():
     outils.create_file_anat_structures(root='data/Colin27', lut_file=lut_file, readConfig=config)
     outils.create_file_anat_structures(root='data/MMRR-3T7T-2', lut_file=lut_file, readConfig=config)
     outils.create_file_anat_structures(root='data/NKI-RS-22', lut_file=lut_file, readConfig=config)
+    outils.create_file_anat_structures(root='data/NKI-TRT-20', lut_file=lut_file, readConfig=config)
 
 if __name__ == "__main__":
     main()

@@ -59,11 +59,13 @@ def main():
         'NKI-TRT-20',
         'MMRR-21',
         'OASIS-TRT-20',
-        'Twins-2'
+        'Twins-2',
+        'Afterthought'
     ]
     roots = [prefix_path + root for root in roots]
     
     outils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
+    outils.get_common_anatomical_structures(roots=roots, lut_file=lut_file)
 
 if __name__ == "__main__":
     main()

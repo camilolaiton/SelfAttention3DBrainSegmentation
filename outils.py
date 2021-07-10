@@ -400,3 +400,31 @@ def create_file_anat_structures(roots:list, lut_file:dict, readConfig:dict):
     with open(items['root'] + '/anatomical_structures.txt', 'w') as ana_file:
       for structure in structures:
         ana_file.write(structure + '\n')
+
+def get_common_anatomical_structures(roots, lut_file):
+  anat_structures = {}
+  for root in roots:
+    # Reading folders
+    i = 0
+    for folder in os.walk(root):
+      if not i:
+        i += 1
+      else:
+        if ('anatomical_structures.txt' in folder[2]):
+          anat_structures[folder[0].split('/')[-1]] = {
+            'root': folder[0],  
+            'mri': folder[0] + '/' + 'anatomical_structures.txt', 
+          }
+
+  print(anat_structures)
+  print(len(anat_structures))
+
+  # Recorrer cada uno de los archivos .txt
+    # leer linea por linea y buscarlos dentro de lut_file
+    # Si esta aumentar el contador (aquellos que tengan 101 son los que necesitamos)
+
+  #   for structure in structures:
+  # try:
+  #     lut2[structure]['count'] = lut2[structure]['count'] + 1
+  # except KeyError as err:
+  #   pass

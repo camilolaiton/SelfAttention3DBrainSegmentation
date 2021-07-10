@@ -16,10 +16,26 @@ downloaded the files from https://osf.io/yhkde/. The paper for this
 dataset is located in the folder "papers" from this repository and it 
 is called as "101 labeled brain images and a consistent human corticallabeling protocol".
 
-After that I took each individual from the FreeSurfer_output and extracted 
+After that, I took each individual from the FreeSurfer_output and extracted 
 the following files:
     - 001.mgz
     - aparcNMMjt+aseg.mgz
 
 These two represent the brain scan without any modification and the brain scan 
 with the parcellation.
+
+The file 'common_anatomical_structures.txt' contains the information of all the anatomical
+structures that are common in all 101 MRIs that are divided in the following folders:
+
+        NAME           MRIs
+    - Afterthought      (1)
+    - Colin27           (1)
+    - HLN-12            (12)
+    - MMRR-21           (21)
+    - MMRR-3T7T-2       (2)
+    - NKI-RS-22         (22)
+    - NKI-TRT-20        (20)
+    - OASIS-TRT-20      (20)
+    - Twins-2           (2)
+
+     TOTAL MRIs         (101)

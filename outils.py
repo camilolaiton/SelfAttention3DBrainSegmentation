@@ -401,7 +401,43 @@ def create_file_anat_structures(roots:list, lut_file:dict, readConfig:dict):
       for structure in structures:
         ana_file.write(structure + '\n')
 
-def get_common_anatomical_structures(roots, lut_file):
+def helper_extract_common_structures(lut_dict:dict, common_number:int):
+  """
+    Helper function to extract the common anatomical structures from
+    a dictionary. It works with a counter and extracts just the anatomical structures
+    with counter == common_number.
+
+    Parameters:
+      - common_number: Integer that determines the amount of common anatomical structures in
+      a number n of MRIs.
+      - lut_dict: Dictionary that contains FreeSurferColorLut.txt file.
+
+    Returns:
+      - list
+  """
+  common_structures = []
+
+  for key, items in lut_dict.items():
+    if (int(items['count']) == common_number):
+      common_structures.append(key)
+
+  return common_structures
+
+def get_common_anatomical_structures(roots:list, lut_file:dict, common_number:int=101):
+  """
+    Function to extract the common anatomical sstructures.
+
+    Parameters:
+      - root: String that contains the root path of the individuals.
+      - lut_file: Dictionary that contains FreeSurferColorLut.txt file.
+      - common_number: Integer that determines the amount of common anatomical structures in
+      a number n of MRIs.
+
+    Returns:
+      - list
+  """
+
+  # Getting paths of anat_structures files
   anat_structures = {}
   for root in roots:
     # Reading folders
@@ -413,18 +449,64 @@ def get_common_anatomical_structures(roots, lut_file):
         if ('anatomical_structures.txt' in folder[2]):
           anat_structures[folder[0].split('/')[-1]] = {
             'root': folder[0],  
-            'mri': folder[0] + '/' + 'anatomical_structures.txt', 
+            'anat_file': folder[0] + '/' + 'anatomical_structures.txt', 
           }
+  
+  # Getting the common anatomical structures
+  count = 0
+  for key, items in anat_structures.items():
+    count += 1
+    # print(f"[+] Processing anatomical structures file from {key}")
+    with open(items['anat_file'], 'r') as anat_file:
+      while True:
+        anat_structure = anat_file.readline().rstrip('\r\n')
+        
+        if not anat_structure:
+          break
+        else:
+          try:
+              lut_file[anat_structure]['count'] = lut_file[anat_structure]['count'] + 1
+          except KeyError as err:
+            pass
 
-  print(anat_structures)
-  print(len(anat_structures))
+  print("\n[+] Anatomical structures files processed: ", count)
+  
+  return helper_extract_common_structures(lut_file, common_number)
 
-  # Recorrer cada uno de los archivos .txt
-    # leer linea por linea y buscarlos dentro de lut_file
-    # Si esta aumentar el contador (aquellos que tengan 101 son los que necesitamos)
+def save_list_to_txt(list_text:list, dest:str):
+  """
+    Function to save the information saved in a list.
 
-  #   for structure in structures:
-  # try:
-  #     lut2[structure]['count'] = lut2[structure]['count'] + 1
-  # except KeyError as err:
-  #   pass
+    Parameters:
+      - list_text: List that contains information.
+      - dest: Destination path where the file will be saved.
+
+    Returns:
+      - None
+  """
+  with open(dest, 'w') as file:
+    for text in list_text:
+      file.write(str(text) + '\n')
+
+def read_test_to_list(path:str):
+  """
+    Function to get the information saved in a file.
+
+    Parameters:
+      - path: Path where the file is located.
+
+    Returns:
+      - list
+  """
+  list_text = []
+
+  with open(path, 'r') as anat_file:
+    while True:
+      anat_structure = anat_file.readline().rstrip('\r\n')
+
+      if not anat_structure:
+        break
+      else:
+        list_text.append(anat_structure)
+
+  return list_text

@@ -64,8 +64,12 @@ def main():
     ]
     roots = [prefix_path + root for root in roots]
     
-    outils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
-    outils.get_common_anatomical_structures(roots=roots, lut_file=lut_file)
+    # outils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
+    # STRUCTURES = outils.get_common_anatomical_structures(roots=roots, lut_file=lut_file.copy())
+    # outils.save_list_to_txt(STRUCTURES, 'data/common_anatomical_structures.txt')
+    
+    STRUCTURES = outils.read_test_to_list('data/common_anatomical_structures.txt')
+    print("Structures: ", STRUCTURES, " Number: ", len(STRUCTURES))
 
 if __name__ == "__main__":
     main()

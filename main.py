@@ -15,6 +15,10 @@
 import outils
 import nibabel as nib
 
+from nilearn.plotting import plot_roi
+import nilearn
+import matplotlib.pyplot as plt
+
 def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     brainPath = './data/sub01/001.mgz' #brain.mgz'
@@ -48,15 +52,20 @@ def main():
     # print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}")
 
     # outils.show_all_slices_per_view('z', brain_data, counter=70)
-    # outils.plot_roi_modified(lut_file, 'left-pallidum', brain_nifti, canonical_data, canonical_img)
+    # outils.plot_roi_modified(lut_file, 'right-cerebral-white-matter', brain_nifti, canonical_data, canonical_img)
     
     roi_nifti, colors = outils.get_roi_data(lut_file, 'right-cerebral-white-matter', canonical_data, canonical_img)
     
-    # if (roi_nifti):
-    #     # outils.plotting_superposition(142, canonical_data, roi_nifti.get_fdata(), 'z')
-    #     outils.plotting_superposition(85, brain_nifti.get_fdata(), roi_nifti.get_fdata(), 'x')
-    #     outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), 'y')
-    #     outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), 'z')
+    roi_nifti = nilearn.image.resample_to_img(roi_nifti, brain_nifti)
+
+    # plot_roi(roi_nifti, bg_img=brain_nifti, cmap=colors, title='right-cerebral-white-matter', black_bg=True, draw_cross=False, )#, cut_coords=256)
+    # plt.show()
+
+    if (roi_nifti):
+        # outils.plotting_superposition(142, canonical_data, roi_nifti.get_fdata(), 'z')
+        outils.plotting_superposition(85, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'x')
+        outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'y')
+        outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'z')
 
 
 
@@ -84,7 +93,7 @@ def main():
     # outils.show_all_slices_per_view('z', canonical_data, counter=70)
     # outils.show_all_slices_per_view('z', roi_nifti.get_fdata(), counter=70)
 
-    outils.saveSlicesPerRoot(roots, config)
+    # outils.saveSlicesPerRoot(roots, config)
 
 if __name__ == "__main__":
     main()

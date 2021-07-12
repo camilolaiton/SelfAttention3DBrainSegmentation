@@ -12,6 +12,7 @@
         de atención".
 """
 
+from PIL.Image import NEAREST
 import numpy as np
 import nibabel as nib
 
@@ -20,6 +21,7 @@ from matplotlib.colors import ListedColormap
 import matplotlib.patheffects as path_effects
 
 from nilearn.plotting import plot_roi
+from nilearn.image import new_img_like, load_img, get_data
 from scipy.ndimage import rotate
 
 import os
@@ -526,23 +528,29 @@ def read_test_to_list(path:str):
 
   return list_text
 
-def plotting_superposition(n_slice, brain_data, roi_data, orientation='x'):
+def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='x'):
   slice_orig, slice_roi = None, None
   
   if (orientation == 'x'):
     slice_orig = rotate(brain_data[n_slice, :, :], angle=90)
-    slice_roi = roi_data[n_slice, :, :]
+    slice_roi = rotate(roi_data[n_slice, :, :], angle=90)
   
   elif (orientation == 'y'):
     slice_orig = np.fliplr(rotate(brain_data[:, n_slice, :], angle=90))
-    slice_roi = roi_data[:, n_slice, :]
+    slice_roi = np.fliplr(rotate(roi_data[:, n_slice, :], angle=90))
   
   else:
     slice_orig = np.fliplr(rotate(brain_data[:, :, n_slice], angle=90))
-    slice_roi = roi_data[:, :, n_slice]
+    slice_roi = np.fliplr(rotate(roi_data[:, :, n_slice], angle=90))
 
-  plt.imshow(slice_orig, cmap='bone')
-  # plt.imshow(slice_roi, alpha=0.5)
+  print(slice_orig.shape)
+  print(slice_roi.shape)
+  
+  slice_roi = np.ma.masked_where(slice_roi == 0, slice_roi)
+  
+  # plt.imshow(first_roi_img, cmap='bone')
+  plt.imshow(slice_orig, cmap='bone', interpolation='none')
+  plt.imshow(slice_roi, alpha=0.5, interpolation='none')#, cmap='Oranges')
   plt.grid(False)
   plt.axis('off')
   plt.show()

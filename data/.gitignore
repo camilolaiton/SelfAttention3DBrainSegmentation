@@ -3,3 +3,4 @@
 *.zip
 !data.txt
 !FreeSurferColorLUT.txt
+**/slices/

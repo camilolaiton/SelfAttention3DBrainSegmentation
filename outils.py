@@ -110,6 +110,21 @@ def get_label_data(lut:dict, label:str):
       print(f"Error getting {label} data. Error: {err}")
   return None
 
+def get_roi_data(lut:dict, label:str, segBrain_data:np, segBrain_img:nib):
+  roi_n, colors = None, None
+  label_data = get_label_data(lut, label)
+  if (label_data):
+    roi = (segBrain_data==label_data['id'])*label_data['id']
+    res = roi.nonzero()
+
+    if (res[0].shape[0] or res[1].shape[0] or res[2].shape[0]):
+      
+      roi_n = nib.Nifti1Image(roi, affine = segBrain_img.affine)
+      colors = ListedColormap([value/255 for value in label_data['rgba'][:-1]])
+
+  return roi_n, colors
+
+
 def plot_roi_modified(lut:dict, label:str, brain:nib, segBrain_data:np, segBrain_img:nib, orientations:list=None):
   """
     plots the ROI in a brain
@@ -126,27 +141,27 @@ def plot_roi_modified(lut:dict, label:str, brain:nib, segBrain_data:np, segBrain
       - None
   """
 
-  label_data = get_label_data(lut, label)
-  if (label_data):
-    roi = (segBrain_data==label_data['id'])*label_data['id']
-    res = roi.nonzero()
+  # label_data = get_label_data(lut, label)
+  # if (label_data):
+  #   roi = (segBrain_data==label_data['id'])*label_data['id']
+  #   res = roi.nonzero()
 
-    if (res[0].shape[0] or res[1].shape[0] or res[2].shape[0]):
+  #   if (res[0].shape[0] or res[1].shape[0] or res[2].shape[0]):
       
-      roi_n = nib.Nifti1Image(roi, affine = segBrain_img.affine)
+  #     roi_n = nib.Nifti1Image(roi, affine = segBrain_img.affine)
       
-      colors = ListedColormap([value/255 for value in label_data['rgba'][:-1]])
-      
-      if (orientations):
-        for ori in orientations:
-          plot_roi(roi_n, bg_img=brain, cmap=colors, title=label + f" orientation: {ori}", display_mode=ori, black_bg=True)
-      else:
-        plot_roi(roi_n, bg_img=brain, cmap=colors, title=label, black_bg=True, draw_cross=False)#, cut_coords=256)
-      plt.show()
+  #     colors = ListedColormap([value/255 for value in label_data['rgba'][:-1]])
+
+  roi_n, colors = get_roi_data(lut, label, segBrain_data, segBrain_img)
+  if (roi_n and colors):      
+    if (orientations):
+      for ori in orientations:
+        plot_roi(roi_n, bg_img=brain, cmap=colors, title=label + f" orientation: {ori}", display_mode=ori, black_bg=True)
     else:
-      print("This label is not segmented in the aseg file.")
+      plot_roi(roi_n, bg_img=brain, cmap=colors, title=label, black_bg=True, draw_cross=False)#, cut_coords=256)
+    plt.show()
   else:
-    print("Label does not exists!")
+    print("This label is not segmented in the aseg file.")
 
 def show_slices(slices):
 
@@ -199,7 +214,7 @@ def show_all_slices_per_view(view:str, data:np, counter:int=100, angle=270):
         elif (view == 'y'):
           axs[row, column].imshow(data[:, counter, :], cmap='bone')
         else:
-          axs[row, column].imshow(rotate(data[:, :, counter], angle=angle), cmap='bone')
+          axs[row, column].imshow(data[:, :, counter], cmap='bone')
 
         axs[row, column].grid(False)
         axs[row, column].axis('off')
@@ -308,19 +323,19 @@ def saveSliceView(filename:str, image_data:np, view:str, destination:str):
     # coronal
     create_folder(f"{destination}/y")
     for idx in range(x):
-      saveSlice(image_data=image_data[idx, :, :], filename=f"{filename}_{idx}", destination=f"{destination}/y")
+      saveSlice(image_data=rotate(image_data[idx, :, :], angle=90), filename=f"{filename}_{idx}", destination=f"{destination}/y")
 
   elif (view == 'z'):
     # axial
     create_folder(f"{destination}/z")
     for idx in range(y):
-      saveSlice(image_data=image_data[:, idx, :], filename=f"{filename}_{idx}", destination=f"{destination}/z")
+      saveSlice(image_data=np.fliplr(rotate(image_data[:, idx, :], angle=90)), filename=f"{filename}_{idx}", destination=f"{destination}/z")
 
   else:
     # For x sagittal
     create_folder(f"{destination}/x")
     for idx in range(z):
-      saveSlice(image_data=rotate(image_data[:, :, idx], angle=270), filename=f"{filename}_{idx}", destination=f"{destination}/x")
+      saveSlice(image_data=np.fliplr(rotate(image_data[:, :, idx], angle=90)), filename=f"{filename}_{idx}", destination=f"{destination}/x")
 
 def saveAllSlices(filename:str, brain_data:np, destination:str):
     """
@@ -434,7 +449,7 @@ def get_common_anatomical_structures(roots:list, lut_file:dict, common_number:in
       a number n of MRIs.
 
     Returns:
-      - list
+      - list, dict
   """
 
   # Getting paths of anat_structures files
@@ -471,7 +486,7 @@ def get_common_anatomical_structures(roots:list, lut_file:dict, common_number:in
 
   print("\n[+] Anatomical structures files processed: ", count)
   
-  return helper_extract_common_structures(lut_file, common_number)
+  return helper_extract_common_structures(lut_file, common_number), lut_file
 
 def save_list_to_txt(list_text:list, dest:str):
   """
@@ -510,3 +525,66 @@ def read_test_to_list(path:str):
         list_text.append(anat_structure)
 
   return list_text
+
+def plotting_superposition(n_slice, brain_data, roi_data, orientation='x'):
+  slice_orig, slice_roi = None, None
+  
+  if (orientation == 'x'):
+    slice_orig = rotate(brain_data[n_slice, :, :], angle=90)
+    slice_roi = roi_data[n_slice, :, :]
+  
+  elif (orientation == 'y'):
+    slice_orig = np.fliplr(rotate(brain_data[:, n_slice, :], angle=90))
+    slice_roi = roi_data[:, n_slice, :]
+  
+  else:
+    slice_orig = np.fliplr(rotate(brain_data[:, :, n_slice], angle=90))
+    slice_roi = roi_data[:, :, n_slice]
+
+  plt.imshow(slice_orig, cmap='bone')
+  # plt.imshow(slice_roi, alpha=0.5)
+  plt.grid(False)
+  plt.axis('off')
+  plt.show()
+
+def saveSlicesPerRoot(roots:list, configMRI:dict):
+  print(roots)
+
+  mri_files = {}
+  for root in roots:
+    # Reading folders
+    i = 0
+    for folder in os.walk(root):
+      if not i:
+        i += 1
+      else:
+        mri_files[folder[0].split('/')[-1]] = {
+          'root': folder[0],  
+          'orig': folder[0] + '/' + '001.mgz',
+          # 'segmented': folder[0] + '/' + 'aparcNMMjt+aseg.mgz', 
+        }
+  print(mri_files)
+  
+  # coronal_count, axial_count, saggital_count = 0, 0, 0
+  # for key, items in mri_files.items():
+  #   _, canonical_data = readMRI(imagePath=items['orig'], config=configMRI)
+  #   shape = canonical_data.shape
+  #   coronal_count += shape[0]
+  #   axial_count += shape[1]
+  #   saggital_count += shape[2]
+
+  #   print(f"\n[+] Saving slices for {key} shape: {shape}")
+    
+  #   saveAllSlices(key, canonical_data, items['root']+'/slices')
+
+  # print(f"Total slices per coronal view: ", coronal_count)
+  # print(f"Total slices per axial view: ", axial_count)
+  # print(f"Total slices per saggital view: ", saggital_count)
+  
+  # print(f"\n Total images: {coronal_count+axial_count+saggital_count}")
+
+  # Coronal images: 
+  # Axial images:
+  # Saggital images:
+
+  # Total: 

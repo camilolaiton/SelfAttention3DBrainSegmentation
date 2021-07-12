@@ -551,40 +551,46 @@ def saveSlicesPerRoot(roots:list, configMRI:dict):
   print(roots)
 
   mri_files = {}
+  MAX_DEPTH = 1
+
   for root in roots:
     # Reading folders
     i = 0
-    for folder in os.walk(root):
+    for root, dirs, files in os.walk(root):
       if not i:
         i += 1
       else:
-        mri_files[folder[0].split('/')[-1]] = {
-          'root': folder[0],  
-          'orig': folder[0] + '/' + '001.mgz',
+        mri_files[root.split('/')[-1]] = {
+          'root': root,  
+          'orig': root + '/' + '001.mgz',
           # 'segmented': folder[0] + '/' + 'aparcNMMjt+aseg.mgz', 
         }
-  print(mri_files)
+        if root.count(os.sep) - root.count(os.sep) == MAX_DEPTH - 1:
+          del dirs[:]
+          
+  # print(mri_files)
+  # print(len(mri_files))
   
-  # coronal_count, axial_count, saggital_count = 0, 0, 0
-  # for key, items in mri_files.items():
-  #   _, canonical_data = readMRI(imagePath=items['orig'], config=configMRI)
-  #   shape = canonical_data.shape
-  #   coronal_count += shape[0]
-  #   axial_count += shape[1]
-  #   saggital_count += shape[2]
+  coronal_count, axial_count, saggital_count = 0, 0, 0
+  for key, items in mri_files.items():
+    _, canonical_data = readMRI(imagePath=items['orig'], config=configMRI)
+    shape = canonical_data.shape
+    coronal_count += shape[0]
+    axial_count += shape[1]
+    saggital_count += shape[2]
 
-  #   print(f"\n[+] Saving slices for {key} shape: {shape}")
+    print(f"\n[+] Saving slices for {key} shape: {shape}")
     
-  #   saveAllSlices(key, canonical_data, items['root']+'/slices')
+    saveAllSlices(key, canonical_data, items['root']+'/slices')
 
-  # print(f"Total slices per coronal view: ", coronal_count)
-  # print(f"Total slices per axial view: ", axial_count)
-  # print(f"Total slices per saggital view: ", saggital_count)
+  print(f"Total slices per coronal view: ", coronal_count)
+  print(f"Total slices per axial view: ", axial_count)
+  print(f"Total slices per saggital view: ", saggital_count)
   
-  # print(f"\n Total images: {coronal_count+axial_count+saggital_count}")
+  print(f"\n Total images: {coronal_count+axial_count+saggital_count}")
 
-  # Coronal images: 
-  # Axial images:
-  # Saggital images:
+  # Coronal images: 18094
+  # Axial images:   25705
+  # Saggital images: 25781
 
-  # Total: 
+  # Total: 69580

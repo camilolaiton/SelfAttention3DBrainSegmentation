@@ -21,7 +21,7 @@ from matplotlib.colors import ListedColormap
 import matplotlib.patheffects as path_effects
 
 from nilearn.plotting import plot_roi
-from nilearn.image import new_img_like, load_img, get_data
+from nilearn.image import resample_to_img
 from scipy.ndimage import rotate
 
 import os
@@ -44,13 +44,14 @@ def normalizeIntensityImage(img_data:np, min_value:float, max_value:float):
   img_data[img_data > max_value] = max_value
   return (img_data - min_value) / (max_value - min_value)
 
-def readMRI(imagePath:str, config:dict):
+def readMRI(imagePath:str, config:dict, nifti_format:bool=False):
   """
     Reading MRI with different preprocessing steps
 
     Parameters:
       - imagePath: String that contains the path where the MRI is located 
       - config: Dictionary that contains configuration values for processing the MRI when it's read
+      - nifti_format: Boolean that says if the image should return in the nifti format or not.
 
     Returns:
       - nib.Nifti1Image, numpy.Array
@@ -65,6 +66,10 @@ def readMRI(imagePath:str, config:dict):
 
   if (config['normalize']):
     imageData = normalizeIntensityImage(imageData, np.min(imageData), np.max(imageData))
+
+  if (nifti_format):
+    imageObj = nib.Nifti1Image(imageData, affine=imageObj.affine)
+    imageData = imageObj.get_fdata()
 
   return imageObj, imageData
 
@@ -347,7 +352,7 @@ def saveAllSlices(filename:str, brain_data:np, destination:str):
         - filename: string that has the filename
         - brain_data: numpy array that contains the MRI data
         - destination: string that has the path where the slice will be saved
-        
+
         Returns:
         - None
     """
@@ -530,7 +535,7 @@ def read_test_to_list(path:str):
 
 def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='x'):
   slice_orig, slice_roi = None, None
-  
+
   if (orientation == 'x'):
     slice_orig = rotate(brain_data[n_slice, :, :], angle=90)
     slice_roi = rotate(roi_data[n_slice, :, :], angle=90)
@@ -543,23 +548,23 @@ def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation
     slice_orig = np.fliplr(rotate(brain_data[:, :, n_slice], angle=90))
     slice_roi = np.fliplr(rotate(roi_data[:, :, n_slice], angle=90))
 
-  print(slice_orig.shape)
-  print(slice_roi.shape)
+  # print(slice_orig.shape)
+  # print(slice_roi.shape)
   
   slice_roi = np.ma.masked_where(slice_roi == 0, slice_roi)
   
   # plt.imshow(first_roi_img, cmap='bone')
   plt.imshow(slice_orig, cmap='bone', interpolation='none')
   plt.imshow(slice_roi, alpha=0.5, interpolation='none')#, cmap='Oranges')
+  # plt.imshow(slice_roi, cmap='bone')
   plt.grid(False)
   plt.axis('off')
   plt.show()
 
-def saveSlicesPerRoot(roots:list, configMRI:dict):
+def helperGetRootFolders(roots:list, max_depth:int=1):
   print(roots)
 
   mri_files = {}
-  MAX_DEPTH = 1
 
   for root in roots:
     # Reading folders
@@ -571,31 +576,70 @@ def saveSlicesPerRoot(roots:list, configMRI:dict):
         mri_files[root.split('/')[-1]] = {
           'root': root,  
           'orig': root + '/' + '001.mgz',
-          # 'segmented': folder[0] + '/' + 'aparcNMMjt+aseg.mgz', 
+          'segmented': root + '/' + 'aparcNMMjt+aseg.mgz', 
         }
-        if root.count(os.sep) - root.count(os.sep) == MAX_DEPTH - 1:
+        if root.count(os.sep) - root.count(os.sep) == max_depth - 1:
           del dirs[:]
-          
-  # print(mri_files)
-  # print(len(mri_files))
-  
-  coronal_count, axial_count, saggital_count = 0, 0, 0
-  for key, items in mri_files.items():
-    _, canonical_data = readMRI(imagePath=items['orig'], config=configMRI)
-    shape = canonical_data.shape
-    coronal_count += shape[0]
-    axial_count += shape[1]
-    saggital_count += shape[2]
 
-    print(f"\n[+] Saving slices for {key} shape: {shape}")
+  return mri_files
+
+def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool=False, segLabels:list=[]):
+  mri_files = helperGetRootFolders(roots)
+  # mri_files = {'HLN-12-1': {'root': 'data/HLN-12/HLN-12-1', 'orig': 'data/HLN-12/HLN-12-1/001.mgz', 'segmented': 'data/HLN-12/HLN-12-1/aparcNMMjt+aseg.mgz'}}
+
+  if (saveSeg and len(segLabels)):
+    coronal_count, axial_count, saggital_count = 0, 0, 0
+
+    for key, items in mri_files.items():
+      canonical_img, canonical_data = readMRI(imagePath=items['segmented'], config=configMRI)
+      orig_img_nifti, orig_data_nifti = readMRI(imagePath=items['orig'], config=configMRI, nifti_format=True)
+
+      for segLabel in segLabels:
+        roi_nifti, colors = get_roi_data(lut_file, segLabel, canonical_data, canonical_img)
+
+        # canonical_img_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
+        # canonical_data_nifti = canonical_img_nifti.get_fdata()
+
+        roi_nifti = resample_to_img(roi_nifti, orig_img_nifti)
+        roi_nifti_data = roi_nifti.get_fdata()
+
+        shape = canonical_data.shape
+        coronal_count += shape[0]
+        axial_count += shape[1]
+        saggital_count += shape[2]
+
+        print(f"\n[+] Saving segmented slices for {key} shape: {shape}")
+        
+        saveAllSlices(key, roi_nifti_data, items['root']+'/segSlices/' + segLabel)
+
+    print(f"Total seg slices per coronal view: ", coronal_count)
+    print(f"Total seg slices per axial view: ", axial_count)
+    print(f"Total seg slices per saggital view: ", saggital_count)
     
-    saveAllSlices(key, canonical_data, items['root']+'/slices')
+    print(f"\n Total seg images: {coronal_count+axial_count+saggital_count}")
 
-  print(f"Total slices per coronal view: ", coronal_count)
-  print(f"Total slices per axial view: ", axial_count)
-  print(f"Total slices per saggital view: ", saggital_count)
+def saveSlicesPerRoot(roots:list, configMRI:dict, saveOrig=False):
   
-  print(f"\n Total images: {coronal_count+axial_count+saggital_count}")
+  mri_files = helperGetRootFolders(roots)
+  
+  if (saveOrig):
+    coronal_count, axial_count, saggital_count = 0, 0, 0
+    for key, items in mri_files.items():
+      _, canonical_data = readMRI(imagePath=items['orig'], config=configMRI)
+      shape = canonical_data.shape
+      coronal_count += shape[0]
+      axial_count += shape[1]
+      saggital_count += shape[2]
+
+      print(f"\n[+] Saving slices for {key} shape: {shape}")
+      
+      saveAllSlices(key, canonical_data, items['root']+'/slices')
+
+    print(f"Total slices per coronal view: ", coronal_count)
+    print(f"Total slices per axial view: ", axial_count)
+    print(f"Total slices per saggital view: ", saggital_count)
+    
+    print(f"\n Total images: {coronal_count+axial_count+saggital_count}")
 
   # Coronal images: 18094
   # Axial images:   25705

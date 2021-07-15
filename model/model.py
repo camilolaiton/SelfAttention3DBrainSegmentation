@@ -13,9 +13,13 @@
 """
 
 import numpy as np
+import os
+import math
+from sklearn.utils import shuffle
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from glob import glob
 # import tensorflow_addons as tfa
 
 def mlp(x, hidden_units, dropout_rate):
@@ -56,5 +60,60 @@ class PatchEncoder(layers.Layer):
         encoded = self.projection(patch) + self.position_embedding(positions)
         return encoded
 
-def model():
+def build_model():
+    # IMAGE_SIZE = 64
+    # data_augmentation = keras.Sequential(
+    #     [
+    #         layers.experimental.preprocessing.Normalization(),
+    #         layers.experimental.preprocessing.Resizing(IMAGE_SIZE, IMAGE_SIZE),
+    #         # layers.experimental.preprocessing.RandomFlip("horizontal"),
+    #         layers.experimental.preprocessing.RandomRotation(factor=0.02),
+    #         # layers.experimental.preprocessing.RandomZoom(
+    #         #     height_factor=0.2, width_factor=0.2
+    #         # ),
+    #     ],
+    #     name="data_augmentation",
+    # )
+    # Compute the mean and the variance of the training data for normalization.
+    # data_augmentation.layers[0].adapt(x_train)
+
     pass
+
+def get_train_test_dirs(prefix_path='data/', train_percentage=.8):
+    roots = [
+        'HLN-12',
+        'Colin27',
+        'MMRR-3T7T-2',
+        'NKI-RS-22',
+        'NKI-TRT-20',
+        'MMRR-21',
+        'OASIS-TRT-20',
+        'Twins-2',
+        'Afterthought'
+    ]
+    roots = [prefix_path + root for root in roots]
+    final_roots = []
+
+    structure = 'left-cerebellum-white-matter'
+    for root in roots:
+        for dir in os.listdir(root):
+            final_roots.append((root + '/' + dir + '/slices/axial', root + '/' + dir + '/segSlices/' + structure + '/axial'))
+    # images = glob(DATA_PATH)
+    final_roots = shuffle(final_roots, random_state=12)
+
+    data_size = len(final_roots)
+    train_size = math.ceil(data_size*train_percentage)
+    test_size = data_size - train_size
+
+    train_dirs = final_roots[:train_size]
+    test_dirs = final_roots[train_size:]
+
+    return train_dirs, test_dirs
+
+def main():
+    train_dirs, test_dirs = get_train_test_dirs()
+    print(test_dirs)
+
+
+if __name__ == "__main__":
+    main()

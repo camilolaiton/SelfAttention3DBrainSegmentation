@@ -15,7 +15,7 @@
 import outils
 import nibabel as nib
 
-import nilearn
+# find . -type d -name segSlices -exec rm -r {} \;     -> To remove specific folders
 
 def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
@@ -49,20 +49,20 @@ def main():
     # height, width, depth = canonical_data.shape
     # print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}")
 
-    # outils.show_all_slices_per_view('z', brain_data, counter=70)
+    # outils.show_all_slices_per_view('coronal', brain_data, counter=70)
     # outils.plot_roi_modified(lut_file, 'right-cerebral-white-matter', brain_nifti, canonical_data, canonical_img)
     
-    roi_nifti, colors = outils.get_roi_data(lut_file, 'right-cerebral-white-matter', canonical_data, canonical_img)
+    # roi_nifti, colors = outils.get_roi_data(lut_file, 'right-cerebral-white-matter', canonical_data, canonical_img)
 
     # plot_roi(roi_nifti, bg_img=brain_nifti, cmap=colors, title='right-cerebral-white-matter', black_bg=True, draw_cross=False, )#, cut_coords=256)
     # plt.show()
 
-    if (roi_nifti):
-        # outils.plotting_superposition(142, canonical_data, roi_nifti.get_fdata(), 'z')
-        roi_nifti = nilearn.image.resample_to_img(roi_nifti, brain_nifti)
-        # outils.plotting_superposition(85, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'x')
-        # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'y')
-        # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'z')
+    # if (roi_nifti):
+        # outils.plotting_superposition(142, canonical_data, roi_nifti.get_fdata(), 'coronal')
+        # brain_nifti = nilearn.image.resample_to_img(brain_nifti, roi_nifti)
+        # outils.plotting_superposition(0, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'axial')
+        # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'saggital')
+        # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'coronal')
 
 
 
@@ -86,12 +86,12 @@ def main():
     # print(lut_res)
     STRUCTURES = outils.read_test_to_list('data/common_anatomical_structures.txt')
     # print("Structures: ", STRUCTURES, " Number: ", len(STRUCTURES))
-    # outils.show_all_slices_per_view('z', brain_data, counter=70)
-    # outils.show_all_slices_per_view('z', canonical_data, counter=70)
-    # outils.show_all_slices_per_view('z', roi_nifti.get_fdata(), counter=70)
+    # outils.show_all_slices_per_view('coronal', brain_data, counter=70)
+    # outils.show_all_slices_per_view('coronal', canonical_data, counter=70)
+    # outils.show_all_slices_per_view('coronal', roi_nifti.get_fdata(), counter=70)
 
     # outils.saveSlicesPerRoot(roots, config)
-    outils.saveSegSlicesPerRoot(roots, config, lut_file, saveSeg=True, segLabels=['left-cerebellum-white-matter'])
+    outils.saveSegSlicesPerRoot(roots, config, lut_file, saveSeg=True, segLabels=['left-cerebellum-white-matter'], origSlices=True)
 
 if __name__ == "__main__":
     main()

@@ -142,7 +142,7 @@ def plot_roi_modified(lut:dict, label:str, brain:nib, segBrain_data:np, segBrain
       - brain: nib object that containes the brain where the ROI is going to be plotted
       - segBrain_data: numpy array that contains the data for the MRI segmented brain
       - segBrain_img: nib object that contains the ROI data
-      - orientations: list that specifies which views will be plotted. ['x', 'y', 'z', ...]
+      - orientations: list that specifies which views will be plotted. ['axial', 'saggital', 'coronal', ...]
 
     Returns:
       - None
@@ -193,7 +193,7 @@ def show_all_slices_per_view(view:str, data:np, counter:int=100, angle=270):
     Function to display multiple slices consequently 
 
     Parameters:
-      - view: String that contains the plotted view ['x', 'y', 'z']
+      - view: String that contains the plotted view ['axial', 'saggital', 'coronal']
       - data: MRI data
       - counter: Integer that dictates from where the slices with be plotted
     
@@ -201,13 +201,13 @@ def show_all_slices_per_view(view:str, data:np, counter:int=100, angle=270):
       - None
    """
 
-  if view in ['x', 'y', 'z']:
-    x, y, z = data.shape
+  if view in ['axial', 'saggital', 'coronal']:
+    y, z, x = data.shape
 
     view_limit = x
-    if view == 'y':
+    if view == 'saggital':
       view_limit = y
-    elif view == 'z':
+    elif view == 'coronal':
       view_limit = z
 
     columns = 10
@@ -216,9 +216,9 @@ def show_all_slices_per_view(view:str, data:np, counter:int=100, angle=270):
 
     for row in range(rows):
       for column in range(columns):
-        if (view == 'x'):
+        if (view == 'saggital'):
           axs[row, column].imshow(data[counter, :, :], cmap='bone')
-        elif (view == 'y'):
+        elif (view == 'coronal'):
           axs[row, column].imshow(data[:, counter, :], cmap='bone')
         else:
           axs[row, column].imshow(data[:, :, counter], cmap='bone')
@@ -318,31 +318,31 @@ def saveSliceView(filename:str, image_data:np, view:str, destination:str):
     Parameters:
       - filename: string that has the filename
       - image_data: numpy array that contains the MRI data
-      - view: string that has the view from where the images will be taken. View could be ['x', 'y', 'z']
+      - view: string that has the view from where the images will be taken. View could be ['axial', 'saggital', 'coronal']
       - destination: string that has the path where the slice will be saved
     
     Returns:
       - None
   """
-  x, y, z = image_data.shape
+  saggital, coronal, axial = image_data.shape
   
-  if (view == 'y'):
-    # coronal
-    create_folder(f"{destination}/y")
-    for idx in range(x):
-      saveSlice(image_data=rotate(image_data[idx, :, :], angle=90), filename=f"{filename}_{idx}", destination=f"{destination}/y")
+  if (view == 'saggital'):
+    # saggital
+    create_folder(f"{destination}/saggital")
+    for idx in range(saggital):#-1, -1, -1):
+      saveSlice(image_data=rotate(image_data[idx, :, :], angle=90), filename=f"{filename}_{255-idx}", destination=f"{destination}/saggital")
 
-  elif (view == 'z'):
-    # axial
-    create_folder(f"{destination}/z")
-    for idx in range(y):
-      saveSlice(image_data=np.fliplr(rotate(image_data[:, idx, :], angle=90)), filename=f"{filename}_{idx}", destination=f"{destination}/z")
+  elif (view == 'coronal'):
+    # coronal
+    create_folder(f"{destination}/coronal")
+    for idx in range(coronal):#-1, -1, -1):
+      saveSlice(image_data=np.fliplr(rotate(image_data[:, idx, :], angle=90)), filename=f"{filename}_{idx}", destination=f"{destination}/coronal")
 
   else:
-    # For x sagittal
-    create_folder(f"{destination}/x")
-    for idx in range(z):
-      saveSlice(image_data=np.fliplr(rotate(image_data[:, :, idx], angle=90)), filename=f"{filename}_{idx}", destination=f"{destination}/x")
+    # For x axial
+    create_folder(f"{destination}/axial")
+    for idx in range(axial):#-1, -1, -1):
+      saveSlice(image_data=np.fliplr(rotate(image_data[:, :, idx], angle=90)), filename=f"{filename}_{255-idx}", destination=f"{destination}/axial")
 
 def saveAllSlices(filename:str, brain_data:np, destination:str):
     """
@@ -356,7 +356,7 @@ def saveAllSlices(filename:str, brain_data:np, destination:str):
         Returns:
         - None
     """
-    for ori in ['x', 'y', 'z']:
+    for ori in ['axial', 'saggital', 'coronal']:
         saveSliceView(filename, brain_data, ori, destination)
 
 def get_segmented_structures(lut, segBrain_data):
@@ -533,14 +533,14 @@ def read_test_to_list(path:str):
 
   return list_text
 
-def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='x'):
+def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='axial'):
   slice_orig, slice_roi = None, None
 
-  if (orientation == 'x'):
+  if (orientation == 'saggital'):
     slice_orig = rotate(brain_data[n_slice, :, :], angle=90)
     slice_roi = rotate(roi_data[n_slice, :, :], angle=90)
   
-  elif (orientation == 'y'):
+  elif (orientation == 'coronal'):
     slice_orig = np.fliplr(rotate(brain_data[:, n_slice, :], angle=90))
     slice_roi = np.fliplr(rotate(roi_data[:, n_slice, :], angle=90))
   
@@ -583,12 +583,13 @@ def helperGetRootFolders(roots:list, max_depth:int=1):
 
   return mri_files
 
-def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool=False, segLabels:list=[]):
+def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool=False, segLabels:list=[], origSlices=False):
   mri_files = helperGetRootFolders(roots)
   # mri_files = {'HLN-12-1': {'root': 'data/HLN-12/HLN-12-1', 'orig': 'data/HLN-12/HLN-12-1/001.mgz', 'segmented': 'data/HLN-12/HLN-12-1/aparcNMMjt+aseg.mgz'}}
 
   if (saveSeg and len(segLabels)):
     coronal_count, axial_count, saggital_count = 0, 0, 0
+    coronal_seg_count, axial_seg_count, saggital_seg_count = 0, 0, 0
 
     for key, items in mri_files.items():
       canonical_img, canonical_data = readMRI(imagePath=items['segmented'], config=configMRI)
@@ -600,26 +601,45 @@ def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool
         # canonical_img_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
         # canonical_data_nifti = canonical_img_nifti.get_fdata()
 
-        roi_nifti = resample_to_img(roi_nifti, orig_img_nifti)
+        orig_img_nifti = resample_to_img(orig_img_nifti, roi_nifti)
+
+        orig_data_nifti = orig_img_nifti.get_fdata()
         roi_nifti_data = roi_nifti.get_fdata()
 
         shape = canonical_data.shape
-        coronal_count += shape[0]
-        axial_count += shape[1]
-        saggital_count += shape[2]
+        saggital_count += shape[0]
+        coronal_count += shape[1]
+        axial_count += shape[2]
+
+        if (origSlices):
+          print(f"\n[+] Saving orig slices for {key} shape: {shape}")
+          saveAllSlices(key, orig_data_nifti, items['root']+'/slices')
+
+        shape = roi_nifti_data.shape
+        saggital_seg_count += shape[0]
+        coronal_seg_count += shape[1]
+        axial_seg_count += shape[2]
 
         print(f"\n[+] Saving segmented slices for {key} shape: {shape}")
-        
         saveAllSlices(key, roi_nifti_data, items['root']+'/segSlices/' + segLabel)
 
-    print(f"Total seg slices per coronal view: ", coronal_count)
-    print(f"Total seg slices per axial view: ", axial_count)
-    print(f"Total seg slices per saggital view: ", saggital_count)
+    print(f"Total seg slices per coronal view: ", coronal_seg_count)
+    print(f"Total seg slices per axial view: ", axial_seg_count)
+    print(f"Total seg slices per saggital view: ", saggital_seg_count)
+
+    print(f"Total slices per coronal view: ", coronal_count)
+    print(f"Total slices per axial view: ", axial_count)
+    print(f"Total slices per saggital view: ", saggital_count)
     
-    print(f"\n Total seg images: {coronal_count+axial_count+saggital_count}")
+    print(f"\n Total orig images: {coronal_count+axial_count+saggital_count}")
+    print(f"\n Total seg images: {coronal_seg_count+axial_seg_count+saggital_seg_count}")
+
+  # Coronal images: 25856
+  # Axial images:   25856
+  # Saggital images: 25856
 
 def saveSlicesPerRoot(roots:list, configMRI:dict, saveOrig=False):
-  
+  # This function has an error with the amount of slices
   mri_files = helperGetRootFolders(roots)
   
   if (saveOrig):

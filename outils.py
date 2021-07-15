@@ -638,6 +638,8 @@ def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool
   # Axial images:   25856
   # Saggital images: 25856
 
+  # Total: 77568
+
 def saveSlicesPerRoot(roots:list, configMRI:dict, saveOrig=False):
   # This function has an error with the amount of slices
   mri_files = helperGetRootFolders(roots)

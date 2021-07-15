@@ -1,6 +1,6 @@
-# Master Thesis
+# Master Thesis - Method for the segmentation of brain magnetic resonance images using a neural network architecture based on attention models
 
-[![Instagram](https://img.shields.io/static/v1?label=insta&logo=instagram&message=camilo_laiton&color=purple "camilo's insta")](https://www.instagram.com/camilo_laiton/ "profil")
+[![Instagram](https://img.shields.io/static/v1?label=insta&logo=instagram&message=camilo_laiton&color=purple "Camilo's Instagram")](https://www.instagram.com/camilo_laiton/ "profil")
 
 Code for my master thesis called "Método para la segmentación de imágenes de resonancia magnética 
 cerebrales usando una arquitectura de red neuronal basada en modelos de atención".
@@ -10,7 +10,7 @@ cerebrales usando una arquitectura de red neuronal basada en modelos de atenció
   **Thanks for reading**
 
 ## Author
-- **Camilo Laiton** [[CamiloLaiton]](https://github.com/camilolaiton)
+- **Engineer Camilo Laiton** [[CamiloLaiton]](https://github.com/camilolaiton) [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0001674441)
 
 ## Tutors
 - **Ph.D. German Sánchez Torres** [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000479918)

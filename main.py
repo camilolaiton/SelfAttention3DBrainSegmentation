@@ -21,7 +21,20 @@ def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     brainPath = './data/HLN-12/HLN-12-1/001.mgz'#'./data/sub01/001.mgz' #brain.mgz'
     image_path = "./data/HLN-12/HLN-12-1/aparcNMMjt+aseg.mgz"#"./data/sub01/aparcNMMjt+aseg.mgz"
-    cut_coords_limit = 400
+    DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset/' 
+    PREFIX_PATH = '/home/camilo/Programacion/master_thesis/data/'
+    roots = [
+        'HLN-12',
+        'Colin27',
+        'MMRR-3T7T-2',
+        'NKI-RS-22',
+        'NKI-TRT-20',
+        'MMRR-21',
+        'OASIS-TRT-20',
+        'Twins-2',
+        'Afterthought'
+    ]
+    roots = [PREFIX_PATH + root for root in roots]
     lut_file = outils.load_lut(LUT_PATH)
 
     config = {
@@ -63,22 +76,6 @@ def main():
         # outils.plotting_superposition(0, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'axial')
         # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'saggital')
         # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'coronal')
-
-
-
-    prefix_path = 'data/'
-    roots = [
-        'HLN-12',
-        'Colin27',
-        'MMRR-3T7T-2',
-        'NKI-RS-22',
-        'NKI-TRT-20',
-        'MMRR-21',
-        'OASIS-TRT-20',
-        'Twins-2',
-        'Afterthought'
-    ]
-    roots = [prefix_path + root for root in roots]
     
     # outils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
     # STRUCTURES, lut_res = outils.get_common_anatomical_structures(roots=roots, lut_file=lut_file.copy(), common_number=101)
@@ -91,7 +88,11 @@ def main():
     # outils.show_all_slices_per_view('coronal', roi_nifti.get_fdata(), counter=70)
 
     # outils.saveSlicesPerRoot(roots, config)
-    outils.saveSegSlicesPerRoot(roots, config, lut_file, saveSeg=True, segLabels=['left-cerebellum-white-matter'], origSlices=True)
+
+    # outils.saveSegSlicesPerRoot(roots, config, lut_file, saveSeg=True, segLabels=['left-cerebellum-white-matter'], origSlices=True)
+
+    for view in ['axial', 'coronal', 'saggital']:
+        outils.creating_symlinks_to_dataset(roots=roots, dataset_root=DATASET_PATH, structures=['left-cerebellum-white-matter'], view=view)
 
 if __name__ == "__main__":
     main()

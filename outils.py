@@ -24,8 +24,11 @@ from nilearn.plotting import plot_roi
 from nilearn.image import resample_to_img
 from scipy.ndimage import rotate
 
-import os
+import os, errno
 import time
+from sklearn.utils import shuffle
+import math
+from glob import glob
 
 def normalizeIntensityImage(img_data:np, min_value:float, max_value:float):
   """
@@ -534,6 +537,10 @@ def read_test_to_list(path:str):
   return list_text
 
 def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='axial'):
+  """
+  
+  """
+  
   slice_orig, slice_roi = None, None
 
   if (orientation == 'saggital'):
@@ -562,6 +569,9 @@ def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation
   plt.show()
 
 def helperGetRootFolders(roots:list, max_depth:int=1):
+  """
+  
+  """
   print(roots)
 
   mri_files = {}
@@ -584,6 +594,9 @@ def helperGetRootFolders(roots:list, max_depth:int=1):
   return mri_files
 
 def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool=False, segLabels:list=[], origSlices=False):
+  """
+  
+  """
   mri_files = helperGetRootFolders(roots)
   # mri_files = {'HLN-12-1': {'root': 'data/HLN-12/HLN-12-1', 'orig': 'data/HLN-12/HLN-12-1/001.mgz', 'segmented': 'data/HLN-12/HLN-12-1/aparcNMMjt+aseg.mgz'}}
 
@@ -641,6 +654,9 @@ def saveSegSlicesPerRoot(roots:list, configMRI:dict, lut_file:dict, saveSeg:bool
   # Total: 77568
 
 def saveSlicesPerRoot(roots:list, configMRI:dict, saveOrig=False):
+  """
+    [Deprecated]
+  """
   # This function has an error with the amount of slices
   mri_files = helperGetRootFolders(roots)
   
@@ -668,3 +684,73 @@ def saveSlicesPerRoot(roots:list, configMRI:dict, saveOrig=False):
   # Saggital images: 25781
 
   # Total: 69580
+
+def get_train_test_dirs(roots:list, view:str, structure, prefix_path:str='data/', train_percentage:float=.8) -> tuple:
+  """
+  
+  """
+  
+  final_roots = []
+
+  for root in roots:
+      for dir in os.listdir(root):
+          final_roots.append((root + '/' + dir + '/slices/' + view, root + '/' + dir + '/segSlices/' + structure + '/' + view))
+  # images = glob(DATA_PATH)
+  final_roots = shuffle(final_roots, random_state=12)
+
+  data_size = len(final_roots)
+  train_size = math.ceil(data_size*train_percentage)
+  test_size = data_size - train_size
+
+  train_dirs = final_roots[:train_size]
+  test_dirs = final_roots[train_size:]
+
+  return train_dirs, test_dirs
+
+def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, view:str):
+  """
+  
+  """
+  
+  def create_symlink(src, dest):
+    try:
+        os.symlink(src, dest)
+    except OSError as e:
+      # print(err)
+      if (e.errno == errno.EEXIST):
+        os.remove(dest)
+        os.symlink(src, dest)
+      else:
+        raise e
+
+  for origView, segView in list_dir:
+    # 'data/NKI-RS-22/NKI-RS-22-13/slices/axial'
+    origImages = glob(origView + '/*')
+    # 'data/NKI-RS-22/NKI-RS-22-13/segSlices/left-cerebellum-white-matter/axial'
+    segImages = glob(segView + '/*')
+
+    for origImage in origImages:
+      link_name = dataset_root + f"{type_folder}/{view}/orig/" + origImage.split('/')[-1]
+      create_symlink(origImage, link_name)
+
+    for segImage in segImages:
+      segImageSplitted = segImage.split('/')
+      link_name = dataset_root + f"{type_folder}/{view}/{segImageSplitted[-3]}/" + segImageSplitted[-1]
+      create_symlink(segImage, link_name)
+
+  print(f"[+] Symlinks created for {type_folder} folder.")
+
+def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, view:str) -> None:
+  # Creating train and test directories with their structures
+  
+  for folder in ['train', 'test']:
+    create_folder(dataset_root + folder + '/' + view + '/orig')
+    
+    for structure in structures:
+      create_folder(dataset_root + folder + '/' + view + '/' + structure)
+
+  for structure in structures:
+    train_dirs, test_dirs = get_train_test_dirs(roots=roots, view=view, structure=structure)
+    # print(train_dirs)
+    helper_create_symlinks(train_dirs, 'train', dataset_root, view)
+    helper_create_symlinks(test_dirs, 'test', dataset_root, view)

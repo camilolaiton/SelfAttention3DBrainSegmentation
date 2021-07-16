@@ -1,45 +1,45 @@
 dataset/
     train/
         axial/
-            orig/
-            structure_01/
+            orig/img/
+            structure_01/img/
                 .
                 .
                 .
-            structure_N/
+            structure_N/img/
         coronal/
-            orig/
-            structure_01/
+            orig/img/
+            structure_01/img/
                 .
                 .
                 .
-            structure_N/
+            structure_N/img/
         saggital/
-            orig/
-            structure_01/
+            orig/img/
+            structure_01/img/
                 .
                 .
                 .
-            structure_N/
+            structure_N/img/
     test/
         axial/
-            orig/
-            structure_01/
+            orig/img/
+            structure_01/img/
                 .
                 .
                 .
-            structure_N/
+            structure_N/img/
         coronal/
-            orig/
-            structure_01/
+            orig/img/
+            structure_01/img/
                 .
                 .
                 .
-            structure_N/
+            structure_N/img/
         saggital/
-            orig/
-            structure_01/
+            orig/img/
+            structure_01/img/
                 .
                 .
                 .
-            structure_N/
+            structure_N/img/

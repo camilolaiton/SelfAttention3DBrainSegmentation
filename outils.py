@@ -730,12 +730,12 @@ def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, vie
     segImages = glob(segView + '/*')
 
     for origImage in origImages:
-      link_name = dataset_root + f"{type_folder}/{view}/orig/" + origImage.split('/')[-1]
+      link_name = dataset_root + f"{type_folder}/{view}/orig/img/" + origImage.split('/')[-1]
       create_symlink(origImage, link_name)
 
     for segImage in segImages:
       segImageSplitted = segImage.split('/')
-      link_name = dataset_root + f"{type_folder}/{view}/{segImageSplitted[-3]}/" + segImageSplitted[-1]
+      link_name = dataset_root + f"{type_folder}/{view}/{segImageSplitted[-3]}/img/" + segImageSplitted[-1]
       create_symlink(segImage, link_name)
 
   print(f"[+] Symlinks created for {type_folder} folder.")
@@ -744,10 +744,10 @@ def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, 
   # Creating train and test directories with their structures
   
   for folder in ['train', 'test']:
-    create_folder(dataset_root + folder + '/' + view + '/orig')
+    create_folder(dataset_root + folder + '/' + view + '/orig/img')
     
     for structure in structures:
-      create_folder(dataset_root + folder + '/' + view + '/' + structure)
+      create_folder(dataset_root + folder + '/' + view + '/' + structure + '/img')
 
   for structure in structures:
     train_dirs, test_dirs = get_train_test_dirs(roots=roots, view=view, structure=structure)

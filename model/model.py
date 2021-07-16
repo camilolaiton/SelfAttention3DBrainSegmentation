@@ -194,7 +194,7 @@ def create_validation_dataset(config:dict):
 def display(display_list):
   plt.figure(figsize=(15, 15))
 
-  title = ['Input Image', 'True Mask', 'Predicted Mask']
+  title = ['Input Slice', 'True Mask', 'Predicted Mask']
 
   for i in range(len(display_list)):
     plt.subplot(1, len(display_list), i+1)
@@ -206,10 +206,13 @@ def display(display_list):
 def show_dataset(datagen, num=1):
     for i in range(0, num):
         image,mask = next(datagen)
-        display([image[0], mask[0]])
+        print(image.shape)
+
+        if (num == 150):
+            display([image[0], mask[0]])
 
 def main():
-    BATCH_SIZE = 256
+    BATCH_SIZE = 64
     IMAGE_SIZE = (256, 256)
     DATASET_PATH = 'dataset/'
     VIEW_TRAINIG = 'axial/'
@@ -226,7 +229,7 @@ def main():
     train_gen = create_train_dataset(config=config)
     val_gen = create_validation_dataset(config=config)
 
-    show_dataset(datagen=train_gen, num=5)
+    show_dataset(datagen=train_gen, num=150)
 
 if __name__ == "__main__":
     main()

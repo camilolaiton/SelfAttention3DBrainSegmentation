@@ -29,6 +29,7 @@ import time
 from sklearn.utils import shuffle
 import math
 from glob import glob
+import elasticdeform
 
 def normalizeIntensityImage(img_data:np, min_value:float, max_value:float):
   """
@@ -741,6 +742,10 @@ def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, vie
   print(f"[+] Symlinks created for {type_folder} folder.")
 
 def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, view:str) -> None:
+  """
+  
+  """
+  
   # Creating train and test directories with their structures
   
   for folder in ['train', 'test']:
@@ -754,3 +759,37 @@ def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, 
     # print(train_dirs)
     helper_create_symlinks(train_dirs, 'train', dataset_root, view)
     helper_create_symlinks(test_dirs, 'test', dataset_root, view)
+
+def elastic_deform(image_data):
+    height, width, channels = image_data.shape
+    depth = 0
+    print("Ver: ", image_data.shape)
+
+    nimages = 3
+    print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}, channels:{channels}")
+    fig, axs = plt.subplots(nimages, 2, figsize=(20, 10))
+    channel = 120
+
+    # elastic deformation
+    X = np.zeros((200, 300))
+    X[::10, ::10] = 1
+
+    for row in range(nimages):
+        # apply deformation with a random 2 x 2 grid
+        X_deformed = elasticdeform.deform_random_grid(image_data[:, channel, :], sigma=7, points=3)
+        
+        axs[row, 0].imshow(rotate(image_data[:, channel, :], angle=90), cmap='bone')
+        axs[row, 1].imshow(rotate(X_deformed, angle=90), cmap='bone')
+        channel = channel + 1
+
+
+    # axs[0].imshow(image_data[:, :, channel], cmap='bone')
+    # axs[1].imshow(image_data[:, :, channel + 1], cmap='bone')
+
+    # axs[0].imshow(image_data[:, :, channel], cmap='bone')
+    # axs[1].imshow(X_deformed, cmap='bone')
+
+    plt.tight_layout()
+    plt.grid(False)
+    plt.axis('off')
+    plt.show()

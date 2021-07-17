@@ -14,13 +14,18 @@
 
 import numpy as np
 import tensorflow as tf
-from tensorflow import keras
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
-from tensorflow.keras.preprocessing.image import ImageDataGenerator 
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+import elasticdeform
+import random
 # import tensorflow_addons as tfa
 
-tf.get_logger().setLevel('INFO')
+def elastic_deform_data_gen(img, msk):
+    img = np.reshape(img, (256, 256))
+    msk = np.reshape(msk, (256, 256))
+    img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
+    return np.expand_dims(img_deformed, axis=2), np.expand_dims(msk_deformed, axis=2)
 
 def mlp(x, hidden_units, dropout_rate):
     for units in hidden_units:
@@ -111,7 +116,7 @@ def create_train_dataset(config:dict):
         # rotation_range=90,
         # width_shift_range=0.1,
         # height_shift_range=0.1,
-        zoom_range=0.2
+        zoom_range=0.2,
     )
 
     datagen = ImageDataGenerator(**data_gen_args)
@@ -165,6 +170,7 @@ def create_validation_dataset(config:dict):
 
     data_gen_args = dict(
         rescale=1./255,
+        preprocessing_function=elastic_deform_data_gen,
     )
 
     datagen = ImageDataGenerator(**data_gen_args)
@@ -203,13 +209,19 @@ def display(display_list):
     plt.axis('off')
   plt.show()
 
-def show_dataset(datagen, num=1):
+def show_dataset(datagen, config, num=1):
+    # elastic_deform_percentage = 1
+    
     for i in range(0, num):
         image,mask = next(datagen)
-        print(image.shape)
+        print(image[0].shape, " ", mask.shape)
 
-        if (num == 150):
-            display([image[0], mask[0]])
+        display([image[0], mask[0]])
+        # outils.elastic_deform_2(image[0], mask[0])
+        img, msk = elastic_deform_data_gen(image[0], mask[0])
+        image[0] = img
+        mask[0] = msk
+        display([image[0], mask[0]])
 
 def main():
     BATCH_SIZE = 64
@@ -229,7 +241,7 @@ def main():
     train_gen = create_train_dataset(config=config)
     val_gen = create_validation_dataset(config=config)
 
-    show_dataset(datagen=train_gen, num=150)
+    show_dataset(datagen=train_gen, config=config, num=150)
 
 if __name__ == "__main__":
     main()

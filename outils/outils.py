@@ -760,36 +760,68 @@ def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, 
     helper_create_symlinks(train_dirs, 'train', dataset_root, view)
     helper_create_symlinks(test_dirs, 'test', dataset_root, view)
 
+def elastic_deform_2(img, msk):
+  """
+  
+  """
+  # img = rotate(img, angle=90)
+  # msk = rotate(msk, angle=90)
+  img = np.reshape(img, (256, 256))
+  msk = np.reshape(msk, (256, 256))
+  print(img.shape, "  ", msk.shape)
+  fig, axs = plt.subplots(3, 2, figsize=(20, 20))
+  img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
+  
+  axs[0][0].imshow(img, cmap='bone')
+  axs[0][1].imshow(img_deformed, cmap='bone')
+
+  axs[1][0].imshow(msk, cmap='bone')
+  axs[1][1].imshow(msk_deformed, cmap='bone')
+
+  slice_roi = np.ma.masked_where(msk == 0, msk)
+  slice_roi_deformed = np.ma.masked_where(msk_deformed == 0, msk_deformed)
+  
+  # plt.imshow(first_roi_img, cmap='bone')
+  axs[2][0].imshow(img, cmap='bone', interpolation='none')
+  axs[2][0].imshow(slice_roi, alpha=0.5, interpolation='none')#, cmap='Oranges')
+
+  axs[2][1].imshow(img_deformed, cmap='bone', interpolation='none')
+  axs[2][1].imshow(slice_roi_deformed, alpha=0.5, interpolation='none')#, cmap='Oranges')
+
+  fig.suptitle('Original imgs & masks VS Deformed imgs & masks', fontsize=16)
+  print(np.expand_dims(img, axis=2).shape, "  ", np.expand_dims(msk, axis=2).shape)
+  plt.show()
+
 def elastic_deform(image_data):
-    height, width, channels = image_data.shape
-    depth = 0
-    print("Ver: ", image_data.shape)
+  height, width, channels = image_data.shape
+  depth = 0
+  print("Ver: ", image_data.shape)
 
-    nimages = 3
-    print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}, channels:{channels}")
-    fig, axs = plt.subplots(nimages, 2, figsize=(20, 10))
-    channel = 120
+  nimages = 3
+  print(f"The image object has the following dimensions: height: {height}, width:{width}, depth:{depth}, channels:{channels}")
+  fig, axs = plt.subplots(nimages, 2, figsize=(20, 10))
+  channel = 120
 
-    # elastic deformation
-    X = np.zeros((200, 300))
-    X[::10, ::10] = 1
+  # elastic deformation
+  X = np.zeros((200, 300))
+  X[::10, ::10] = 1
 
-    for row in range(nimages):
-        # apply deformation with a random 2 x 2 grid
-        X_deformed = elasticdeform.deform_random_grid(image_data[:, channel, :], sigma=7, points=3)
-        
-        axs[row, 0].imshow(rotate(image_data[:, channel, :], angle=90), cmap='bone')
-        axs[row, 1].imshow(rotate(X_deformed, angle=90), cmap='bone')
-        channel = channel + 1
+  for row in range(nimages):
+      # apply deformation with a random 2 x 2 grid
+      X_deformed = elasticdeform.deform_random_grid(image_data[:, channel, :], sigma=7, points=3)
+      
+      axs[row, 0].imshow(rotate(image_data[:, channel, :], angle=90), cmap='bone')
+      axs[row, 1].imshow(rotate(X_deformed, angle=90), cmap='bone')
+      channel = channel + 1
 
 
-    # axs[0].imshow(image_data[:, :, channel], cmap='bone')
-    # axs[1].imshow(image_data[:, :, channel + 1], cmap='bone')
+  # axs[0].imshow(image_data[:, :, channel], cmap='bone')
+  # axs[1].imshow(image_data[:, :, channel + 1], cmap='bone')
 
-    # axs[0].imshow(image_data[:, :, channel], cmap='bone')
-    # axs[1].imshow(X_deformed, cmap='bone')
+  # axs[0].imshow(image_data[:, :, channel], cmap='bone')
+  # axs[1].imshow(X_deformed, cmap='bone')
 
-    plt.tight_layout()
-    plt.grid(False)
-    plt.axis('off')
-    plt.show()
+  plt.tight_layout()
+  plt.grid(False)
+  plt.axis('off')
+  plt.show()

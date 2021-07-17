@@ -12,8 +12,10 @@
         de atención".
 """
 
-import outils
+from outils import outils
 import nibabel as nib
+
+import nilearn
 
 # find . -type d -name segSlices -exec rm -r {} \;     -> To remove specific folders
 
@@ -70,9 +72,13 @@ def main():
     # plot_roi(roi_nifti, bg_img=brain_nifti, cmap=colors, title='right-cerebral-white-matter', black_bg=True, draw_cross=False, )#, cut_coords=256)
     # plt.show()
 
-    # if (roi_nifti):
+    if (roi_nifti):
         # outils.plotting_superposition(142, canonical_data, roi_nifti.get_fdata(), 'coronal')
-        # brain_nifti = nilearn.image.resample_to_img(brain_nifti, roi_nifti)
+        brain_nifti = nilearn.image.resample_to_img(brain_nifti, roi_nifti)
+        n = 150
+        for i in range(3):
+            outils.elastic_deform_2(brain_nifti.get_fdata()[n, :, :], roi_nifti.get_fdata()[n, :, :])
+            n += 1
         # outils.plotting_superposition(0, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'axial')
         # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'saggital')
         # outils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'coronal')
@@ -94,8 +100,8 @@ def main():
     # for view in ['axial', 'coronal', 'saggital']:
     #     outils.creating_symlinks_to_dataset(roots=roots, dataset_root=DATASET_PATH, structures=['left-cerebellum-white-matter'], view=view)
 
-    outils.elastic_deform(brain_data)
-    outils.elastic_deform(roi_nifti.get_fdata())
+    # outils.elastic_deform(brain_data)
+    # outils.elastic_deform(roi_nifti.get_fdata())
 
 if __name__ == "__main__":
     main()

@@ -770,8 +770,12 @@ def elastic_deform_2(img, msk):
   msk = np.reshape(msk, (256, 256))
   print(img.shape, "  ", msk.shape)
   fig, axs = plt.subplots(3, 2, figsize=(20, 20))
-  img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
-  
+  # img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
+
+  displacement = np.random.randn(2, 3, 3) * 7
+  img_deformed = elasticdeform.deform_grid(img, displacement=displacement)
+  msk_deformed = elasticdeform.deform_grid(msk, displacement=displacement)
+
   axs[0][0].imshow(img, cmap='bone')
   axs[0][1].imshow(img_deformed, cmap='bone')
 

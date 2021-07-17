@@ -100,7 +100,7 @@ def main():
     # for view in ['axial', 'coronal', 'saggital']:
     #     outils.creating_symlinks_to_dataset(roots=roots, dataset_root=DATASET_PATH, structures=['left-cerebellum-white-matter'], view=view)
 
-    # outils.elastic_deform(brain_data)
+    outils.elastic_deform(brain_data)
     # outils.elastic_deform(roi_nifti.get_fdata())
 
 if __name__ == "__main__":

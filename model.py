@@ -24,7 +24,11 @@ import random
 def elastic_deform_data_gen(img, msk):
     img = np.reshape(img, (256, 256))
     msk = np.reshape(msk, (256, 256))
-    img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
+
+    displacement = np.random.randn(2, 3, 3) * 7
+    img_deformed = elasticdeform.deform_grid(img, displacement=displacement)
+    msk_deformed = elasticdeform.deform_grid(msk, displacement=displacement)
+    # img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
     return np.expand_dims(img_deformed, axis=2), np.expand_dims(msk_deformed, axis=2)
 
 def mlp(x, hidden_units, dropout_rate):

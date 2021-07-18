@@ -537,6 +537,13 @@ def read_test_to_list(path:str):
 
   return list_text
 
+def helperPlottingOverlay(img, msk):
+  # plt.imshow(first_roi_img, cmap='bone')
+  plt.imshow(img, cmap='bone', interpolation='none')
+  plt.imshow(msk, alpha=0.5, interpolation='none')#, cmap='Oranges')
+  # plt.imshow(slice_roi, cmap='bone')
+  plt.show()
+
 def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='axial'):
   """
   
@@ -560,14 +567,7 @@ def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation
   # print(slice_roi.shape)
   
   slice_roi = np.ma.masked_where(slice_roi == 0, slice_roi)
-  
-  # plt.imshow(first_roi_img, cmap='bone')
-  plt.imshow(slice_orig, cmap='bone', interpolation='none')
-  plt.imshow(slice_roi, alpha=0.5, interpolation='none')#, cmap='Oranges')
-  # plt.imshow(slice_roi, cmap='bone')
-  plt.grid(False)
-  plt.axis('off')
-  plt.show()
+  helperPlottingOverlay(slice_orig, slice_roi)
 
 def helperGetRootFolders(roots:list, max_depth:int=1):
   """

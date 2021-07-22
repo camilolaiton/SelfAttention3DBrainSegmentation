@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import elasticdeform
 import random
-from outils import outils
+from utils import utils
 from matplotlib import pyplot
 # import tensorflow_addons as tfa
 
@@ -34,68 +34,11 @@ def elastic_deform_data_gen(img, msk):
     img = np.reshape(img, (256, 256))
     msk = np.reshape(msk, (256, 256))
 
-    displacement = np.random.randn(2, 3, 3) * 5
+    displacement = np.random.randn(2, 3, 3) * 9
     img_deformed = elasticdeform.deform_grid(img, displacement=displacement)
     msk_deformed = elasticdeform.deform_grid(msk, displacement=displacement)
     # img_deformed, msk_deformed = elasticdeform.deform_random_grid([img, msk], sigma=7, points=3)
     return np.expand_dims(img_deformed, axis=2), np.expand_dims(msk_deformed, axis=2)
-
-def mlp(x, hidden_units, dropout_rate):
-    for units in hidden_units:
-        x = layers.Dense(units, activation=tf.nn.gelu)(x)
-        x = layers.Dropout(dropout_rate)(x)
-    return x
-
-class Patches(layers.Layer):
-    def __init__(self, patch_size):
-        super(Patches, self).__init__()
-        self.patch_size = patch_size
-
-    def call(self, images):
-        batch_size = tf.shape(images)[0]
-        patches = tf.image.extract_patches(
-            images=images,
-            sizes=[1, self.patch_size, self.patch_size, 1],
-            strides=[1, self.patch_size, self.patch_size, 1],
-            rates=[1, 1, 1, 1],
-            padding="VALID",
-        )
-        patch_dims = patches.shape[-1]
-        patches = tf.reshape(patches, [batch_size, -1, patch_dims])
-        return patches
-
-class PatchEncoder(layers.Layer):
-    def __init__(self, num_patches, projection_dim):
-        super(PatchEncoder, self).__init__()
-        self.num_patches = num_patches
-        self.projection = layers.Dense(units=projection_dim)
-        self.position_embedding = layers.Embedding(
-            input_dim=num_patches, output_dim=projection_dim
-        )
-
-    def call(self, patch):
-        positions = tf.range(start=0, limit=self.num_patches, delta=1)
-        encoded = self.projection(patch) + self.position_embedding(positions)
-        return encoded
-
-def build_model():
-    # IMAGE_SIZE = 64
-    # data_augmentation = keras.Sequential(
-    #     [
-    #         layers.experimental.preprocessing.Normalization(),
-    #         layers.experimental.preprocessing.Resizing(IMAGE_SIZE, IMAGE_SIZE),
-    #         # layers.experimental.preprocessing.RandomFlip("horizontal"),
-    #         layers.experimental.preprocessing.RandomRotation(factor=0.02),
-    #         # layers.experimental.preprocessing.RandomZoom(
-    #         #     height_factor=0.2, width_factor=0.2
-    #         # ),
-    #     ],
-    #     name="data_augmentation",
-    # )
-    # Compute the mean and the variance of the training data for normalization.
-    # data_augmentation.layers[0].adapt(x_train)
-
-    pass
 
 def create_train_dataset(config:dict):
     data_gen_args = dict(
@@ -180,7 +123,7 @@ def show_dataset(datagen, config, num=1):
         print(image[0].shape, " ", mask.shape)
 
         display([image[0], mask[0]])
-        # outils.elastic_deform_2(image[0], mask[0])
+        # utils.elastic_deform_2(image[0], mask[0])
         # img, msk = elastic_deform_data_gen(image[0], mask[0])
         # image[0] = img
         # mask[0] = msk
@@ -212,7 +155,7 @@ def testing_datagens(config):
     # prepare iterator
     it = datagen.flow(samples, batch_size=1, seed=12)
     it_msk = msk_datagen.flow(msk_samples, batch_size=1, seed=12)
-    outils.helperPlottingOverlay(img, msk)
+    utils.helperPlottingOverlay(img, msk)
     # generate samples and plot
     for i in range(9):
         # define subplot
@@ -225,7 +168,7 @@ def testing_datagens(config):
         mask = batch_msk[0]
 
         # plot raw pixel data
-        outils.helperPlottingOverlay(image, mask)
+        utils.helperPlottingOverlay(image, mask)
         # pyplot.imshow(image)
     # show the figure
     # pyplot.show()
@@ -290,8 +233,8 @@ def main():
     train_gen = create_train_dataset(config=config)
     val_gen = create_validation_dataset(config=config)
     
-    show_dataset(datagen=train_gen, config=config, num=150)
-    # testing_datagens(config)
+    # show_dataset(datagen=train_gen, config=config, num=150)
+    testing_datagens(config)
 
 if __name__ == "__main__":
     main()

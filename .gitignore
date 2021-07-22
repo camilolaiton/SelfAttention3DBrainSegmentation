@@ -1,3 +1,4 @@
 __pycache__/*
 dataset/*
 !dataset/folder_structure.txt
+**/__pycache__/

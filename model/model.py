@@ -90,18 +90,34 @@ class TransformerBlock(layers.Layer):
         x3 = layers.LayerNormalization(epsilon=self.normalization_rate)(x2)
         x3 = MLPBlock(hidden_units=self.transformer_units, dropout_rate=self.dropout_rate)(x3)
         # x3 = mlp(x3, hidden_units=self.transformer_units, dropout_rate=self.dropout_rate)
-        
+        # print(f"X2 shape: {x2.shape} X3 shape: {x3.shape}")
+
         return layers.Add()([x3, x2])
 
-def build_model():
+class DecoderBlockCup(layers.Layer):
+
+    def __init__(self, **kwarks):
+        super(DecoderBlockCup, self).__init__(**kwarks)
+
+    def call(self):
+        x = layers.LayerNormalization(epsilon=config.transformer.normalization_rate, name="ln_1")(encoded_patches)
+        x = layers.Reshape(target_shape=(config.transformer.projection_dim, config.image_height//16, config.image_width//16), name="reshape_1")(x)
+        
+        x = layers.Conv2D(filters=16, kernel_size=3, strides=1, activation='relu', padding='same')(x)
+        x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+        x = layers.BatchNormalization()(x)
+        return layers.Activation('relu')(x)
+
+def build_model(config):
     mlp_head_units = [2048, 1024]
-    config = get_initial_config()
 
     inputs = Input(shape=config.image_size)
     patches = Patches(config.transformer.patch_size)(inputs)
     encoded_patches = PatchEncoder(config.transformer.num_patches, config.transformer.projection_dim)(patches)
 
+    print(f"enconded patches size {encoded_patches.shape}")
     for idx in range(config.transformer.layers):
+        # print(f"Starting {idx} iteration")
         encoded_patches = TransformerBlock(
             num_heads=config.transformer.num_heads, 
             projection_dim=config.transformer.projection_dim, 
@@ -111,14 +127,49 @@ def build_model():
             name="transformer_block_"+str(idx)
         )(encoded_patches)
 
-    representation = layers.LayerNormalization(epsilon=config.transformer.normalization_rate)(encoded_patches)
-    representation = layers.Flatten()(representation)
-    representation = layers.Dropout(0.5)(representation)
-    features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.5)
-    logits = layers.Dense(100)(features)
+    x = layers.LayerNormalization(epsilon=config.transformer.normalization_rate, name="ln_1")(encoded_patches)
+    x = layers.Reshape(target_shape=(config.transformer.projection_dim, config.image_height//16, config.image_width//16), name="reshape_1")(x)
+    
+    x = layers.Conv2D(filters=16, kernel_size=3, strides=1, activation='relu', padding='same')(x)
+    x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
 
-    return Model(inputs=inputs, outputs=logits)
+    x = layers.Conv2DTranspose(filters=32, kernel_size=3, strides=(1, 2), padding='same')(x)    
+    x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+
+    x = layers.Conv2DTranspose(filters=64, kernel_size=3, strides=(1, 2), padding='same')(x)    
+    x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+
+    x = layers.Conv2DTranspose(filters=128, kernel_size=3, strides=(1, 2), padding='same')(x)    
+    x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+
+    x = layers.Conv2DTranspose(filters=256, kernel_size=3, strides=(1, 2), padding='same')(x)    
+    x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+    x = layers.BatchNormalization()(x)
+    x = layers.Activation('relu')(x)
+    # x = layers.UpSampling3D(size=(1, 2, 2))(x)
+    
+    # x = layers.Conv2D(filters=32, kernel_size=3, strides=1, activation='relu', padding='same')(x)
+    # x = layers.MaxPooling2D(pool_size=(2, 1))(x)
+    # x = layers.Conv2DTranspose(filters=1, kernel_size=1, strides=2, activation='relu')(x)
+    # x = layers.Flatten(name="flatten_1")(x)
+    # x = layers.LayerNormalization(epsilon=config.transformer.normalization_rate)(x)
+    # x = layers.Dense(24576)(x)
+    # representation = layers.Reshape(target_shape=(config.transformer.projection_dim, config.image_height/tf.cast(tf.constant(16), tf.int32), config.image_width/tf.cast(tf.constant(16), tf.int32)), name="reshape_1")(representation)
+    # representation = layers.Dropout(0.5)(representation)
+    # features = mlp(representation, hidden_units=mlp_head_units, dropout_rate=0.5)
+    # logits = layers.Dense(100)(features)
+
+    return Model(inputs=inputs, outputs=x)
 
 if __name__ == "__main__":
-    model = build_model()
+    config = get_initial_config()
+    model = build_model(config)
     model.summary()

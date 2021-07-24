@@ -21,6 +21,8 @@ import elasticdeform
 import random
 from utils import utils
 from matplotlib import pyplot
+from model.config import get_initial_config
+
 # import tensorflow_addons as tfa
 
 def eslastic_deform_datagen_individual(img):
@@ -62,6 +64,7 @@ def create_train_dataset(config:dict):
         batch_size=config['BATCH_SIZE'],
         seed=12,
         follow_links=True,
+        shuffle=False,
     )
 
     msk_generator = datagen.flow_from_directory(
@@ -72,6 +75,7 @@ def create_train_dataset(config:dict):
         batch_size=config['BATCH_SIZE'],
         seed=12,
         follow_links=True,
+        shuffle=False,
     )
 
     return zip(img_generator, msk_generator)
@@ -91,6 +95,7 @@ def create_validation_dataset(config:dict):
         batch_size=config['BATCH_SIZE'],
         seed=12,
         follow_links=True,
+        shuffle=False,
     )
 
     msk_generator = datagen.flow_from_directory(
@@ -101,6 +106,7 @@ def create_validation_dataset(config:dict):
         batch_size=config['BATCH_SIZE'],
         seed=12,
         follow_links=True,
+        shuffle=False,
     )
 
     return zip(img_generator, msk_generator)
@@ -174,67 +180,24 @@ def testing_datagens(config):
     # pyplot.show()
 
 def main():
-    BATCH_SIZE = 64
-    IMAGE_SIZE = (256, 256)
-    DATASET_PATH = 'dataset/'
+    config = get_initial_config()
+
     VIEW_TRAINIG = 'axial/'
     LABEL = 'left-cerebellum-white-matter'
-    ELASTIC_DEFORM_DISPLACEMENT = np.array([
-        [
-            [  8.05204059,  13.24886814, -12.10855166],
-            [  2.4468842,   -0.30459105,  -3.61833851],
-            [ -9.41539836,   9.4857399,   10.59295401,]
-        ],
-        [
-            [-11.69137525,   2.7400518,   -9.11486785],
-            [  3.71851547,  -1.41123399,  -3.32899794],
-            [  2.30374345,   0.41622831,  -1.77370728],
-        ]
-    ])#np.random.randn(2, 3, 3) * 7
-    print("ELDIS: ", ELASTIC_DEFORM_DISPLACEMENT)
-    """
-        [[[  8.05204059  13.24886814 -12.10855166]
-        [  2.4468842   -0.30459105  -3.61833851]
-        [ -9.41539836   9.4857399   10.59295401]]
-
-        [[-11.69137525   2.7400518   -9.11486785]
-        [  3.71851547  -1.41123399  -3.32899794]
-        [  2.30374345   0.41622831  -1.77370728]]]
-
-
-        [[[ -4.87267665  -5.8617854   19.74015017]
-        [  8.24165151   8.96995615  -8.77903898]
-        [  4.33526268   8.96590878   6.46129555]]
-
-        [[  2.03945636 -12.10953444  -2.45797345]
-        [ -1.77627598   0.83095988   4.03630251]
-        [ 11.17687835   7.9816394    1.49157364]]]
-
-
-
-        [[[ -5.29220521  -1.03176988   8.57819707]
-        [  5.4735756   -1.8623361    4.15340418]
-        [  5.78356656   0.02207705  -4.696546  ]]
-
-        [[-14.51778563   1.89981693  -3.19687128]
-        [ -4.12490684  -8.58324571  -3.49991011]
-        [  2.63476564  -1.13689161  -1.54028576]]]
-    """
 
     config = {
-        'DATASET_PATH': DATASET_PATH,
+        'DATASET_PATH': config.dataset_path,
         'VIEW_TRAINIG': VIEW_TRAINIG,
         'LABEL': LABEL,
-        'IMAGE_SIZE': IMAGE_SIZE,
-        'BATCH_SIZE': BATCH_SIZE,
-        'ELASTIC_DEFORM_DISPLACEMENT': ELASTIC_DEFORM_DISPLACEMENT,
+        'IMAGE_SIZE': (config.image_height, config.image_width),
+        'BATCH_SIZE': config.batch_size,
     }
     
     train_gen = create_train_dataset(config=config)
     val_gen = create_validation_dataset(config=config)
     
-    # show_dataset(datagen=train_gen, config=config, num=150)
-    testing_datagens(config)
+    show_dataset(datagen=train_gen, config=config, num=150)
+    # testing_datagens(config)
 
 if __name__ == "__main__":
     main()

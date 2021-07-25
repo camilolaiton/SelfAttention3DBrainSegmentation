@@ -47,8 +47,8 @@ def mlp(x, hidden_units, dropout_rate):
     return x
 
 class Patches(layers.Layer):
-    def __init__(self, patch_size):
-        super(Patches, self).__init__()
+    def __init__(self, patch_size, **kwarks):
+        super(Patches, self).__init__(**kwarks)
         self.patch_size = patch_size
 
     def call(self, images):
@@ -65,8 +65,8 @@ class Patches(layers.Layer):
         return patches
 
 class PatchEncoder(layers.Layer):
-    def __init__(self, num_patches, projection_dim):
-        super(PatchEncoder, self).__init__()
+    def __init__(self, num_patches, projection_dim, **kwarks):
+        super(PatchEncoder, self).__init__(**kwarks)
         self.num_patches = num_patches
         self.projection = layers.Dense(units=projection_dim)
         self.position_embedding = layers.Embedding(
@@ -144,3 +144,22 @@ class DecoderUpsampleBlock(layers.Layer):
         x = layers.MaxPooling2D(pool_size=self.pool_size)(x)
         x = layers.BatchNormalization()(x)
         return layers.Activation('relu')(x)
+
+class DecoderSegmentationHead(layers.Layer):
+
+    def __init__(self, filters=1, kernel_size=3, strides=1, **kwarks):
+        super(DecoderSegmentationHead, self).__init__(**kwarks)
+        self.filters = filters
+        self.kernel_size = kernel_size
+        self.strides = strides
+    
+    def call(self, decoder_upsample_block):
+        x = layers.Reshape(target_shape=(256, 256, 16))(decoder_upsample_block)
+        x = layers.Conv2D(
+            filters=self.filters,
+            kernel_size=self.kernel_size,
+            strides=self.strides,
+            padding='same',
+        )(x)
+
+        return x

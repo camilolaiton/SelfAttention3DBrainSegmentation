@@ -1,7 +1,10 @@
 import tensorflow as tf
 from tensorflow.keras import Model, Input
+from tensorflow.keras.callbacks import ModelCheckpoint
 from blocks import *
 from config import get_initial_config
+import tensorflow_addons as tfa
+from metrics import dice_coefficient, mean_iou
 
 def build_model(config):
     inputs = Input(shape=config.image_size)
@@ -47,19 +50,63 @@ def build_model(config):
 
     return Model(inputs=inputs, outputs=x)
 
+def props(cls):   
+  return [i for i in cls.__dict__.keys() if i[:1] != '_']
+
+def plot_model(model, input_shape=(None, 256, 256, 1)):
+    all_layers = []
+    for layer in model.layers:
+        try: 
+            all_layers.extend(layer.layers)
+        except AttributeError as e:
+            print(e, " ", layer.name)
+
+    model_plot = tf.keras.models.Sequential(all_layers)
+    model_plot.build(input_shape)
+    print(list(all_layers))
+    tf.keras.utils.plot_model(
+        model_plot,
+        to_file="model/model_architecture_2.png",
+        show_shapes=True,
+        show_dtype=True,
+        # show_layer_names=True,
+        rankdir="TB",
+        expand_nested=True,
+        dpi=96,
+    )
+
 if __name__ == "__main__":
     config = get_initial_config()
     model = build_model(config)
     model.summary()
 
-    tf.keras.utils.plot_model(
-        model,
-        to_file="model/model_architecture.png",
-        show_shapes=True,
-        show_dtype=True,
-        show_layer_names=True,
-        rankdir="TB",
-        expand_nested=False,
-        dpi=96,
+    # tf.keras.utils.plot_model(
+    #     model,
+    #     to_file="model/model_architecture.png",
+    #     show_shapes=True,
+    #     show_dtype=True,
+    #     show_layer_names=True,
+    #     rankdir="TB",
+    #     expand_nested=False,
+    #     dpi=96,
+    # )
+
+    plot_model(model)
+
+    optimizer = tf.optimizers.SGD(
+        learning_rate=config.learning_rate, 
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
     )
+
+    model.compile(
+        optimizer=optimizer,
+        loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+        metrics=[
+            tf.keras.metrics.BinaryAccuracy(name="accuracy"),
+            dice_coefficient,
+            mean_iou
+        ],
+    )
+
     # model.save('model/model.h5')

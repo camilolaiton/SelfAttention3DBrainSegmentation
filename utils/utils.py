@@ -29,6 +29,7 @@ import time
 from sklearn.utils import shuffle
 import math
 from glob import glob
+import shutil
 import elasticdeform
 
 def normalizeIntensityImage(img_data:np, min_value:float, max_value:float):
@@ -708,7 +709,7 @@ def get_train_test_dirs(roots:list, view:str, structure, prefix_path:str='data/'
 
   return train_dirs, test_dirs
 
-def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, view:str):
+def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, view:str, copy_files:bool):
   """
   
   """
@@ -724,6 +725,9 @@ def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, vie
       else:
         raise e
 
+  def copy_file(src, dest):
+    shutil.copyfile(src, dest)
+
   for origView, segView in list_dir:
     # 'data/NKI-RS-22/NKI-RS-22-13/slices/axial'
     origImages = glob(origView + '/*')
@@ -732,16 +736,23 @@ def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, vie
 
     for origImage in origImages:
       link_name = dataset_root + f"{type_folder}/{view}/orig/img/" + origImage.split('/')[-1]
-      create_symlink(origImage, link_name)
+      if (copy_files):
+        copy_file(origImage, link_name)
+      else:
+        create_symlink(origImage, link_name)
 
     for segImage in segImages:
       segImageSplitted = segImage.split('/')
       link_name = dataset_root + f"{type_folder}/{view}/{segImageSplitted[-3]}/img/" + segImageSplitted[-1]
-      create_symlink(segImage, link_name)
+      
+      if (copy_files):
+        copy_file(segImage, link_name)
+      else:
+        create_symlink(segImage, link_name)
 
   print(f"[+] Symlinks created for {type_folder} folder.")
 
-def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, view:str) -> None:
+def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, view:str, copy_files:bool=False) -> None:
   """
   
   """
@@ -757,8 +768,8 @@ def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, 
   for structure in structures:
     train_dirs, test_dirs = get_train_test_dirs(roots=roots, view=view, structure=structure)
     # print(train_dirs)
-    helper_create_symlinks(train_dirs, 'train', dataset_root, view)
-    helper_create_symlinks(test_dirs, 'test', dataset_root, view)
+    helper_create_symlinks(train_dirs, 'train', dataset_root, view, copy_files)
+    helper_create_symlinks(test_dirs, 'test', dataset_root, view, copy_files)
 
 def elastic_deform_2(img, msk):
   """

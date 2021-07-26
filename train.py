@@ -21,7 +21,7 @@ import elasticdeform
 import random
 from utils import utils
 from matplotlib import pyplot
-from model.config import get_initial_config
+from model.config import get_config_1
 
 # import tensorflow_addons as tfa
 
@@ -180,7 +180,7 @@ def testing_datagens(config):
     # pyplot.show()
 
 def main():
-    config = get_initial_config()
+    config = get_config_1()
 
     VIEW_TRAINIG = 'axial/'
     LABEL = 'left-cerebellum-white-matter'

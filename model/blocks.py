@@ -11,16 +11,33 @@ class ConvolutionalBlock(layers.Layer):
         self.dropout_rate = dropout_rate
         self.activation = activation
 
-    def call(self, inputs):
-        x = layers.Conv2D(
+    def build(self, input_shape):
+        self.w = tf.random_normal_initializer(mean=0.0, stddev=1e-4)
+
+        if (self.bias):
+            self.b = tf.constant_initializer(0.0)
+        else:
+            self.b = None
+
+        self.conv_a = layers.Conv2D(
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=1, 
-            padding='same'
-        )(inputs)
-        x = layers.MaxPool2D(pool_size=(2,2))(x)
-        x = layers.BatchNormalization()(x)
-        return layers.Activation('relu')(x)
+            padding='same',
+            kernel_initializer=self.w,
+            use_bias=True,
+            bias_initializer=self.b
+        )
+
+        self.max_pool_a = layers.MaxPool2D(pool_size=(2,2))
+        self.bn_a = layers.BatchNormalization()
+        self.activation_fnc = layers.Activation('relu')
+
+    def call(self, inputs):
+        x = self.conv_a(inputs)
+        x = self.max_pool_a(x)
+        x = self.bn_a(x)
+        return self.activation_fnc(x)
 
 class MLPBlock(layers.Layer):
     def __init__(self, hidden_units, dropout_rate, activation=None, **kwarks):
@@ -33,10 +50,17 @@ class MLPBlock(layers.Layer):
 
         self.activation = activation
 
-    def call(self, inputs):
+        # creating layers
+        self.layers = []
+
         for units in self.hidden_units:
-            inputs = layers.Dense(units, activation=self.activation)(inputs)
-            inputs = layers.Dropout(self.dropout_rate)(inputs)
+            self.layers.append(layers.Dense(units, activation=self.activation))
+            self.layers.append(layers.Dropout(self.dropout_rate))
+
+    def call(self, inputs):
+
+        for layer in self.layers:
+            inputs = layer(inputs)
 
         return inputs
 
@@ -68,6 +92,8 @@ class PatchEncoder(layers.Layer):
     def __init__(self, num_patches, projection_dim, **kwarks):
         super(PatchEncoder, self).__init__(**kwarks)
         self.num_patches = num_patches
+        
+        # Layers
         self.projection = layers.Dense(units=projection_dim)
         self.position_embedding = layers.Embedding(
             input_dim=num_patches, output_dim=projection_dim
@@ -87,18 +113,31 @@ class TransformerBlock(layers.Layer):
         self.normalization_rate = normalization_rate
         self.transformer_units = transformer_units
 
-    def call(self, encoded_patches):
-        x1 = layers.LayerNormalization(epsilon=self.normalization_rate)(encoded_patches)
-        attention_layer = layers.MultiHeadAttention(
+        # Layers
+        self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate)
+        self.attention_layer_a = layers.MultiHeadAttention(
             num_heads = self.num_heads,
             key_dim = self.projection_dim,
             dropout = self.dropout_rate,
-        )(x1, x1)
+        )
+        self.add_a = layers.Add()
+
+        self.ln_b = layers.LayerNormalization(epsilon=self.normalization_rate)
+        self.mlp_block_b = MLPBlock(
+            hidden_units=self.transformer_units, 
+            dropout_rate=self.dropout_rate
+        )
+
+        self.add_b = layers.Add()
+
+    def call(self, encoded_patches):
+        x1 = self.ln_a(encoded_patches)
+        attention_layer = self.attention_layer_a(x1, x1)
         
-        x2 = layers.Add()([attention_layer, encoded_patches])
-        x3 = layers.LayerNormalization(epsilon=self.normalization_rate)(x2)
-        x3 = MLPBlock(hidden_units=self.transformer_units, dropout_rate=self.dropout_rate)(x3)
-        return layers.Add()([x3, x2])
+        x2 = self.add_a([attention_layer, encoded_patches])
+        x3 = self.ln_b(x2)
+        x3 = self.mlp_block_b(x3)
+        return self.add_b([x3, x2])
 
 class DecoderBlockCup(layers.Layer):
 
@@ -114,16 +153,23 @@ class DecoderBlockCup(layers.Layer):
             activation = tf.nn.relu
 
         self.activation = activation
-        
+
+        # Layers
+        self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
+        self.reshape_a = layers.Reshape(target_shape=self.target_shape, name="decoder_block_cup_reshape_1")
+        self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size, strides=1, padding='same')
+        self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
+        self.bn_a = layers.BatchNormalization()
+        self.activation_fnc = layers.Activation('relu')
 
     def call(self, encoder_output):
-        x = layers.LayerNormalization(epsilon=self.normalization_rate, name="ln_1")(encoder_output)
-        x = layers.Reshape(target_shape=self.target_shape, name="reshape_1")(x)
+        x = self.ln_a(encoder_output)
+        x = self.reshape_a(x)
         
-        x = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size, strides=1, padding='same')(x)
-        x = layers.MaxPooling2D(pool_size=self.pool_size)(x)
-        x = layers.BatchNormalization()(x)
-        return layers.Activation('relu')(x)
+        x = self.conv_a(x)
+        x = self.max_pool_a(x)
+        x = self.bn_a(x)
+        return self.activation_fnc(x)
 
 class DecoderUpsampleBlock(layers.Layer):
     
@@ -134,32 +180,41 @@ class DecoderUpsampleBlock(layers.Layer):
         self.strides = strides
         self.pool_size = pool_size
 
-    def call(self, decoder_input):
-        x = layers.Conv2DTranspose(
+        # Layers
+        self.conv_transpose_a = layers.Conv2DTranspose(
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=self.strides, 
             padding='same'
-        )(decoder_input)    
-        x = layers.MaxPooling2D(pool_size=self.pool_size)(x)
-        x = layers.BatchNormalization()(x)
-        return layers.Activation('relu')(x)
+        )
+        self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
+        self.bn_a = layers.BatchNormalization()
+        self.activation_fnc = layers.Activation('relu')
+        
+    def call(self, decoder_input):
+        x = self.conv_transpose_a(decoder_input)    
+        x = self.max_pool_a(x)
+        x = self.bn_a(x)
+        return self.activation_fnc(x)
 
 class DecoderSegmentationHead(layers.Layer):
 
-    def __init__(self, filters=1, kernel_size=3, strides=1, **kwarks):
+    def __init__(self, filters=1, kernel_size=3, strides=1, target_shape=(256, 256, 16), **kwarks):
         super(DecoderSegmentationHead, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
         self.strides = strides
-    
-    def call(self, decoder_upsample_block):
-        x = layers.Reshape(target_shape=(256, 256, 16))(decoder_upsample_block)
-        x = layers.Conv2D(
+        self.target_shape = target_shape
+
+        # Layers
+        self.reshape_a = layers.Reshape(target_shape=(self.target_shape))
+        self.conv_a = layers.Conv2D(
             filters=self.filters,
             kernel_size=self.kernel_size,
             strides=self.strides,
             padding='same',
-        )(x)
-
-        return x
+        )
+    
+    def call(self, decoder_upsample_block):
+        x = self.reshape_a(decoder_upsample_block)
+        return self.conv_a(x)

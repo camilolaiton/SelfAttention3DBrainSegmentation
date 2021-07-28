@@ -16,7 +16,8 @@ def get_config_1():
     config.image_width = 256
     config.image_channels = 1
     config.image_size = (config.image_height, config.image_width, config.image_channels)
-    config.residual_blocks = True
+    config.residual_blocks = False
+    config.data_augmentation = False
     
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
@@ -53,7 +54,8 @@ def get_config_2():
     config.image_width = 256
     config.image_channels = 1
     config.image_size = (config.image_height, config.image_width, config.image_channels)
-    config.residual_blocks = True
+    config.residual_blocks = False
+    config.data_augmentation = False
 
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16

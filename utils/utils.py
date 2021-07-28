@@ -16,6 +16,10 @@ from PIL.Image import NEAREST
 import numpy as np
 import nibabel as nib
 
+import PIL
+from pathlib import Path
+from PIL import UnidentifiedImageError
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 import matplotlib.patheffects as path_effects
@@ -840,3 +844,11 @@ def elastic_deform(image_data):
   plt.grid(False)
   plt.axis('off')
   plt.show()
+
+def check_imgs(path, ext):
+  path = Path(path).rglob("*." + ext)
+  for img_p in path:
+      try:
+          img = PIL.Image.open(img_p)
+      except PIL.UnidentifiedImageError:
+              print(img_p)

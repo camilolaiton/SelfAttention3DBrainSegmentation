@@ -3,8 +3,8 @@ from tensorflow.keras import Model, Input
 from tensorflow.keras.callbacks import ModelCheckpoint
 from blocks import *
 from config import get_config_1, get_config_2
-import tensorflow_addons as tfa
 from metrics import dice_coefficient, mean_iou
+import tensorflow_addons as tfa
 
 def build_model(config):
     inputs = Input(shape=config.image_size)
@@ -12,7 +12,7 @@ def build_model(config):
     encoded_patches = PatchEncoder(
         num_patches=config.transformer.num_patches, 
         projection_dim=config.transformer.projection_dim,
-        name='encoded_patches_0',    
+        name='encoded_patches_0',     
     )(patches)
 
     # print(f"enconded patches size {encoded_patches.shape}")

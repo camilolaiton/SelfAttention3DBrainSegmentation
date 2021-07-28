@@ -27,14 +27,14 @@ def main():
     PREFIX_PATH = '/home/camilo/Programacion/master_thesis/data/'
     roots = [
         'HLN-12',
-        'Colin27',
-        'MMRR-3T7T-2',
-        'NKI-RS-22',
-        'NKI-TRT-20',
-        'MMRR-21',
-        'OASIS-TRT-20',
-        'Twins-2',
-        'Afterthought'
+        # 'Colin27',
+        # 'MMRR-3T7T-2',
+        # 'NKI-RS-22',
+        # 'NKI-TRT-20',
+        # 'MMRR-21',
+        # 'OASIS-TRT-20',
+        # 'Twins-2',
+        # 'Afterthought'
     ]
     roots = [PREFIX_PATH + root for root in roots]
     lut_file = utils.load_lut(LUT_PATH)
@@ -63,7 +63,7 @@ def main():
         # for i in range(3):
         #     utils.elastic_deform_2(brain_nifti.get_fdata()[n, :, :], roi_nifti.get_fdata()[n, :, :])
         #     n += 1
-        utils.plotting_superposition(161, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'axial')
+        # utils.plotting_superposition(161, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'axial')
         # utils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'saggital')
         # utils.plotting_superposition(127, brain_nifti.get_fdata(), roi_nifti.get_fdata(), colors, 'coronal')
     
@@ -85,8 +85,17 @@ def main():
     # for view in ['axial', 'coronal', 'saggital']:
     #     utils.creating_symlinks_to_dataset(roots=roots, dataset_root=DATASET_PATH, structures=['left-cerebellum-white-matter'], view=view)
 
-    utils.elastic_deform(brain_data)
+    # utils.elastic_deform(brain_data)
     # utils.elastic_deform(roi_nifti.get_fdata())
+
+    roots = ['test', 'train']
+    labels = ['orig', 'left-cerebellum-white-matter']
+
+    for root in roots:
+        for label in labels:
+            path = 'dataset/'+ root + '/axial/' + label + '/img'
+            print(f"Checking imgs in path: ", path)
+            utils.check_imgs(path, 'png')
 
 if __name__ == "__main__":
     main()

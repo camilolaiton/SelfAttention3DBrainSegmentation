@@ -45,14 +45,17 @@ def elastic_deform_data_gen(img, msk):
 def create_train_dataset(config:dict):
     data_gen_args = dict(
         rescale=1./255,
-        featurewise_center=True,
-        featurewise_std_normalization=True,
+        # featurewise_center=True,
+        # featurewise_std_normalization=True,
         # rotation_range=90,
         # width_shift_range=0.1,
         # height_shift_range=0.1,
         # zoom_range=0.2,
-        preprocessing_function=eslastic_deform_datagen_individual#(displacement=config['ELASTIC_DEFORM_DISPLACEMENT'])
+        # preprocessing_function=eslastic_deform_datagen_individual#(displacement=config['ELASTIC_DEFORM_DISPLACEMENT'])
     )
+
+    if (config["DATA_AUGMENTATION"]):
+        data_gen_args['preprocessing_function'] = eslastic_deform_datagen_individual
 
     datagen = ImageDataGenerator(**data_gen_args)
     
@@ -191,6 +194,7 @@ def main():
         'LABEL': LABEL,
         'IMAGE_SIZE': (config.image_height, config.image_width),
         'BATCH_SIZE': config.batch_size,
+        'data_augmentation': config.data_augmentation,
     }
     
     train_gen = create_train_dataset(config=config)

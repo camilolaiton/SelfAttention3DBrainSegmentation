@@ -128,11 +128,15 @@ class TransformerBlock(layers.Layer):
             dropout_rate=self.dropout_rate
         )
 
+        self.softmax_b = layers.Activation(activation='softmax')
+
+
         self.add_b = layers.Add()
 
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
         attention_layer = self.attention_layer_a(x1, x1)
+        attention_layer = self.softmax_b(attention_layer)
         
         x2 = self.add_a([attention_layer, encoded_patches])
         x3 = self.ln_b(x2)
@@ -157,23 +161,32 @@ class DecoderBlockCup(layers.Layer):
         # Layers
         self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
         self.reshape_a = layers.Reshape(target_shape=self.target_shape, name="decoder_block_cup_reshape_1")
-        self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size, strides=1, padding='same')
+        self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
         self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation('relu')
+        self.upsample_a = layers.UpSampling2D(
+            size=(2,2), interpolation='bilinear'
+        )
 
     def call(self, encoder_output):
         x = self.ln_a(encoder_output)
         x = self.reshape_a(x)
         
-        x = self.conv_a(x)
-        x = self.max_pool_a(x)
-        x = self.bn_a(x)
-        return self.activation_fnc(x)
+        # x = self.conv_a(x)
+        # x = self.max_pool_a(x)
+        # x = self.bn_a(x)
+        # return self.activation_fnc(x)
+        # x = self.conv_a(x)    
+        # x = self.max_pool_a(x)
+        # x = self.bn_a(x)
+        # x = self.activation_fnc(x)
+        # x = self.upsample_a(x)
+        return x
 
 class DecoderUpsampleBlock(layers.Layer):
     
-    def __init__(self, filters, kernel_size=3, strides=(1, 2), pool_size=(2, 1), **kwarks):
+    def __init__(self, filters, kernel_size=3, strides=(1, 1), pool_size=(2, 1), **kwarks):
         super(DecoderUpsampleBlock, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
@@ -181,21 +194,34 @@ class DecoderUpsampleBlock(layers.Layer):
         self.pool_size = pool_size
 
         # Layers
-        self.conv_transpose_a = layers.Conv2DTranspose(
+        self.upsample_a = layers.UpSampling2D(
+            size=(16,16), interpolation='bilinear'
+        )
+
+        self.conv_a = layers.Conv2D(
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=self.strides, 
             padding='same'
         )
+
         self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation('relu')
         
     def call(self, decoder_input):
-        x = self.conv_transpose_a(decoder_input)    
-        x = self.max_pool_a(x)
-        x = self.bn_a(x)
-        return self.activation_fnc(x)
+        # x = self.upsample_a(decoder_input)
+        # x = self.upsample_a(x)
+
+        x = self.conv_a(decoder_input)
+        # x = self.conv_a(x)
+
+        # x = self.conv_transpose_a(decoder_input)    
+        # x = self.max_pool_a(x)
+        # x = self.bn_a(x)
+        # x = self.activation_fnc(x)
+        x = self.upsample_a(x)
+        return x
 
 class DecoderSegmentationHead(layers.Layer):
 
@@ -218,3 +244,22 @@ class DecoderSegmentationHead(layers.Layer):
     def call(self, decoder_upsample_block):
         x = self.reshape_a(decoder_upsample_block)
         return self.conv_a(x)
+
+class DecoderDense(layers.Layer):
+    def __init__(self, normalization_rate, **kwarks):
+        super(DecoderDense, self).__init__(**kwarks)
+        self.normalization_rate = normalization_rate
+
+        # Layers
+        self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
+        self.flatten_a = layers.Flatten()
+        self.dropout_a = layers.Dropout(0.5)
+        self.reshape_a = layers.Reshape(target_shape=(256,256,1))
+
+    def call(self, inputs):
+        x = self.ln_a(inputs)
+        x = self.flatten_a(x)
+        x = self.dropout_a(x)
+        return self.reshape_a(x)
+        
+    

@@ -44,7 +44,7 @@ def elastic_deform_data_gen(img, msk):
 
 def create_train_dataset(config:dict):
     data_gen_args = dict(
-        rescale=1./255,
+        # rescale=1./255,
         # featurewise_center=True,
         # featurewise_std_normalization=True,
         # rotation_range=90,
@@ -85,7 +85,7 @@ def create_train_dataset(config:dict):
 
 def create_validation_dataset(config:dict):
     data_gen_args = dict(
-        rescale=1./255,
+        # rescale=1./255,
     )
 
     datagen = ImageDataGenerator(**data_gen_args)
@@ -122,6 +122,11 @@ def display(display_list):
   for i in range(len(display_list)):
     plt.subplot(1, len(display_list), i+1)
     plt.title(title[i])
+    
+    arr = display_list[i]
+    res = arr.nonzero()
+    print(arr[res])
+
     plt.imshow(tf.keras.preprocessing.image.array_to_img(display_list[i]), cmap='bone')
     plt.axis('off')
   plt.show()
@@ -188,19 +193,24 @@ def main():
     VIEW_TRAINIG = 'axial/'
     LABEL = 'left-cerebellum-white-matter'
 
+    config.dataset_path = 'dataset_test/'
+
     config = {
         'DATASET_PATH': config.dataset_path,
         'VIEW_TRAINIG': VIEW_TRAINIG,
         'LABEL': LABEL,
         'IMAGE_SIZE': (config.image_height, config.image_width),
         'BATCH_SIZE': config.batch_size,
-        'data_augmentation': config.data_augmentation,
+        'DATA_AUGMENTATION': config.data_augmentation,
     }
     
     train_gen = create_train_dataset(config=config)
     val_gen = create_validation_dataset(config=config)
     
-    show_dataset(datagen=train_gen, config=config, num=150)
+    image, mask = next(train_gen)
+    display([image[0], mask[0]])
+
+    # show_dataset(datagen=train_gen, config=config, num=150)
     # testing_datagens(config)
 
 if __name__ == "__main__":

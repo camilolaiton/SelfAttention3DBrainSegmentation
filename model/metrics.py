@@ -1,17 +1,16 @@
 import tensorflow as tf
-import tensorflow.keras as K
+from tensorflow.keras import backend as K
 
-def dice_coefficient(y_true, y_pred, smooth=1):
-    intersect = tf.reduce_sum(y_true * y_pred, axis=[1,2,3])
-    union = tf.reduce_sum(y_true, axis=[1,2,3] + tf.reduce_sum(y_pred, axis=[1,2,3]))
-    return tf.reduce_mean(int((2. * intersect + smooth) / (union + smooth)), axis=0)
+def IoU_coef(y_true, y_pred):
+    T = K.flatten(y_true)
+    P = K.flatten(y_pred)
 
-def mean_iou(y_true, y_pred):
-    y_true = tf.cast(y_true, tf.dtypes.float64)
-    y_pred = tf.cast(y_pred, tf.dtypes.float64)
-    I = tf.reduce_sum(y_pred * y_true, axis=(1, 2))
-    U = tf.reduce_sum(y_pred + y_true, axis=(1, 2)) - I
-    return tf.reduce_mean(I / U)
+    intersection = K.sum(T*P)
+    IoU = (intersection + 1.0) / (K.sum(T) + K.sum(P) - intersection + 1.0)
+    return IoU
+
+def IoU_loss(y_true, y_pred):
+    return -IoU_coef(y_true, y_pred)
 
 smooth=100
 

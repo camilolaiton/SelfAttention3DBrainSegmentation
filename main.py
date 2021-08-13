@@ -21,20 +21,20 @@ import nilearn
 
 def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
-    brainPath = './data/HLN-12/HLN-12-1/001.mgz'#'./data/sub01/001.mgz' #brain.mgz'
-    image_path = "./data/HLN-12/HLN-12-1/aparcNMMjt+aseg.mgz"#"./data/sub01/aparcNMMjt+aseg.mgz"
-    DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset/' 
+    brainPath = './data/NKI-TRT-20/NKI-TRT-20-1/001.mgz'#'./data/sub01/001.mgz' #brain.mgz'
+    image_path = "./data/NKI-TRT-20/NKI-TRT-20-1/aparcNMMjt+aseg.mgz"#"./data/sub01/aparcNMMjt+aseg.mgz"
+    DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_test/' 
     PREFIX_PATH = '/home/camilo/Programacion/master_thesis/data/'
     roots = [
         'HLN-12',
-        # 'Colin27',
-        # 'MMRR-3T7T-2',
-        # 'NKI-RS-22',
-        # 'NKI-TRT-20',
-        # 'MMRR-21',
-        # 'OASIS-TRT-20',
-        # 'Twins-2',
-        # 'Afterthought'
+        'Colin27',
+        'MMRR-3T7T-2',
+        'NKI-RS-22',
+        'NKI-TRT-20',
+        'MMRR-21',
+        'OASIS-TRT-20',
+        'Twins-2',
+        'Afterthought'
     ]
     roots = [PREFIX_PATH + root for root in roots]
     lut_file = utils.load_lut(LUT_PATH)
@@ -47,6 +47,7 @@ def main():
     # image_obj = nib.load(image_path)
 
     canonical_img, canonical_data = utils.readMRI(imagePath=image_path, config=config)
+    print(canonical_data.shape)
     canonical_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
     brain_img, brain_data = utils.readMRI(imagePath=brainPath, config=config)
     brain_nifti = nib.Nifti1Image(brain_data, affine=brain_img.affine)
@@ -56,9 +57,9 @@ def main():
     
     roi_nifti, colors = utils.get_roi_data(lut_file, 'right-cerebral-white-matter', canonical_data, canonical_img)
 
-    if (roi_nifti):
+    # if (roi_nifti):
         # utils.plotting_superposition(142, canonical_data, roi_nifti.get_fdata(), 'coronal')
-        brain_nifti = nilearn.image.resample_to_img(brain_nifti, roi_nifti)
+        # brain_nifti = nilearn.image.resample_to_img(brain_nifti, roi_nifti)
         # n = 150
         # for i in range(3):
         #     utils.elastic_deform_2(brain_nifti.get_fdata()[n, :, :], roi_nifti.get_fdata()[n, :, :])
@@ -69,13 +70,13 @@ def main():
     
     # utils.create_file_anat_structures(roots=roots, lut_file=lut_file, readConfig=config)
 
-    STRUCTURES, lut_res = utils.get_common_anatomical_structures(roots=roots, lut_file=lut_file.copy(), common_number=101)
+    # STRUCTURES, lut_res = utils.get_common_anatomical_structures(roots=roots, lut_file=lut_file.copy(), common_number=101)
     # utils.save_list_to_txt(STRUCTURES, 'data/common_anatomical_structures.txt')
     # print(lut_res)
     
     # STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     
-    print("Structures: ", STRUCTURES, " Number: ", len(STRUCTURES))
+    # print("Structures: ", STRUCTURES, " Number: ", len(STRUCTURES))
     # utils.show_all_slices_per_view('coronal', brain_data, counter=70)
     # utils.show_all_slices_per_view('coronal', canonical_data, counter=70)
     # utils.show_all_slices_per_view('coronal', roi_nifti.get_fdata(), counter=70)
@@ -83,19 +84,25 @@ def main():
     # utils.saveSegSlicesPerRoot(roots, config, lut_file, saveSeg=True, segLabels=['left-cerebellum-white-matter'], origSlices=True)
 
     # for view in ['axial', 'coronal', 'saggital']:
-    #     utils.creating_symlinks_to_dataset(roots=roots, dataset_root=DATASET_PATH, structures=['left-cerebellum-white-matter'], view=view)
+    #     utils.creating_symlinks_to_dataset(roots=roots, dataset_root=DATASET_PATH, structures=['left-cerebellum-white-matter'], view=view, copy_files=True)
 
     # utils.elastic_deform(brain_data)
     # utils.elastic_deform(roi_nifti.get_fdata())
+    
+    # Check all images loop
+    # roots = ['test', 'train']
+    # labels = ['orig', 'left-cerebellum-white-matter']
+    # for root in roots:
+    #     for label in labels:
+    #         path = 'dataset/'+ root + '/axial/' + label + '/img'
+    #         print(f"Checking imgs in path: ", path)
+    #         utils.check_imgs(path, 'png')
+    
+    # limit = 145
 
-    roots = ['test', 'train']
-    labels = ['orig', 'left-cerebellum-white-matter']
-
-    for root in roots:
-        for label in labels:
-            path = 'dataset/'+ root + '/axial/' + label + '/img'
-            print(f"Checking imgs in path: ", path)
-            utils.check_imgs(path, 'png')
+    # for n in range(limit-1, limit+100):
+    #     name = f'data/HLN-12/HLN-12-1/segSlices/left-cerebellum-white-matter/axial/HLN-12-1_{n}.png'
+    #     mask = utils.check_mask_img(name)
 
 if __name__ == "__main__":
     main()

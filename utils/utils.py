@@ -17,6 +17,7 @@ import numpy as np
 import nibabel as nib
 
 import PIL
+from PIL import Image, ImageOps
 from pathlib import Path
 from PIL import UnidentifiedImageError
 
@@ -732,29 +733,43 @@ def helper_create_symlinks(list_dir:list, type_folder:str, dataset_root:str, vie
   def copy_file(src, dest):
     shutil.copyfile(src, dest)
 
+  print("[+] Creating dataset, please wait.")
+  
   for origView, segView in list_dir:
     # 'data/NKI-RS-22/NKI-RS-22-13/slices/axial'
-    origImages = glob(origView + '/*')
+    # origImages = glob(origView + '/*')
+
     # 'data/NKI-RS-22/NKI-RS-22-13/segSlices/left-cerebellum-white-matter/axial'
     segImages = glob(segView + '/*')
 
-    for origImage in origImages:
-      link_name = dataset_root + f"{type_folder}/{view}/orig/img/" + origImage.split('/')[-1]
-      if (copy_files):
-        copy_file(origImage, link_name)
-      else:
-        create_symlink(origImage, link_name)
+    for mask_src in segImages:
+      isMask = check_mask_img(mask_src)
 
-    for segImage in segImages:
-      segImageSplitted = segImage.split('/')
-      link_name = dataset_root + f"{type_folder}/{view}/{segImageSplitted[-3]}/img/" + segImageSplitted[-1]
+      if (isMask):
+        segImageSplitted = mask_src.split('/')
+        orig_src = '' + mask_src
+        orig_src = orig_src.replace('segSlices/', 'slices')
+        orig_src = orig_src.replace('left-cerebellum-white-matter', '')
+
+        mask_dest = f"{dataset_root}{type_folder}/{view}/{segImageSplitted[-3]}/img/" + segImageSplitted[-1]
+        orig_dest = f"{dataset_root}{type_folder}/{view}/orig/img/" + segImageSplitted[-1]
+
+        # print(mask_src, " is mask!\n Mask destination: ", mask_dest, "\n\nOrig src: ", orig_src, '\nOrig dest: ', orig_dest)
+        # link_name = dataset_root + f"{type_folder}/{view}/{segImageSplitted[-3]}/img/" + segImageSplitted[-1]
       
-      if (copy_files):
-        copy_file(segImage, link_name)
-      else:
-        create_symlink(segImage, link_name)
+        if (copy_files):
+          copy_file(mask_src, mask_dest)
+          copy_file(orig_src, orig_dest)
+        else:
+          create_symlink(mask_src, mask_dest)
+          create_symlink(orig_src, orig_dest)
 
-  print(f"[+] Symlinks created for {type_folder} folder.")
+  message = 'Symlinks'
+
+  if (copy_files):
+    message = 'Files'
+
+  print(f"[+] {message} created for {type_folder} folder.")
 
 def creating_symlinks_to_dataset(roots:list, dataset_root:str, structures:list, view:str, copy_files:bool=False) -> None:
   """
@@ -852,3 +867,17 @@ def check_imgs(path, ext):
           img = PIL.Image.open(img_p)
       except PIL.UnidentifiedImageError:
               print(img_p)
+
+def check_mask_img(path):
+  if os.path.exists(path):
+    img = ImageOps.grayscale(Image.open(path))
+    arr = np.asarray(img)
+    res = arr.nonzero()
+
+    if (res[0].shape[0] or res[1].shape[0]):
+      print(arr[res]/255)
+      plt.imshow(img)
+      plt.show()
+      return True
+
+  return False

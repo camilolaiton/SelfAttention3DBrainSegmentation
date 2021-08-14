@@ -182,7 +182,7 @@ def plot_roi_modified(lut:dict, label:str, brain:nib, segBrain_data:np, segBrain
 
 def show_slices(slices):
 
-   """ 
+  """ 
     Function to display row of image slices 
 
     Parameters:
@@ -190,13 +190,13 @@ def show_slices(slices):
     
     Returns:
       - None
-   """
+  """
 
-   fig, axes = plt.subplots(1, len(slices))
+  fig, axes = plt.subplots(1, len(slices))
 
-   for i, slice in enumerate(slices):
-
-       axes[i].imshow(slice.T, cmap="gray", origin="lower", vmin=10, vmax=110)
+  for i, slice in enumerate(slices):
+    axes[i].imshow(slice.T, origin="lower", vmin=10, vmax=110)#, cmap="gray")
+  plt.show()
 
 def show_all_slices_per_view(view:str, data:np, counter:int=100, angle=270):
   """ 

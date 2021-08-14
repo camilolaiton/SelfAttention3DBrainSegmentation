@@ -104,7 +104,8 @@ def load_lut(lut_path):
           lut_colors[tmp[1].lower()] = {
                 'id' : int(tmp[0]),
                 'rgba': [int(tmp[2]), int(tmp[3]), int(tmp[4]), int(tmp[5])],
-                'count':0
+                'folders': [],
+                'count':0,
             }
 
     return lut_colors
@@ -483,7 +484,7 @@ def get_common_anatomical_structures(roots:list, lut_file:dict, common_number:in
             'root': folder[0],  
             'anat_file': folder[0] + '/' + 'anatomical_structures.txt', 
           }
-  
+          
   # Getting the common anatomical structures
   count = 0
   for key, items in anat_structures.items():
@@ -498,6 +499,7 @@ def get_common_anatomical_structures(roots:list, lut_file:dict, common_number:in
         else:
           try:
               lut_file[anat_structure]['count'] = lut_file[anat_structure]['count'] + 1
+              lut_file[anat_structure]['folders'] = lut_file[anat_structure]['folders'] + [items['root'].split('/')[-1]]
           except KeyError as err:
             pass
 

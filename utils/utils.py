@@ -36,6 +36,9 @@ import math
 from glob import glob
 import shutil
 import elasticdeform
+from sklearn.preprocessing import MinMaxScaler
+
+scaler = MinMaxScaler()
 
 def normalizeIntensityImage(img_data:np, min_value:float, max_value:float):
   """
@@ -75,7 +78,8 @@ def readMRI(imagePath:str, config:dict, nifti_format:bool=False):
   imageData = imageObj.get_fdata()
 
   if (config['normalize']):
-    imageData = normalizeIntensityImage(imageData, np.min(imageData), np.max(imageData))
+    imageData = scaler.fit_transform(imageData.reshape(-1, imageData.shape[-1])).reshape(imageData.shape)
+    # imageData = normalizeIntensityImage(imageData, np.min(imageData), np.max(imageData))
 
   if (nifti_format):
     imageObj = nib.Nifti1Image(imageData, affine=imageObj.affine)
@@ -314,10 +318,13 @@ def saveSlice(image_data:np, filename:str, destination:str):
       - None
   """
 
-  path = os.path.join(destination, f"{filename}.png")
+  path = os.path.join(destination, f"{filename}.npy")
   plt.grid(False)
   plt.axis('off')
-  plt.imsave(path, image_data, cmap='bone')
+  
+  # plt.imsave(path, image_data)
+  print(np.unique(image_data))
+  np.save(path, image_data)
   # plt.imshow(image_data, cmap='bone')
   #cv2.imwrite(path, image_data)
   #print(f"[+] Slice saved: {path}", end='\r')

@@ -1,6 +1,6 @@
 __pycache__/*
 dataset/*
-dataset_test/*
+dataset_test*/*
 !dataset/folder_structure.txt
 **/__pycache__/
 papers/*

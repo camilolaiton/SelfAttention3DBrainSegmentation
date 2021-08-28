@@ -668,7 +668,7 @@ def helperPlottingOverlay(img, msk):
   # plt.imshow(slice_roi, cmap='bone')
   plt.show()
 
-def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation='axial'):
+def plotting_superposition(n_slice, brain_data, roi_data, orientation='axial'):
   """
   
   """
@@ -676,16 +676,16 @@ def plotting_superposition(n_slice, brain_data, roi_data, roi_color, orientation
   slice_orig, slice_roi = None, None
 
   if (orientation == 'saggital'):
-    slice_orig = rotate(brain_data[n_slice, :, :], angle=90)
-    slice_roi = rotate(roi_data[n_slice, :, :], angle=90)
+    slice_orig = rotate(brain_data[255-n_slice, :, :], angle=90)
+    slice_roi = rotate(roi_data[255-n_slice, :, :], angle=90)
   
   elif (orientation == 'coronal'):
     slice_orig = np.fliplr(rotate(brain_data[:, n_slice, :], angle=90))
     slice_roi = np.fliplr(rotate(roi_data[:, n_slice, :], angle=90))
   
   else:
-    slice_orig = np.fliplr(rotate(brain_data[:, :, n_slice], angle=90))
-    slice_roi = np.fliplr(rotate(roi_data[:, :, n_slice], angle=90))
+    slice_orig = np.fliplr(rotate(brain_data[:, :, 255-n_slice], angle=90))
+    slice_roi = np.fliplr(rotate(roi_data[:, :, 255-n_slice], angle=90))
 
   # print(slice_orig.shape)
   # print(slice_roi.shape)

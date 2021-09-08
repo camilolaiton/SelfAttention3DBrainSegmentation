@@ -38,12 +38,30 @@ def helper_anat(msk, orig_msk, lut_file, structure):
     
     return msk
 
-def helper_anat_integer(msk, orig_msk, lut_file_structure):
-    msk[:, :, 0] = np.where(orig_msk == lut_file_structure['id'], lut_file_structure['id'], msk[:, :, 0])
+def helper_anat_integer(msk, orig_msk, lut_file_structure, new_id):
+    msk[:, :, 0] = np.where(orig_msk == lut_file_structure['id'], new_id, msk[:, :, 0])
     return msk
 
-def show_anat_slide(ns, lut_file, canonical_data, STRUCTURES, dest, filename, view):
-  
+def save_orig_slide(ns, data, view, dest, filename):
+    for n in ns:
+        rot = None
+
+        name = f"{dest}/{filename}_{255 - n}"
+
+        if (view == 'saggital'):
+            rot = data[n, :, :]
+
+        elif (view == 'coronal'):
+            name = f"{dest}/{filename}_{n}"
+            rot = data[:, n, :]
+
+        else:
+            rot = data[:, :, n]
+        
+        np.save(name, rot)
+
+def show_anat_slide(ns, lut_file, canonical_data, STRUCTURES, dest, filename, view, class_info):
+
     for n in ns:
         # start_time = time.time()
         # msk = np.zeros((256, 256, 3), dtype=np.uint8)
@@ -63,14 +81,28 @@ def show_anat_slide(ns, lut_file, canonical_data, STRUCTURES, dest, filename, vi
                 rot = roi_data[:, :, n]
 
             # msk = helper_anat(msk, rot, lut_file, structure)
-            msk = helper_anat_integer(msk, rot, lut_file[structure])
+            msk = helper_anat_integer(msk, rot, lut_file[structure], class_info[structure]['new_id'])
+            print(n, " ", np.unique(msk), " ", np.unique(rot), " ", np.unique(roi_data))
 
+        print(n, "  OUT ", np.unique(msk))
+
+        name = f"{dest}/{filename}_{255 - n}"
         if (view == 'saggital'):
-            utils.saveSlice(np.rot90(msk), f"{filename}_{255 - n}", dest)
+            # utils.saveSlice(np.rot90(msk), f"{filename}_{255 - n}", dest)
+            msk = np.rot90(msk)
+
         elif (view == 'coronal'):
-            utils.saveSlice(np.fliplr(np.rot90(msk)), f"{filename}_{n}", dest)
+            # utils.saveSlice(np.fliplr(np.rot90(msk)), f"{filename}_{n}", dest)
+            msk = np.fliplr(np.rot90(msk))
+            name = f"{dest}/{filename}_{n}"
         else:
-            utils.saveSlice(np.fliplr(np.rot90(msk)), f"{filename}_{255-n}", dest)
+            msk = np.fliplr(np.rot90(msk))
+            # utils.saveSlice(msk, f"{filename}_{255-n}", dest)
+
+        print(n, " AFTER IFS ", np.unique(msk))
+        msk = to_categorical(msk, num_classes=105)
+        print(msk.shape)
+        # np.save(name, msk)
 
 def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
@@ -111,29 +143,30 @@ def main():
         'Afterthought'
     ]
 
+    class_info = utils.get_classes_2()
 
     roots = [PREFIX_PATH + root for root in roots]
     lut_file = utils.load_lut(LUT_PATH)
 
     config = {
         'RAS': True, 
-        'normalize': True
+        'normalize': False
     }
 
     # image_obj = nib.load(image_path)
 
     canonical_img, canonical_data = utils.readMRI(imagePath=image_path, config=config)
-    canonical_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
+    # canonical_nifti = nib.Nifti1Image(canonical_data, affine=canonical_img.affine)
 
-    brain_img, brain_data = utils.readMRI(imagePath=brainPath, config=config)
-    brain_nifti = nib.Nifti1Image(brain_data, affine=brain_img.affine)
+    # brain_img, brain_data = utils.readMRI(imagePath=brainPath, config=config)
+    # brain_nifti = nib.Nifti1Image(brain_data, affine=brain_img.affine)
 
-    # STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
-    # mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
+    STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
+    mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
 
-    # for idx in range(len(mri_paths)):
-    #     tmp = mri_paths[idx].split('-')
-    #     mri_paths[idx] = f"data/{'-'.join(tmp[:-1])}/{mri_paths[idx]}"
+    for idx in range(len(mri_paths)):
+        tmp = mri_paths[idx].split('-')
+        mri_paths[idx] = f"data/{'-'.join(tmp[:-1])}/{mri_paths[idx]}"
 
     # print(mri_paths[0])
 
@@ -141,7 +174,7 @@ def main():
     # utils.create_folder('dataset_test_3/segmented/coronal')
     # utils.create_folder('dataset_test_3/segmented/axial')
 
-    # slides_n = [x for x in range(256)]
+    slides_n = [x for x in range(256)]
 
     # show_anat_slide(slides_n, lut_file, canonical_data, 
     #     STRUCTURES,
@@ -151,32 +184,58 @@ def main():
     # )
 
 
-    # utils.create_folder('dataset_test_2/segmented/saggital')
-    # utils.create_folder('dataset_test_2/segmented/coronal')
-    # utils.create_folder('dataset_test_2/segmented/axial')
+
+
+    # for folder in ['images', 'segmented']:
+    #     utils.create_folder(f"dataset_test_5/{folder}/saggital")
+    #     utils.create_folder(f"dataset_test_5/{folder}/coronal")
+    #     utils.create_folder(f"dataset_test_5/{folder}/axial")
+
+    # start_time = time.time()
 
     # for mri_path in mri_paths:
-    #     canonical_img, canonical_data = utils.readMRI(imagePath=mri_path + '/aparcNMMjt+aseg.mgz', config=config)
+
     #     mri_name = mri_path.split('/')[-1]
+
+    #     data_img, data = utils.readMRI(mri_path + '/001.mgz', config)
+    #     data_msk_img, data_msk = utils.readMRI(imagePath=mri_path + '/aparcNMMjt+aseg.mgz', config=config)
+        
+    #     if data.shape != data_msk.shape:
+    #         print("Correcting shapes in: ", mri_name)
+    #         data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
+    #         data = data_img.get_fdata()
+    #         data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
+    #     else:
+    #         data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
+
     #     print("Saving axial, saggital and coronal images for ", mri_name)
 
     #     for ori in ['axial', 'saggital', 'coronal']:
-    #         show_anat_slide(slides_n, lut_file, canonical_data, 
-    #             [
-    #                 'left-cerebral-white-matter',
-    #                 'right-cerebral-white-matter',
-    #                 'left-cerebellum-white-matter',
-    #                 'right-cerebellum-white-matter'
-    #             ],
-    #             f"dataset_test_2/segmented/{ori}",
+    #         # save_orig_slide(slides_n, data, ori, f"dataset_test_4/images/{ori}", mri_name)
+    #         show_anat_slide(slides_n, lut_file, data_msk, 
+    #             # [
+    #             #     'left-cerebral-white-matter',
+    #             #     'right-cerebral-white-matter',
+    #             #     'left-cerebellum-white-matter',
+    #             #     'right-cerebellum-white-matter'
+    #             # ],
+    #             STRUCTURES,
+    #             f"dataset_test_5/segmented/{ori}",
     #             mri_name,
-    #             ori   
+    #             ori,
+    #             class_info
     #         )
+    #     break
+    
+    # seconds = (time.time() - start_time)
+    # print("Processing time: ", seconds)
 
     # utils.show_all_slices_per_view('coronal', brain_data, counter=70)
     # utils.plot_roi_modified(lut_file, 'right-cerebral-white-matter', brain_nifti, canonical_data, canonical_img)
     
-    # show_anat_slide([54,84,120], lut_file, canonical_data, canonical_img, brain_nifti)
+
+    show_anat_slide([120], lut_file, canonical_data, STRUCTURES, f"dataset_test_5/segmented/coronal", 
+    "NKI-TRT-20-1", "coronal", class_info)
     
     # show_anat_slide([54,84,120], lut_file, canonical_data, STRUCTURES, './')
 

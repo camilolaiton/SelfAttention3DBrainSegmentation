@@ -85,7 +85,7 @@ def main():
         for structure in STRUCTURES:
             msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
 
-        msk = to_categorical(msk, num_classes=59)
+        msk = to_categorical(msk, num_classes=4)
         # Saving normalized mri
         np.save(f'dataset_3D/images/{name}.npy', data)
 

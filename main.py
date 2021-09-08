@@ -13,13 +13,13 @@
 """
 
 from utils import utils
-import nibabel as nib
+# import nibabel as nib
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.utils import to_categorical
 # from tifffile import imsave
 from sklearn.preprocessing import MinMaxScaler
-import time
+# import time
 import nilearn
 
 def helper_anat_structure(msk, data_seg, lut_structure, new_id):
@@ -31,7 +31,7 @@ def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     lut_file = utils.load_lut(LUT_PATH)
     DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_test/'
-    class_info = utils.get_classes()
+    class_info = utils.get_classes_same_id()
     config_orig = {
         'RAS': True, 
         'normalize': False
@@ -64,10 +64,11 @@ def main():
     #     print(np.unique(data))
     #     # print(data_img.shape, "  ", np.unique(data))
 
+
     utils.create_folder('dataset_3D/images')
     utils.create_folder('dataset_3D/masks')
 
-    start_time = time.time()
+    # start_time = time.time()
 
     for mri_path in mri_paths:
 
@@ -92,8 +93,14 @@ def main():
         # Saving msk
         np.save(f'dataset_3D/masks/{name}.npy', msk)
 
-    seconds = (time.time() - start_time)
-    print("Processing time: ", seconds)
+    # # seconds = (time.time() - start_time)
+    # # print("Processing time: ", seconds)
+
+    # test_image = np.load('dataset_3D/images/HLN-12-1.npy')
+    # test_msk = np.load('dataset_3D/masks/HLN-12-1.npy')
+
+    # print(np.unique(test_image), " ", test_image.shape)
+    # print(np.unique(test_msk), " ", test_msk.shape)
 
     # print(np.unique(msk))
 

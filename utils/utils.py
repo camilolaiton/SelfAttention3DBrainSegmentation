@@ -40,19 +40,22 @@ from sklearn.preprocessing import MinMaxScaler
 
 scaler = MinMaxScaler()
 
-def get_classes():
+def get_classes_same_id():
   return {
     'background': {'old_id': None, 'new_id': 0},
     'left-cerebral-white-matter' : {'old_id': 2, 'new_id': 1},
     'right-cerebral-white-matter' : {'old_id': 41, 'new_id': 1},
-    'left-lateral-ventricle': {'old_id': 4, 'new_id': 2},
-    'right-lateral-ventricle': {'old_id': 43, 'new_id': 2},
-    'left-inf-lat-vent': {'old_id': 5, 'new_id': 3},	
-    'right-inf-lat-vent': {'old_id': 44, 'new_id': 3},
-    'left-cerebellum-white-matter': {'old_id': 7, 'new_id': 4},
-    'right-cerebellum-white-matter': {'old_id': 46, 'new_id': 4},
-    'left-cerebellum-cortex': {'old_id': 8, 'new_id': 5},
-    'right-cerebellum-cortex': {'old_id': 47, 'new_id': 5},
+    
+    'left-cerebellum-white-matter': {'old_id': 7, 'new_id': 2},
+    'right-cerebellum-white-matter': {'old_id': 46, 'new_id': 2},
+    'left-cerebellum-cortex': {'old_id': 8, 'new_id': 3},
+    'right-cerebellum-cortex': {'old_id': 47, 'new_id': 3},
+
+    'left-lateral-ventricle': {'old_id': 4, 'new_id': 4},
+    'right-lateral-ventricle': {'old_id': 43, 'new_id': 4},
+    'left-inf-lat-vent': {'old_id': 5, 'new_id': 5},	
+    'right-inf-lat-vent': {'old_id': 44, 'new_id': 5},
+    
     'left-thalamus': {'old_id': 10, 'new_id': 6},	
     'right-thalamus': {'old_id': 49, 'new_id': 6},
     'left-caudate': {'old_id': 11, 'new_id': 7},	
@@ -149,7 +152,7 @@ def get_classes():
     'ctx-rh-insula': {'old_id': 2035, 'new_id': 58},
   }
 
-def get_classes_2():
+def get_classes_different_id():
   return {
     'background': {'old_id': None, 'new_id': 0},
     'left-cerebral-white-matter' : {'old_id': 2, 'new_id': 1},

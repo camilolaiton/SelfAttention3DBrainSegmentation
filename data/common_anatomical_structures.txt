@@ -1,3 +1,6 @@
 left-cerebral-white-matter
-left-lateral-ventricle
-left-inf-lat-vent
+right-cerebral-white-matter
+left-cerebellum-white-matter
+right-cerebellum-white-matter
+left-cerebellum-cortex
+right-cerebellum-cortex

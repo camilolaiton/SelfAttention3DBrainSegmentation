@@ -1111,3 +1111,31 @@ def check_mask_img(path):
       return True
 
   return False
+
+def load_mri(mri_path:str, mri_list:list):
+  mris = []
+
+  for idx, mri_name in enumerate(mri_list):
+    if (mri_name.split('.')[-1] == 'npy'):
+      mri = np.load(mri_path+mri_name)
+      mris.append(mri)
+  
+  return np.array(mris)
+
+def mri_generator(mri_path:str, mri_list:list, msk_path:str, msk_list:list, batch_size:int):
+  upper_limit = len(mri_list)
+  
+  while(True):
+    batch_start = 0
+    batch_end = batch_size
+
+    while (batch_start < upper_limit):
+      limit = min(batch_end, upper_limit)
+
+      X = load_mri(mri_path, mri_list[batch_start:limit])
+      Y = load_mri(msk_path, msk_list[batch_start:limit])
+
+      yield(X, Y)
+
+      batch_start += batch_size
+      batch_end += batch_size

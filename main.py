@@ -22,6 +22,43 @@ from sklearn.preprocessing import MinMaxScaler
 # import time
 import nilearn
 
+def structure_validation():
+    from matplotlib import pyplot as plt
+    import random
+    import os
+
+    train_img_dir = "dataset_3D/images/"
+    train_mask_dir = "dataset_3D/masks/"
+    train_img_list=os.listdir(train_img_dir)
+    train_mask_list = os.listdir(train_mask_dir)
+
+    batch_size = 2
+
+    train_img_datagen = utils.mri_generator(train_img_dir, train_img_list, 
+                                    train_mask_dir, train_mask_list, batch_size)
+
+    #Verify generator.... In python 3 next() is renamed as __next__()
+    img, msk = train_img_datagen.__next__()
+
+
+    img_num = random.randint(0,img.shape[0]-1)
+    print("img num: ", img_num)
+    test_img=img[img_num]
+    test_mask=msk[img_num]
+    test_mask=np.argmax(test_mask, axis=3)
+
+    n_slice=95#random.randint(0, test_mask.shape[2])
+    print("n_silce: ", n_slice)
+    plt.figure(figsize=(12, 6))
+
+    plt.subplot(221)
+    plt.imshow(test_img[:,:,n_slice], cmap='gray')
+    plt.title('Image')
+    plt.subplot(222)
+    plt.imshow(test_mask[:,:,n_slice])
+    plt.title('Mask')
+    plt.show()
+
 def helper_anat_structure(msk, data_seg, lut_structure, new_id):
     roi_data = (data_seg==lut_structure['id'])*lut_structure['id']
     return np.where(roi_data == lut_structure['id'], new_id, msk)
@@ -64,38 +101,37 @@ def main():
     #     print(np.unique(data))
     #     # print(data_img.shape, "  ", np.unique(data))
 
+    # utils.create_folder('dataset_3D/images')
+    # utils.create_folder('dataset_3D/masks')
 
-    utils.create_folder('dataset_3D/images')
-    utils.create_folder('dataset_3D/masks')
+    # # start_time = time.time()
+    # # MMRR-21-3
 
-    # start_time = time.time()
-    # MMRR-21-3
+    # # print(mri_paths.index('data/NKI-RS-22/NKI-RS-22-1'))
+    # # mri_paths = mri_paths[97:]
+    # # print(mri_paths)
+    # for mri_path in mri_paths:
 
-    print(mri_paths.index('data/NKI-RS-22/NKI-RS-22-1'))
-    mri_paths = mri_paths[97:]
-    print(mri_paths)
-    for mri_path in mri_paths:
+    #     name = mri_path.split('/')[-1]
 
-        name = mri_path.split('/')[-1]
+    #     data_img, data = utils.readMRI(mri_path + '/001.mgz', config_orig)
+    #     data_msk_img, data_msk = utils.readMRI(mri_path + '/aparcNMMjt+aseg.mgz', config_msk)
+    #     if data.shape != data_msk.shape:
+    #         print("Fixing shapes in: ", name)
+    #         data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
+    #         data = data_img.get_fdata()
+    #         data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
 
-        data_img, data = utils.readMRI(mri_path + '/001.mgz', config_orig)
-        data_msk_img, data_msk = utils.readMRI(mri_path + '/aparcNMMjt+aseg.mgz', config_msk)
-        if data.shape != data_msk.shape:
-            print("Fixing shapes in: ", name)
-            data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
-            data = data_img.get_fdata()
-            data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
+    #     msk = np.zeros((256, 256, 256), dtype=np.uint8)
+    #     for structure in STRUCTURES:
+    #         msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
 
-        msk = np.zeros((256, 256, 256), dtype=np.uint8)
-        for structure in STRUCTURES:
-            msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
+    #     msk = to_categorical(msk, num_classes=4)
+    #     # Saving normalized mri
+    #     np.save(f'dataset_3D/images/{name}.npy', data)
 
-        msk = to_categorical(msk, num_classes=4)
-        # Saving normalized mri
-        np.save(f'dataset_3D/images/{name}.npy', data)
-
-        # Saving msk
-        np.save(f'dataset_3D/masks/{name}.npy', msk)
+    #     # Saving msk
+    #     np.save(f'dataset_3D/masks/{name}.npy', msk)
 
     # # seconds = (time.time() - start_time)
     # # print("Processing time: ", seconds)

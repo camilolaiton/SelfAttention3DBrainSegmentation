@@ -1134,7 +1134,7 @@ def mri_generator(mri_path:str, mri_list:list, msk_path:str, msk_list:list, batc
 
       X = load_mri(mri_path, mri_list[batch_start:limit])
       Y = load_mri(msk_path, msk_list[batch_start:limit])
-
+      # print(mri_path, " ", mri_list[batch_start:limit])
       yield(X, Y)
 
       batch_start += batch_size

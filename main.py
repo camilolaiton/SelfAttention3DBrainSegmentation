@@ -69,7 +69,11 @@ def main():
     utils.create_folder('dataset_3D/masks')
 
     # start_time = time.time()
+    # MMRR-21-3
 
+    print(mri_paths.index('data/MMRR-21/MMRR-21-3'))
+    mri_paths = mri_paths[71:]
+    print(mri_paths)
     for mri_path in mri_paths:
 
         name = mri_path.split('/')[-1]

@@ -71,8 +71,8 @@ def main():
     # start_time = time.time()
     # MMRR-21-3
 
-    print(mri_paths.index('data/MMRR-21/MMRR-21-3'))
-    mri_paths = mri_paths[71:]
+    print(mri_paths.index('data/NKI-RS-22/NKI-RS-22-1'))
+    mri_paths = mri_paths[97:]
     print(mri_paths)
     for mri_path in mri_paths:
 
@@ -81,7 +81,7 @@ def main():
         data_img, data = utils.readMRI(mri_path + '/001.mgz', config_orig)
         data_msk_img, data_msk = utils.readMRI(mri_path + '/aparcNMMjt+aseg.mgz', config_msk)
         if data.shape != data_msk.shape:
-            print("Correcting shapes in: ", name)
+            print("Fixing shapes in: ", name)
             data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
             data = data_img.get_fdata()
             data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)

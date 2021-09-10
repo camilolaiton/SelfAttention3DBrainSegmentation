@@ -23,6 +23,7 @@ from sklearn.preprocessing import MinMaxScaler
 import random
 import os
 import nilearn
+import tensorflow as tf
 
 def structure_validation():
 
@@ -62,6 +63,66 @@ def helper_anat_structure(msk, data_seg, lut_structure, new_id):
     roi_data = (data_seg==lut_structure['id'])*lut_structure['id']
     return np.where(roi_data == lut_structure['id'], new_id, msk)
 
+def test_tf_function():
+    """
+        Function to check the patches inside the MRI
+    """
+    n = 10
+    # images is a 1 x 10 x 10 x 1 array that contains the numbers 1 through 100
+    images = [
+        [
+            [
+                [x * n + y + 1] for y in range(n)
+            ] for x in range(n)
+        ] 
+    ]
+    
+    n = 32
+    volume = [
+        [
+            [
+                [
+                    [x * n + y + 1] for y in range(n)
+                ] for x in range(n)
+            ] for w in range(n)
+        ]
+    ]
+
+    print("images: ", np.array(images).shape)
+
+    print("volume: ", np.array(volume).shape)
+
+    # We generate two outputs as follows:
+    # 1. 3x3 patches with stride length 5
+    # 2. Same as above, but the rate is increased to 2
+    
+    # patch_size = 5
+    # resp = tf.image.extract_patches(images=images,
+    #                         sizes=[1, patch_size, patch_size, 1],
+    #                         strides=[1, patch_size, patch_size, 1],
+    #                         rates=[1, 1, 1, 1],
+    #                         padding='VALID')
+
+    # print("resp: \n", resp)
+    # print("R1: ", resp[0][1][1])
+    # patch_dims = resp.shape[-1]
+    # resp = tf.reshape(resp, [1, -1, patch_dims])
+    # print("resp: \n", resp)
+
+
+    patch_size = 8
+    patches = tf.extract_volume_patches(
+        input=volume,
+        ksizes=[1, patch_size, patch_size, patch_size, 1],
+        strides=[1, patch_size, patch_size, patch_size, 1],
+        padding='VALID',
+    )
+    print("resp: \n", patches)
+    patch_dims = patches.shape[-1]
+    print("patchs dims: ", patch_dims)
+    patches = tf.reshape(patches, [1, -1, patch_dims])
+    print("resp: \n", patches)
+
 def main():
     scaler = MinMaxScaler()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
@@ -76,7 +137,8 @@ def main():
         'RAS': True, 
         'normalize': False
     }
-
+    test_tf_function()
+    exit()
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
     
@@ -106,30 +168,30 @@ def main():
     # # start_time = time.time()
     # # MMRR-21-3
 
-    mri_paths = mri_paths[mri_paths.index('data/HLN-12/HLN-12-6'):mri_paths.index('data/HLN-12/HLN-12-6')+1]
-    print(mri_paths)
-    for mri_path in mri_paths:
+    # mri_paths = mri_paths[mri_paths.index('data/HLN-12/HLN-12-6'):mri_paths.index('data/HLN-12/HLN-12-6')+1]
+    # print(mri_paths)
+    # for mri_path in mri_paths:
 
-        name = mri_path.split('/')[-1]
+    #     name = mri_path.split('/')[-1]
         
-        data_img, data = utils.readMRI(mri_path + '/001.mgz', config_orig)
-        data_msk_img, data_msk = utils.readMRI(mri_path + '/aparcNMMjt+aseg.mgz', config_msk)
-        if data.shape != data_msk.shape:
-            print("Fixing shapes in: ", name)
-            data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
-            data = data_img.get_fdata()
-            data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
+    #     data_img, data = utils.readMRI(mri_path + '/001.mgz', config_orig)
+    #     data_msk_img, data_msk = utils.readMRI(mri_path + '/aparcNMMjt+aseg.mgz', config_msk)
+    #     if data.shape != data_msk.shape:
+    #         print("Fixing shapes in: ", name)
+    #         data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
+    #         data = data_img.get_fdata()
+    #         data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
 
-        msk = np.zeros((256, 256, 256), dtype=np.uint8)
-        for structure in STRUCTURES:
-            msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
+    #     msk = np.zeros((256, 256, 256), dtype=np.uint8)
+    #     for structure in STRUCTURES:
+    #         msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
 
-        msk = to_categorical(msk, num_classes=4)
-        # Saving normalized mri
-        np.save(f'dataset_3D/test/images/{name}.npy', data)
+    #     msk = to_categorical(msk, num_classes=4)
+    #     # Saving normalized mri
+    #     np.save(f'dataset_3D/test/images/{name}.npy', data)
 
-        # Saving msk
-        np.save(f'dataset_3D/test/masks/{name}.npy', msk)
+    #     # Saving msk
+    #     np.save(f'dataset_3D/test/masks/{name}.npy', msk)
 
     # # seconds = (time.time() - start_time)
     # # print("Processing time: ", seconds)

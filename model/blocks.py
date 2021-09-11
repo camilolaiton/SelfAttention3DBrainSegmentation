@@ -145,7 +145,8 @@ class TransformerBlock(layers.Layer):
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
         attention_layer = self.attention_layer_a(x1, x1)
-        attention_layer = self.softmax_b(attention_layer)
+        # print(attention_layer.shape)
+        # attention_layer = self.softmax_b(attention_layer)
         
         x2 = self.add_a([attention_layer, encoded_patches])
         x3 = self.ln_b(x2)
@@ -170,6 +171,7 @@ class DecoderBlockCup(layers.Layer):
         # Layers
         self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
         self.reshape_a = layers.Reshape(target_shape=self.target_shape, name="decoder_block_cup_reshape_1")
+        # self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
         self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
         self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()

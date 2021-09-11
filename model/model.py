@@ -4,7 +4,11 @@ from tensorflow.keras.callbacks import ModelCheckpoint
 from blocks import *
 from config import *
 from metrics import dice_coef, IoU_coef
-import tensorflow_addons as tfa
+from tensorflow.keras import models
+import segmentation_models as sm
+import numpy as np
+
+# import tensorflow_addons as tfa
 
 def build_model(config):
     inputs = Input(shape=config.image_size)
@@ -30,14 +34,64 @@ def build_model(config):
         )(encoded_patches)
         transformer_blocks.append(encoded_patches)
     
-    x = DecoderBlockCup(
-        target_shape=(config.image_height//16, config.image_width//16, config.transformer.projection_dim),
-        filters=3,
-        normalization_rate=config.transformer.normalization_rate,
-        name=f'decoder_cup_{idx}'
-    )(encoded_patches)
+    filters = [3, 128, 64, 32, 1]
+    residual_block = None
+    for idx in range(len(filters)):
+      if not idx:
+        x = DecoderBlockCup(
+            target_shape=(config.image_height//64, config.image_width//64, config.image_depth//64, config.transformer.projection_dim),
+            filters=filters[idx],
+            normalization_rate=config.transformer.normalization_rate,
+            name=f'decoder_cup_{idx}'
+        )(encoded_patches)
+      else:
+          x = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(x)
 
-    x = DecoderUpsampleBlock(filters=2, kernel_size=1)(x)
+          if (config.residual_blocks):
+            num = 0
+            if (idx == 1):
+              num = -3
+            elif (idx == 2):
+              num = int(len(transformer_blocks)/2)
+
+            if idx == 1:
+              residual_block = DecoderBlockCup(
+                  target_shape=(config.image_height//16, config.image_width//16, config.transformer.projection_dim),
+                  filters=filters[idx],
+                  normalization_rate=config.transformer.normalization_rate,
+                  name=f'decoder_cup_{idx}'
+              )(transformer_blocks[-3])
+              residual_block = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(residual_block)
+              x = layers.Add()([x, residual_block])
+
+
+            if (idx == 2):
+              residual_block = DecoderBlockCup(
+                  target_shape=(config.image_height//8, config.image_width//8, config.transformer.projection_dim),
+                  filters=filters[idx-1],
+                  normalization_rate=config.transformer.normalization_rate,
+                  name=f'decoder_cup_{idx}'
+              )(transformer_blocks[-5])
+              residual_block = DecoderUpsampleBlock(filters=filters[idx-1], kernel_size=3)(residual_block)
+              residual_block = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(residual_block)
+
+              x = layers.Add()([x, residual_block])
+            
+            if (idx == 3):
+              residual_block = DecoderBlockCup(
+                  target_shape=(config.image_height//8, config.image_width//8, config.transformer.projection_dim),
+                  filters=filters[idx-1],
+                  normalization_rate=config.transformer.normalization_rate,
+                  name=f'decoder_cup_{idx}'
+              )(transformer_blocks[-7])
+              residual_block = DecoderUpsampleBlock(filters=filters[idx-2], kernel_size=3)(residual_block)
+              residual_block = DecoderUpsampleBlock(filters=filters[idx-1], kernel_size=3)(residual_block)
+              residual_block = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(residual_block)
+
+              x = layers.Add()([x, residual_block])
+
+    # x = DecoderUpsampleBlock(filters=32, kernel_size=3)(x)
+    # x = DecoderUpsampleBlock(filters=3, kernel_size=3)(x)
 
     return Model(inputs=inputs, outputs=x)
     
@@ -101,6 +155,11 @@ if __name__ == "__main__":
 
     # plot_model(model)
 
+    wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
+    dice_loss = sm.losses.DiceLoss(class_weights=np.array([wt0, wt1, wt2, wt3])) 
+    focal_loss = sm.losses.CategoricalFocalLoss()
+    loss = dice_loss + (1 * focal_loss)
+
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
         momentum=config.momentum,
@@ -109,11 +168,12 @@ if __name__ == "__main__":
 
     model.compile(
         optimizer=optimizer,
-        loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
+        loss=loss,
         metrics=[
-            tf.keras.metrics.BinaryAccuracy(name="accuracy"),
+            # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
             dice_coef,
-            IoU_coef
+            sm.metrics.IOUScore(threshold=0.5),
+            # IoU_coef
         ],
     )
 

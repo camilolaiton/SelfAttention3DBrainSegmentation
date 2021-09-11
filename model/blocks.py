@@ -155,7 +155,7 @@ class TransformerBlock(layers.Layer):
 
 class DecoderBlockCup(layers.Layer):
 
-    def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 1), kernel_size=3, activation=None, **kwarks):
+    def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 2, 1), kernel_size=3, activation=None, **kwarks):
         super(DecoderBlockCup, self).__init__(**kwarks)
         self.normalization_rate = normalization_rate
         self.target_shape = target_shape
@@ -172,12 +172,12 @@ class DecoderBlockCup(layers.Layer):
         self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
         self.reshape_a = layers.Reshape(target_shape=self.target_shape, name="decoder_block_cup_reshape_1")
         # self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
-        self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
-        self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
+        self.conv_a = layers.Conv3D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
+        self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation('relu')
-        self.upsample_a = layers.UpSampling2D(
-            size=(2,2), interpolation='bilinear'
+        self.upsample_a = layers.UpSampling3D(
+            size=(2, 2, 2)
         )
 
     def call(self, encoder_output):

@@ -23,14 +23,14 @@ def get_config_1():
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
     config.transformer.num_patches = (config.image_size[0] // config.transformer.patch_size)**2
-    config.transformer.projection_dim = 256
+    config.transformer.projection_dim = 128
     config.transformer.units = [
         config.transformer.projection_dim * 3, # (3) 1536 --  (4) 2048
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
     config.transformer.layers = 8
-    config.transformer.num_heads = 12
+    config.transformer.num_heads = 8
     config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-6
 

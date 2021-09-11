@@ -9,6 +9,43 @@ import segmentation_models as sm
 import numpy as np
 
 # import tensorflow_addons as tfa
+def build_model_test(config):
+    # Here I have an input size of 256x256x256x1
+    inputs = Input(shape=config.image_size)
+
+    # Split the volume into multiple volumes of 16x16x16
+    patches = Patches(
+        patch_size=config.transformer.patch_size, 
+        name='patches_0'
+    )(inputs)
+    
+    # Adding positional encoding to patches
+    encoded_patches = PatchEncoder(
+        num_patches=config.transformer.num_patches,
+        projection_dim=config.transformer.projection_dim,
+        name='encoded_patches_0',
+    )(patches)
+
+    # Successive transformer layers
+    for idx in range(config.transformer.layers):
+        encoded_patches = TransformerBlock(
+            num_heads=config.transformer.num_heads,
+            projection_dim=config.transformer.projection_dim, 
+            dropout_rate=config.transformer.dropout_rate, 
+            normalization_rate=config.transformer.normalization_rate, 
+            transformer_units=config.transformer.units, 
+            name=f"transformer_block_{idx}"
+        )(encoded_patches)
+
+    dec = 32
+    x = DecoderBlockCup(
+        target_shape=(config.image_height//dec, config.image_width//dec, config.image_depth//dec, config.transformer.projection_dim//2),
+        filters=3,
+        normalization_rate=config.transformer.normalization_rate,
+        name=f'decoder_cup_{0}'
+    )(encoded_patches)
+
+    return Model(inputs=inputs, outputs=x)
 
 def build_model(config):
     inputs = Input(shape=config.image_size)
@@ -126,7 +163,9 @@ if __name__ == "__main__":
 
     if (config_num == 1):
         config = get_config_1()
-        model = build_model(config)
+        # model = build_model(config)
+        model = build_model_test(config)
+
 
     # elif (config_num == 2):
     #     config = get_config_2()

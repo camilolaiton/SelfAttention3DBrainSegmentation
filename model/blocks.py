@@ -169,11 +169,11 @@ class DecoderBlockCup(layers.Layer):
         self.activation = activation
 
         # Layers
-        self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
+        # self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
         self.reshape_a = layers.Reshape(target_shape=self.target_shape, name="decoder_block_cup_reshape_1")
         # self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
         self.conv_a = layers.Conv3D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
-        self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
+        # self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation('relu')
         self.upsample_a = layers.UpSampling3D(
@@ -181,23 +181,17 @@ class DecoderBlockCup(layers.Layer):
         )
 
     def call(self, encoder_output):
-        x = self.ln_a(encoder_output)
-        x = self.reshape_a(x)
-        
-        # x = self.conv_a(x)
-        # x = self.max_pool_a(x)
-        # x = self.bn_a(x)
-        # return self.activation_fnc(x)
-        # x = self.conv_a(x)    
-        # x = self.max_pool_a(x)
-        # x = self.bn_a(x)
-        # x = self.activation_fnc(x)
-        # x = self.upsample_a(x)
+        # x = self.ln_a(encoder_output)
+        x = self.reshape_a(encoder_output)
+        x = self.conv_a(x)
+        x = self.bn_a(x)
+        x = self.activation_fnc(x)
+        x = self.upsample_a(x)
         return x
 
 class DecoderUpsampleBlock(layers.Layer):
     
-    def __init__(self, filters, kernel_size=3, strides=(1, 1), pool_size=(2, 1), **kwarks):
+    def __init__(self, filters, kernel_size=3, strides=(1, 1, 1), pool_size=(2, 2, 1), **kwarks):
         super(DecoderUpsampleBlock, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
@@ -205,32 +199,25 @@ class DecoderUpsampleBlock(layers.Layer):
         self.pool_size = pool_size
 
         # Layers
-        self.upsample_a = layers.UpSampling2D(
-            size=(16,16), interpolation='bilinear'
+        self.upsample_a = layers.UpSampling3D(
+            size=(2, 2, 2)
         )
 
-        self.conv_a = layers.Conv2D(
+        self.conv_a = layers.Conv3D(
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=self.strides, 
             padding='same'
         )
 
-        self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
+        # self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation('relu')
         
     def call(self, decoder_input):
-        # x = self.upsample_a(decoder_input)
-        # x = self.upsample_a(x)
-
         x = self.conv_a(decoder_input)
-        # x = self.conv_a(x)
-
-        # x = self.conv_transpose_a(decoder_input)    
-        # x = self.max_pool_a(x)
-        # x = self.bn_a(x)
-        # x = self.activation_fnc(x)
+        x = self.activation_fnc(x)
+        x = self.bn_a(x)
         x = self.upsample_a(x)
         return x
 
@@ -255,6 +242,88 @@ class DecoderSegmentationHead(layers.Layer):
     def call(self, decoder_upsample_block):
         x = self.reshape_a(decoder_upsample_block)
         return self.conv_a(x)
+
+class ConnectionComponents(layers.Layer):
+    def __init__(self, filters, kernel_size, **kwarks):
+        super(ConnectionComponents, self).__init__(**kwarks)
+
+        self.filters = filters
+        self.kernel_size = kernel_size
+
+        self.conv_1_a = layers.Conv3D(
+            filters=self.filters, 
+            kernel_size=(self.kernel_size, self.kernel_size, self.kernel_size), 
+            strides=1, 
+            padding='same'
+        )
+
+        self.conv_1_b = layers.Conv3D(
+            filters=1,
+            kernel_size=(1, 1, 1),
+            strides=1,
+            padding='same'
+        )
+
+        self.activation_layer = layers.Activation('relu')
+
+        self.add_layer = layers.Add()
+        self.bn_1_b = layers.BatchNormalization()
+        self.bn_1_a = layers.BatchNormalization()
+        self.bn_out = layers.BatchNormalization()
+
+    def call(self, input):
+        shortcut = input
+        path_1 = self.conv_1_b(shortcut)
+        path_1 = self.bn_1_b(path_1)
+        
+        # conv 3x3
+        path_2 = self.conv_1_a(input)
+        path_2 = self.bn_1_a(path_2)
+        path_2 = self.activation_layer(path_2)
+
+        # add layer
+        out = self.add_layer([path_1, path_2])
+        out = self.activation_layer(out)
+        out = self.bn_out(out)
+
+        return out
+
+class EncoderDecoderConnections(layers.Layer):
+    
+    def __init__(self, filters, kernel_size, **kwarks):
+        super(EncoderDecoderConnections, self).__init__(**kwarks)
+        self.filters = filters
+        self.kernel_size = kernel_size
+
+        # self.concatenate = layers.Concatenate()
+        self.upsample = layers.UpSampling3D(
+            size=(2, 2, 2)
+        )
+
+    def call(self, encoder_input, decoder_layer, config):
+        
+        # Reshaping transformer
+        out = DecoderBlockCup(
+            target_shape=config["target_shape"],
+            filters=64,
+            normalization_rate=None,
+        )(encoder_input)
+        
+        for filter in config["filters_reshape"]:
+            out = DecoderUpsampleBlock(
+                filters=filter, 
+                kernel_size=3,
+            )(out)
+
+        # coding res path
+        for l in range(config["length_res_block"]):
+            out = ConnectionComponents(
+                filters=self.filters, 
+                kernel_size=self.kernel_size
+            )(out)
+        
+        out = self.upsample(out)
+        return out
 
 class DecoderDense(layers.Layer):
     def __init__(self, normalization_rate, **kwarks):

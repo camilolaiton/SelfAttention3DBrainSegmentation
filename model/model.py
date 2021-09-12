@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.keras import Model, Input
+from tensorflow.keras import Model, Input, layers
 from tensorflow.keras.callbacks import ModelCheckpoint
 from blocks import *
 from config import *
@@ -26,6 +26,7 @@ def build_model_test(config):
         name='encoded_patches_0',
     )(patches)
 
+    transformer_layers = []
     # Successive transformer layers
     for idx in range(config.transformer.layers):
         encoded_patches = TransformerBlock(
@@ -36,16 +37,129 @@ def build_model_test(config):
             transformer_units=config.transformer.units, 
             name=f"transformer_block_{idx}"
         )(encoded_patches)
+        transformer_layers.append(encoded_patches)
 
+    # Reshape and initiating decoder
     dec = 32
-    x = DecoderBlockCup(
+    decoder_block_cup = DecoderBlockCup(
         target_shape=(config.image_height//dec, config.image_width//dec, config.image_depth//dec, config.transformer.projection_dim//2),
-        filters=3,
+        filters=64,
         normalization_rate=config.transformer.normalization_rate,
         name=f'decoder_cup_{0}'
     )(encoded_patches)
 
-    return Model(inputs=inputs, outputs=x)
+    # Decoder upsample blocks & skip connections
+    
+    decoder_up_block_0 = DecoderUpsampleBlock(
+        filters=32, 
+        kernel_size=3,
+        name=f"decoder_upsample_0"
+    )(decoder_block_cup)
+
+    skip_conn_0 = EncoderDecoderConnections(
+        filters=32,
+        kernel_size=3,
+        name="skip_connection_0"
+    )(
+        transformer_layers[-1], 
+        decoder_up_block_0,
+        {
+            "length_res_block": 4,
+            "target_shape": (
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim//2
+            ),
+            "length_reshape": 0,
+            "filters_reshape": []
+        }
+    )
+    skip_conn_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
+
+
+    decoder_up_block_1 = DecoderUpsampleBlock(
+        filters=16, 
+        kernel_size=3,
+        name=f"decoder_upsample_1"
+    )(skip_conn_0)
+
+    skip_conn_1 = EncoderDecoderConnections(
+        filters=16,
+        kernel_size=3,
+        name="skip_connection_1"
+    )(
+        transformer_layers[-4], 
+        decoder_up_block_1, 
+        {
+            "length_res_block": 4,
+            "target_shape": (
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim//2
+            ),
+            "length_reshape": 1,
+            "filters_reshape": [32]
+        }
+    )
+    skip_conn_1 = layers.Add()([decoder_up_block_1, skip_conn_1])
+
+
+    decoder_up_block_2 = DecoderUpsampleBlock(
+        filters=8, 
+        kernel_size=3,
+        name=f"decoder_upsample_2"
+    )(skip_conn_1)
+
+    skip_conn_2 = EncoderDecoderConnections(
+        filters=8,
+        kernel_size=3,
+        name="skip_connection_2"
+    )(
+        transformer_layers[-6], 
+        decoder_up_block_2, 
+        {
+            "length_res_block": 4,
+            "target_shape": (
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim//2
+            ),
+            "filters_reshape": [32, 16]
+        }
+    )
+    skip_conn_2 = layers.Add()([decoder_up_block_2, skip_conn_2])
+
+    
+    decoder_up_block_3 = DecoderUpsampleBlock(
+        filters=1, 
+        kernel_size=3,
+        name=f"decoder_upsample_3"
+    )(skip_conn_2)
+
+    skip_conn_3 = EncoderDecoderConnections(
+        filters=1,
+        kernel_size=3,
+        name="skip_connection_3"
+    )(
+        transformer_layers[0], 
+        decoder_up_block_3, 
+        {
+            "length_res_block": 4,
+            "target_shape": (
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim//2
+            ),
+            "filters_reshape": [32, 16, 8]
+        }
+    )
+    skip_conn_3 = layers.Add()([decoder_up_block_3, skip_conn_3])
+
+    return Model(inputs=inputs, outputs=skip_conn_3)
 
 def build_model(config):
     inputs = Input(shape=config.image_size)

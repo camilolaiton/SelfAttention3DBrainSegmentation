@@ -23,7 +23,7 @@ def get_config_1():
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
     config.transformer.num_patches = (config.image_size[0] // config.transformer.patch_size)**2
-    config.transformer.projection_dim = 128
+    config.transformer.projection_dim = 192
     config.transformer.units = [
         config.transformer.projection_dim * 3, # (3) 1536 --  (4) 2048
         config.transformer.projection_dim, # 512

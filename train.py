@@ -12,16 +12,21 @@
         de atención".
 """
 
+import os
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import elasticdeform
-import random
 from utils import utils
 from matplotlib import pyplot
 from model.config import get_config_1
+from model.model import build_model_test
+from model.metrics import dice_coef, IoU_coef
+import segmentation_models as sm
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+import pickle
 
 # import tensorflow_addons as tfa
 
@@ -188,30 +193,116 @@ def testing_datagens(config):
     # pyplot.show()
 
 def main():
+
+    # creating model
     config = get_config_1()
+    model = build_model_test(config)
+    print(f"[+] Building model with config {config}")    
+    model.summary()
 
-    VIEW_TRAINIG = 'axial/'
-    LABEL = 'left-cerebellum-white-matter'
+    tf.keras.utils.plot_model(
+        model,
+        to_file="model/trained_architecture.png",
+        show_shapes=True,
+        show_dtype=True,
+        show_layer_names=True,
+        rankdir="TB",
+        expand_nested=False,
+        dpi=96,
+    )
 
-    config.dataset_path = 'dataset_test/'
+    # Setting up variables for data generators
+    TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'
+    TRAIN_MSKS_DIR = config.dataset_path + 'train/masks/'
 
-    config = {
-        'DATASET_PATH': config.dataset_path,
-        'VIEW_TRAINIG': VIEW_TRAINIG,
-        'LABEL': LABEL,
-        'IMAGE_SIZE': (config.image_height, config.image_width),
-        'BATCH_SIZE': config.batch_size,
-        'DATA_AUGMENTATION': config.data_augmentation,
-    }
-    
-    train_gen = create_train_dataset(config=config)
-    val_gen = create_validation_dataset(config=config)
-    
-    image, mask = next(train_gen)
-    display([image[0], mask[0]])
+    TEST_IMGS_DIR = config.dataset_path + 'test/images/'
+    TEST_MSKS_DIR = config.dataset_path + 'test/masks/'
 
-    # show_dataset(datagen=train_gen, config=config, num=150)
-    # testing_datagens(config)
+    train_imgs_lst = os.listdir(TRAIN_IMGS_DIR)
+    train_msks_lst = os.listdir(TRAIN_MSKS_DIR)
+
+    test_imgs_lst = os.listdir(TEST_IMGS_DIR)
+    test_msks_lst = os.listdir(TEST_MSKS_DIR)
+
+    # Getting image data generators
+    train_datagen = utils.mri_generator(
+        TRAIN_IMGS_DIR,
+        train_imgs_lst,
+        TRAIN_MSKS_DIR,
+        train_msks_lst,
+        config.batch_size
+    )
+
+    val_datagen = utils.mri_generator(
+        TEST_IMGS_DIR,
+        test_imgs_lst,
+        TEST_MSKS_DIR,
+        test_msks_lst,
+        config.batch_size
+    )
+
+    # Setting up weights 
+    wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
+
+    # Setting up neural network loss
+    dice_loss = sm.losses.DiceLoss(class_weights=np.array([wt0, wt1, wt2, wt3])) 
+    focal_loss = sm.losses.CategoricalFocalLoss()
+    loss = dice_loss + (1 * focal_loss)
+
+    optimizer = tf.optimizers.SGD(
+        learning_rate=config.learning_rate, 
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
+    )
+
+    model.compile(
+        optimizer=optimizer,
+        loss=loss,
+        metrics=[
+            # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
+            'accuracy',
+            dice_coef,
+            sm.metrics.IOUScore(threshold=0.5),
+            sm.metrics.FScore(threshold=0.5),
+            # IoU_coef
+        ],
+    )
+
+    # Setting up callbacks
+    monitor = 'val_IOUScore'
+    mode = 'max'
+
+    # Early stopping
+    early_stop = EarlyStopping(
+        monitor=monitor, 
+        mode=mode, 
+        verbose=1,
+        patience=10
+    )
+
+    # Model Checkpoing
+    model_check = ModelCheckpoint(
+        'trainings/trained_architecture.hdf5', 
+        save_best_only=True,
+        save_weights_only=True, 
+        monitor=monitor, 
+        mode=mode
+    )
+
+    steps_per_epoch = len(train_imgs_lst)//config.batch_size
+    val_steps_per_epoch = len(test_imgs_lst)//config.batch_size
+
+    history = model.fit(train_datagen,
+        steps_per_epoch=steps_per_epoch,
+        epochs=config.epochs,
+        verbose=1,
+        validation_data=val_datagen,
+        validation_steps=val_steps_per_epoch,
+        callbacks=[early_stop, model_check]
+    )
+
+    with open('trainings/history.obj', 'wb') as file_pi:
+        pickle.dump(history.history, file_pi)
 
 if __name__ == "__main__":
     main()

@@ -1,9 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras import Model, Input, layers
 from tensorflow.keras.callbacks import ModelCheckpoint
-from blocks import *
-from config import *
-from metrics import dice_coef, IoU_coef
+from .blocks import *
+from .config import *
+from .metrics import dice_coef, IoU_coef
 from tensorflow.keras import models
 import segmentation_models as sm
 import numpy as np
@@ -161,92 +161,6 @@ def build_model_test(config):
 
     return Model(inputs=inputs, outputs=skip_conn_3)
 
-def build_model(config):
-    inputs = Input(shape=config.image_size)
-    patches = Patches(config.transformer.patch_size, name="patches_0")(inputs)
-    encoded_patches = PatchEncoder(
-        num_patches=config.transformer.num_patches, 
-        projection_dim=config.transformer.projection_dim,
-        name='encoded_patches_0',    
-    )(patches)
-
-    # print(f"enconded patches size {encoded_patches.shape}")
-
-    transformer_blocks = []
-    for idx in range(config.transformer.layers):
-        # print(f"Starting {idx} iteration")
-        encoded_patches = TransformerBlock(
-            num_heads=config.transformer.num_heads, 
-            projection_dim=config.transformer.projection_dim, 
-            dropout_rate=config.transformer.dropout_rate, 
-            normalization_rate=config.transformer.normalization_rate, 
-            transformer_units=config.transformer.units, 
-            name="transformer_block_"+str(idx)
-        )(encoded_patches)
-        transformer_blocks.append(encoded_patches)
-    
-    filters = [3, 128, 64, 32, 1]
-    residual_block = None
-    for idx in range(len(filters)):
-      if not idx:
-        x = DecoderBlockCup(
-            target_shape=(config.image_height//64, config.image_width//64, config.image_depth//64, config.transformer.projection_dim),
-            filters=filters[idx],
-            normalization_rate=config.transformer.normalization_rate,
-            name=f'decoder_cup_{idx}'
-        )(encoded_patches)
-      else:
-          x = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(x)
-
-          if (config.residual_blocks):
-            num = 0
-            if (idx == 1):
-              num = -3
-            elif (idx == 2):
-              num = int(len(transformer_blocks)/2)
-
-            if idx == 1:
-              residual_block = DecoderBlockCup(
-                  target_shape=(config.image_height//16, config.image_width//16, config.transformer.projection_dim),
-                  filters=filters[idx],
-                  normalization_rate=config.transformer.normalization_rate,
-                  name=f'decoder_cup_{idx}'
-              )(transformer_blocks[-3])
-              residual_block = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(residual_block)
-              x = layers.Add()([x, residual_block])
-
-
-            if (idx == 2):
-              residual_block = DecoderBlockCup(
-                  target_shape=(config.image_height//8, config.image_width//8, config.transformer.projection_dim),
-                  filters=filters[idx-1],
-                  normalization_rate=config.transformer.normalization_rate,
-                  name=f'decoder_cup_{idx}'
-              )(transformer_blocks[-5])
-              residual_block = DecoderUpsampleBlock(filters=filters[idx-1], kernel_size=3)(residual_block)
-              residual_block = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(residual_block)
-
-              x = layers.Add()([x, residual_block])
-            
-            if (idx == 3):
-              residual_block = DecoderBlockCup(
-                  target_shape=(config.image_height//8, config.image_width//8, config.transformer.projection_dim),
-                  filters=filters[idx-1],
-                  normalization_rate=config.transformer.normalization_rate,
-                  name=f'decoder_cup_{idx}'
-              )(transformer_blocks[-7])
-              residual_block = DecoderUpsampleBlock(filters=filters[idx-2], kernel_size=3)(residual_block)
-              residual_block = DecoderUpsampleBlock(filters=filters[idx-1], kernel_size=3)(residual_block)
-              residual_block = DecoderUpsampleBlock(filters=filters[idx], kernel_size=3)(residual_block)
-
-              x = layers.Add()([x, residual_block])
-
-    # x = DecoderUpsampleBlock(filters=32, kernel_size=3)(x)
-    # x = DecoderUpsampleBlock(filters=3, kernel_size=3)(x)
-
-    return Model(inputs=inputs, outputs=x)
-    
-
 def plot_model(model, input_shape=(None, 256, 256, 1)):
     all_layers = []
     for layer in model.layers:
@@ -324,6 +238,7 @@ if __name__ == "__main__":
         loss=loss,
         metrics=[
             # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
+            'accuracy',
             dice_coef,
             sm.metrics.IOUScore(threshold=0.5),
             # IoU_coef

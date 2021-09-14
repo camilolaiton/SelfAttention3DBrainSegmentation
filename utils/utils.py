@@ -19,7 +19,6 @@ import nibabel as nib
 import PIL
 from PIL import Image, ImageOps
 from pathlib import Path
-from PIL import UnidentifiedImageError
 
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap

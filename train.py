@@ -25,6 +25,7 @@ from model.config import get_config_1
 from model.model import build_model_test
 from model.metrics import dice_coef, IoU_coef
 import segmentation_models as sm
+sm.set_framework('tf.keras')
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import pickle
 

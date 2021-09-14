@@ -295,7 +295,7 @@ def main():
 
     history = model.fit(train_datagen,
         steps_per_epoch=steps_per_epoch,
-        epochs=config.epochs,
+        epochs=config.num_epochs,
         verbose=1,
         validation_data=val_datagen,
         validation_steps=val_steps_per_epoch,

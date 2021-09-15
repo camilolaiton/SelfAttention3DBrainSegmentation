@@ -201,7 +201,6 @@ def main():
     print(f"[+] Building model with config {config}")    
     model.summary()
 
-    exit()
     tf.keras.utils.plot_model(
         model,
         to_file="model/trained_architecture.png",

@@ -77,7 +77,6 @@ def build_model_test(config):
     )
     skip_conn_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
 
-
     decoder_up_block_1 = DecoderUpsampleBlock(
         filters=16, 
         kernel_size=3,

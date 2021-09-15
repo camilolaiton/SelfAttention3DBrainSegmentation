@@ -38,6 +38,17 @@ class ConvolutionalBlock(layers.Layer):
         x = self.max_pool_a(x)
         x = self.bn_a(x)
         return self.activation_fnc(x)
+    
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            'padding' : self.padding,
+            'dropout_rate' : self.dropout_rate,
+            'activation' : self.activation,
+        })
+        return config
 
 class MLPBlock(layers.Layer):
     def __init__(self, hidden_units, dropout_rate, activation=None, **kwarks):
@@ -63,6 +74,16 @@ class MLPBlock(layers.Layer):
             inputs = layer(inputs)
 
         return inputs
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'hidden_units' : self.hidden_units,
+            'dropout_rate' : self.dropout_rate,
+            'activation' : self.activation,
+            'layers' : self.layers,
+        })
+        return config
 
 def mlp(x, hidden_units, dropout_rate):
     for units in hidden_units:
@@ -97,6 +118,13 @@ class Patches(layers.Layer):
         patches = tf.reshape(patches, [batch_size, -1, patch_dims])
         return patches
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'patch_size' : self.patch_size
+        })
+        return config
+
 class PatchEncoder(layers.Layer):
     def __init__(self, num_patches, projection_dim, **kwarks):
         super(PatchEncoder, self).__init__(**kwarks)
@@ -112,6 +140,16 @@ class PatchEncoder(layers.Layer):
         positions = tf.range(start=0, limit=self.num_patches, delta=1)
         encoded = self.projection(patch) + self.position_embedding(positions)
         return encoded
+    
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'num_patches' : self.num_patches,
+            # layers
+            'projection' : self.projection,
+            'position_embedding' : self.position_embedding,
+        })
+        return config
 
 class TransformerBlock(layers.Layer):
     def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, **kwarks):
@@ -153,6 +191,24 @@ class TransformerBlock(layers.Layer):
         x3 = self.mlp_block_b(x3)
         return self.add_b([x3, x2])
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'num_heads' : self.num_heads,
+            'projection_dim' : self.projection_dim,
+            'dropout_rate' : self.dropout_rate,
+            'normalization_rate' : self.normalization_rate,
+            'transformer_units' : self.transformer_units,
+            # layers
+            'ln_a' : self.ln_a,
+            'attention_layer_a' : self.attention_layer_a,
+            'add_a' : self.add_a,
+            'ln_b' : self.ln_b,
+            'mlp_block_b' : self.mlp_block_b,
+            'add_b' : self.add_b,
+        })
+        return config
+
 class DecoderBlockCup(layers.Layer):
 
     def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 2, 1), kernel_size=3, activation=None, **kwarks):
@@ -169,10 +225,18 @@ class DecoderBlockCup(layers.Layer):
         self.activation = activation
 
         # Layers
-        # self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
-        self.reshape_a = layers.Reshape(target_shape=self.target_shape, name="decoder_block_cup_reshape_1")
+        self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate, name="decoder_block_cup_ln_a")
+        self.reshape_a = layers.Reshape(
+            target_shape=self.target_shape, 
+            name="decoder_block_cup_reshape_1"
+        )
         # self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
-        self.conv_a = layers.Conv3D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
+        self.conv_a = layers.Conv3D(
+            filters=self.filters, 
+            kernel_size=self.kernel_size*2, 
+            strides=1, 
+            padding='same'
+        )
         # self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation('relu')
@@ -183,11 +247,25 @@ class DecoderBlockCup(layers.Layer):
     def call(self, encoder_output):
         # x = self.ln_a(encoder_output)
         x = self.reshape_a(encoder_output)
-        x = self.conv_a(x)
-        x = self.bn_a(x)
-        x = self.activation_fnc(x)
-        x = self.upsample_a(x)
+        # x = self.conv_a(x)
+        # x = self.bn_a(x)
+        # x = self.activation_fnc(x)
+        # x = self.upsample_a(x)
         return x
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'normalization_rate' : self.normalization_rate,
+            'target_shape' : self.target_shape,
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            'pool_size' : self.pool_size,
+            # layers
+            'ln_a' : self.ln_a,
+            'reshape_a' : self.reshape_a,
+        })
+        return config
 
 class DecoderUpsampleBlock(layers.Layer):
     
@@ -221,6 +299,21 @@ class DecoderUpsampleBlock(layers.Layer):
         x = self.upsample_a(x)
         return x
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            'strides' : self.strides,
+            'pool_size' : self.pool_size,
+            # layers
+            'conv_a' : self.conv_a,
+            'bn_a' : self.bn_a,
+            'upsample_a' : self.upsample_a,
+            'activation_fnc' : self.activation_fnc,
+        })
+        return config
+
 class DecoderSegmentationHead(layers.Layer):
 
     def __init__(self, filters=1, kernel_size=3, strides=1, target_shape=(256, 256, 16), **kwarks):
@@ -242,6 +335,19 @@ class DecoderSegmentationHead(layers.Layer):
     def call(self, decoder_upsample_block):
         x = self.reshape_a(decoder_upsample_block)
         return self.conv_a(x)
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            'strides' : self.strides,
+            'target_shape' : self.target_shape,
+            # layers
+            'conv_a' : self.conv_a,
+            'reshape_a' : self.reshape_a,
+        })
+        return config
 
 class ConnectionComponents(layers.Layer):
     def __init__(self, filters, kernel_size, **kwarks):
@@ -288,6 +394,22 @@ class ConnectionComponents(layers.Layer):
 
         return out
 
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            # layers
+            'conv_1_a' : self.conv_1_a,
+            'bn_1_a' : self.bn_1_a,
+            'conv_1_b' : self.conv_1_b,
+            'bn_1_b' : self.bn_1_b,
+            'add_layer': self.add_layer,
+            'activation_layer': self.activation_layer,
+            'bn_out': self.bn_out,
+        })
+        return config
+
 class EncoderDecoderConnections(layers.Layer):
     
     def __init__(self, filters, kernel_size, **kwarks):
@@ -324,6 +446,16 @@ class EncoderDecoderConnections(layers.Layer):
         
         out = self.upsample(out)
         return out
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            # layers
+            'upsample': self.upsample,
+        })
+        return config
 
 class DecoderDense(layers.Layer):
     def __init__(self, normalization_rate, **kwarks):

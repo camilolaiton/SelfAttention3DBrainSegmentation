@@ -371,6 +371,7 @@ class ConnectionComponents(layers.Layer):
         )
 
         self.activation_layer = layers.Activation('relu')
+        self.activation_layer_2 = layers.Activation('relu')
 
         self.add_layer = layers.Add()
         self.bn_1_b = layers.BatchNormalization()
@@ -389,7 +390,7 @@ class ConnectionComponents(layers.Layer):
 
         # add layer
         out = self.add_layer([path_1, path_2])
-        out = self.activation_layer(out)
+        out = self.activation_layer_2(out)
         out = self.bn_out(out)
 
         return out
@@ -406,6 +407,7 @@ class ConnectionComponents(layers.Layer):
             'bn_1_b' : self.bn_1_b,
             'add_layer': self.add_layer,
             'activation_layer': self.activation_layer,
+            'activation_layer_2': self.activation_layer_2,
             'bn_out': self.bn_out,
         })
         return config
@@ -422,7 +424,7 @@ class EncoderDecoderConnections(layers.Layer):
             size=(2, 2, 2)
         )
 
-    def call(self, encoder_input, decoder_layer, config):
+    def call(self, encoder_input, config):
         
         # Reshaping transformer
         out = DecoderBlockCup(

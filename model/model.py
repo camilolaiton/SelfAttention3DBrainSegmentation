@@ -61,8 +61,7 @@ def build_model_test(config):
         kernel_size=3,
         name="skip_connection_0"
     )(
-        transformer_layers[-1], 
-        decoder_up_block_0,
+        transformer_layers[-1],
         {
             "length_res_block": 4,
             "target_shape": (
@@ -89,7 +88,6 @@ def build_model_test(config):
         name="skip_connection_1"
     )(
         transformer_layers[-4], 
-        decoder_up_block_1, 
         {
             "length_res_block": 4,
             "target_shape": (
@@ -116,8 +114,7 @@ def build_model_test(config):
         kernel_size=3,
         name="skip_connection_2"
     )(
-        transformer_layers[-6], 
-        decoder_up_block_2, 
+        transformer_layers[-6],
         {
             "length_res_block": 4,
             "target_shape": (
@@ -143,8 +140,7 @@ def build_model_test(config):
         kernel_size=3,
         name="skip_connection_3"
     )(
-        transformer_layers[0], 
-        decoder_up_block_3, 
+        transformer_layers[0],
         {
             "length_res_block": 4,
             "target_shape": (

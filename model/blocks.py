@@ -414,22 +414,14 @@ class ConnectionComponents(layers.Layer):
 
 class EncoderDecoderConnections(layers.Layer):
     
-    def __init__(self, filters, kernel_size, target_size, de_up_filters, **kwarks):
+    def __init__(self, filters, kernel_size, **kwarks):
         super(EncoderDecoderConnections, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
-        self.target_size = target_size
-        self.de_up_layers = []
 
         # self.concatenate = layers.Concatenate()
         self.upsample = layers.UpSampling3D(
             size=(2, 2, 2)
-        )
-
-        self.decoder_block_cup_ed = DecoderBlockCup(
-            target_shape=self.target_size,
-            filters=64,
-            normalization_rate=None,
         )
 
         self.con_comp_1 = ConnectionComponents(
@@ -452,25 +444,10 @@ class EncoderDecoderConnections(layers.Layer):
             kernel_size=self.kernel_size
         )
 
-        for de_up_filter in de_up_filters:
-            self.de_up_layers.append(
-                DecoderUpsampleBlock(
-                    filters=de_up_filter, 
-                    kernel_size=3,
-                )
-            )
-
 
     def call(self, encoder_input):
-        
-        # Reshaping transformer
-        out = self.decoder_block_cup_ed(encoder_input)
-        
-        for idx in range(len(self.de_up_layers)):
-            out = self.de_up_layers[idx](out)
-
         # coding res path
-        out = self.con_comp_1(out)
+        out = self.con_comp_1(encoder_input)
         out = self.con_comp_2(out)
         out = self.con_comp_3(out)
         out = self.con_comp_4(out)
@@ -483,15 +460,12 @@ class EncoderDecoderConnections(layers.Layer):
         config.update({
             'filters' : self.filters,
             'kernel_size' : self.kernel_size,
-            'target_size' : self.target_size,
             # layers
             'upsample': self.upsample,
             'con_comp_1': self.con_comp_1,
             'con_comp_2': self.con_comp_2,
             'con_comp_3': self.con_comp_3,
             'con_comp_4': self.con_comp_4,
-            'decoder_block_cup_ed': self.decoder_block_cup_ed,
-
         })
         return config
 

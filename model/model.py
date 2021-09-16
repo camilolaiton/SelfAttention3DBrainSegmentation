@@ -56,18 +56,24 @@ def build_model_test(config):
         name=f"decoder_upsample_0"
     )(decoder_block_cup)
 
-    skip_conn_0 = EncoderDecoderConnections(
-        filters=32,
-        kernel_size=3,
-        target_size=(
+    # Reshaping transformer
+    skip_conn_0 = DecoderBlockCup(
+        target_shape=(
             config.image_height//dec, 
             config.image_width//dec, 
             config.image_depth//dec, 
             config.transformer.projection_dim//2
         ),
-        de_up_filters=[],
-        name="skip_connection_0"
+        filters=64,
+        normalization_rate=None,
+        name='reshaping_trans_skip_0'
     )(transformer_layers[-1])
+
+    skip_conn_0 = EncoderDecoderConnections(
+        filters=32,
+        kernel_size=3,
+        name="skip_connection_0"
+    )(skip_conn_0)
     skip_conn_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
 
     decoder_up_block_1 = DecoderUpsampleBlock(
@@ -76,18 +82,30 @@ def build_model_test(config):
         name=f"decoder_upsample_1"
     )(skip_conn_0)
 
-    skip_conn_1 = EncoderDecoderConnections(
-        filters=16,
-        kernel_size=3,
-        target_size=(
+    # Reshaping transformer
+    skip_conn_1 = DecoderBlockCup(
+        target_shape=(
             config.image_height//dec, 
             config.image_width//dec, 
             config.image_depth//dec, 
             config.transformer.projection_dim//2
         ),
-        de_up_filters=[32],
-        name="skip_connection_1"
+        filters=64,
+        normalization_rate=None,
+        name='reshaping_trans_skip_1'
     )(transformer_layers[-4])
+
+    skip_conn_1 = DecoderUpsampleBlock(
+        filters=32, 
+        kernel_size=3,
+        name='skip_connection_1_up_32'
+    )(skip_conn_1)
+
+    skip_conn_1 = EncoderDecoderConnections(
+        filters=16,
+        kernel_size=3,
+        name="skip_connection_1"
+    )(skip_conn_1)
     skip_conn_1 = layers.Add()([decoder_up_block_1, skip_conn_1])
 
 
@@ -97,18 +115,36 @@ def build_model_test(config):
         name=f"decoder_upsample_2"
     )(skip_conn_1)
 
-    skip_conn_2 = EncoderDecoderConnections(
-        filters=8,
-        kernel_size=3,
-        target_size=(
+    # Reshaping transformer
+    skip_conn_2 = DecoderBlockCup(
+        target_shape=(
             config.image_height//dec, 
             config.image_width//dec, 
             config.image_depth//dec, 
             config.transformer.projection_dim//2
         ),
-        de_up_filters=[32, 16],
-        name="skip_connection_2"
+        filters=64,
+        normalization_rate=None,
+        name='reshaping_trans_skip_2'
     )(transformer_layers[-6])
+
+    skip_conn_2 = DecoderUpsampleBlock(
+        filters=32, 
+        kernel_size=3,
+        name='skip_connection_2_up_32'
+    )(skip_conn_2)
+
+    skip_conn_2 = DecoderUpsampleBlock(
+        filters=16, 
+        kernel_size=3,
+        name='skip_connection_2_up_16'
+    )(skip_conn_2)
+
+    skip_conn_2 = EncoderDecoderConnections(
+        filters=8,
+        kernel_size=3,
+        name="skip_connection_2"
+    )(skip_conn_2)
     skip_conn_2 = layers.Add()([decoder_up_block_2, skip_conn_2])
 
     
@@ -118,18 +154,42 @@ def build_model_test(config):
         name=f"decoder_upsample_3"
     )(skip_conn_2)
 
-    skip_conn_3 = EncoderDecoderConnections(
-        filters=1,
-        kernel_size=3,
-        target_size=(
+    # Reshaping transformer
+    skip_conn_3 = DecoderBlockCup(
+        target_shape=(
             config.image_height//dec, 
             config.image_width//dec, 
             config.image_depth//dec, 
             config.transformer.projection_dim//2
         ),
-        de_up_filters=[32, 16, 8],
-        name="skip_connection_3"
+        filters=64,
+        normalization_rate=None,
+        name='reshaping_trans_skip_3'
     )(transformer_layers[0])
+
+    skip_conn_3 = DecoderUpsampleBlock(
+        filters=32, 
+        kernel_size=3,
+        name='skip_connection_3_up_32'
+    )(skip_conn_3)
+
+    skip_conn_3 = DecoderUpsampleBlock(
+        filters=16, 
+        kernel_size=3,
+        name='skip_connection_3_up_16'
+    )(skip_conn_3)
+
+    skip_conn_3 = DecoderUpsampleBlock(
+        filters=8, 
+        kernel_size=3,
+        name='skip_connection_3_up_8'
+    )(skip_conn_3)
+
+    skip_conn_3 = EncoderDecoderConnections(
+        filters=1,
+        kernel_size=3,
+        name="skip_connection_3"
+    )(skip_conn_3)
     skip_conn_3 = layers.Add()([decoder_up_block_3, skip_conn_3])
 
     return Model(inputs=inputs, outputs=skip_conn_3)

@@ -212,6 +212,7 @@ def main():
         dpi=96,
     )
 
+    # exit()
     # Setting up variables for data generators
     TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'
     TRAIN_MSKS_DIR = config.dataset_path + 'train/masks/'

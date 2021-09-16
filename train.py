@@ -23,7 +23,7 @@ from utils import utils
 from matplotlib import pyplot
 from model.config import get_config_1
 from model.model import build_model_test
-from model.metrics import dice_coef, IoU_coef
+from model.losses import dice_coef_3cat, IoU_coef
 import segmentation_models as sm
 sm.set_framework('tf.keras')
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
@@ -262,7 +262,7 @@ def main():
         metrics=[
             # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
             'accuracy',
-            dice_coef,
+            dice_coef_3cat,
             sm.metrics.IOUScore(threshold=0.5),
             sm.metrics.FScore(threshold=0.5),
             # IoU_coef

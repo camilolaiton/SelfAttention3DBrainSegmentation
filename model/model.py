@@ -3,7 +3,7 @@ from tensorflow.keras import Model, Input, layers
 from tensorflow.keras.callbacks import ModelCheckpoint
 from .blocks import *
 from .config import *
-from .metrics import dice_coef, IoU_coef
+from .losses import dice_coef_3cat, IoU_coef
 from tensorflow.keras import models
 import segmentation_models as sm
 import numpy as np
@@ -247,7 +247,7 @@ if __name__ == "__main__":
         metrics=[
             # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
             'accuracy',
-            dice_coef,
+            dice_coef_3cat,
             sm.metrics.IOUScore(threshold=0.5),
             # IoU_coef
         ],

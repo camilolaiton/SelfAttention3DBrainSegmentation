@@ -424,6 +424,26 @@ class EncoderDecoderConnections(layers.Layer):
             size=(2, 2, 2)
         )
 
+        self.con_comp_1 = ConnectionComponents(
+            filters=self.filters, 
+            kernel_size=self.kernel_size
+        )
+
+        self.con_comp_2 = ConnectionComponents(
+            filters=self.filters, 
+            kernel_size=self.kernel_size
+        )
+
+        self.con_comp_3 = ConnectionComponents(
+            filters=self.filters, 
+            kernel_size=self.kernel_size
+        )
+
+        self.con_comp_4 = ConnectionComponents(
+            filters=self.filters, 
+            kernel_size=self.kernel_size
+        )
+
     def call(self, encoder_input, config):
         
         # Reshaping transformer
@@ -440,11 +460,10 @@ class EncoderDecoderConnections(layers.Layer):
             )(out)
 
         # coding res path
-        for l in range(config["length_res_block"]):
-            out = ConnectionComponents(
-                filters=self.filters, 
-                kernel_size=self.kernel_size
-            )(out)
+        out = self.con_comp_1(out)
+        out = self.con_comp_2(out)
+        out = self.con_comp_3(out)
+        out = self.con_comp_4(out)
         
         out = self.upsample(out)
         return out
@@ -456,6 +475,10 @@ class EncoderDecoderConnections(layers.Layer):
             'kernel_size' : self.kernel_size,
             # layers
             'upsample': self.upsample,
+            'con_comp_1': self.con_comp_1,
+            'con_comp_2': self.con_comp_2,
+            'con_comp_3': self.con_comp_3,
+            'con_comp_4': self.con_comp_4,
         })
         return config
 

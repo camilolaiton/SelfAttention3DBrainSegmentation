@@ -258,7 +258,7 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss=loss,
+        loss="sparse_categorical_crossentropy",#loss,
         metrics=[
             # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
             'accuracy',

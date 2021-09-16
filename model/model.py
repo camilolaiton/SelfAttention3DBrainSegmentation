@@ -162,7 +162,7 @@ def build_model_test(config):
     )(skip_conn_2)
 
     segmentation_head = DecoderSegmentationHead(
-        filters=5, 
+        filters=config.n_classes, 
         kernel_size=1,
         name="segmentation_head"
     )(decoder_up_block_3)

@@ -247,10 +247,10 @@ class DecoderBlockCup(layers.Layer):
     def call(self, encoder_output):
         # x = self.ln_a(encoder_output)
         x = self.reshape_a(encoder_output)
-        # x = self.conv_a(x)
-        # x = self.bn_a(x)
-        # x = self.activation_fnc(x)
-        # x = self.upsample_a(x)
+        x = self.conv_a(x)
+        x = self.bn_a(x)
+        x = self.activation_fnc(x)
+        x = self.upsample_a(x)
         return x
 
     def get_config(self):
@@ -269,12 +269,13 @@ class DecoderBlockCup(layers.Layer):
 
 class DecoderUpsampleBlock(layers.Layer):
     
-    def __init__(self, filters, kernel_size=3, strides=(1, 1, 1), pool_size=(2, 2, 1), **kwarks):
+    def __init__(self, filters, kernel_size=3, strides=(1, 1, 1), pool_size=(2, 2, 1), activation='relu', **kwarks):
         super(DecoderUpsampleBlock, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
         self.strides = strides
         self.pool_size = pool_size
+        self.activation = activation
 
         # Layers
         self.upsample_a = layers.UpSampling3D(
@@ -290,7 +291,7 @@ class DecoderUpsampleBlock(layers.Layer):
 
         # self.max_pool_a = layers.MaxPooling2D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
-        self.activation_fnc = layers.Activation('relu')
+        self.activation_fnc = layers.Activation(self.activation)
         
     def call(self, decoder_input):
         x = self.conv_a(decoder_input)
@@ -306,6 +307,7 @@ class DecoderUpsampleBlock(layers.Layer):
             'kernel_size' : self.kernel_size,
             'strides' : self.strides,
             'pool_size' : self.pool_size,
+            'activation': self.activation,
             # layers
             'conv_a' : self.conv_a,
             'bn_a' : self.bn_a,
@@ -316,25 +318,27 @@ class DecoderUpsampleBlock(layers.Layer):
 
 class DecoderSegmentationHead(layers.Layer):
 
-    def __init__(self, filters=1, kernel_size=3, strides=1, target_shape=(256, 256, 16), **kwarks):
+    def __init__(self, filters, activation='softmax', kernel_size=1, strides=(1, 1, 1), **kwarks):
         super(DecoderSegmentationHead, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
         self.strides = strides
-        self.target_shape = target_shape
+        self.activation = activation
 
         # Layers
-        self.reshape_a = layers.Reshape(target_shape=(self.target_shape))
-        self.conv_a = layers.Conv2D(
-            filters=self.filters,
-            kernel_size=self.kernel_size,
-            strides=self.strides,
-            padding='same',
+        self.conv_a = layers.Conv3D(
+            filters=self.filters, 
+            kernel_size=self.kernel_size, 
+            strides=self.strides, 
+            padding='same'
         )
+
+        self.activation_layer = layers.Activation(self.activation)
     
     def call(self, decoder_upsample_block):
-        x = self.reshape_a(decoder_upsample_block)
-        return self.conv_a(x)
+        x = self.conv_a(decoder_upsample_block)
+        x = self.activation_layer(x)
+        return x
 
     def get_config(self):
         config = super().get_config().copy()
@@ -342,10 +346,10 @@ class DecoderSegmentationHead(layers.Layer):
             'filters' : self.filters,
             'kernel_size' : self.kernel_size,
             'strides' : self.strides,
-            'target_shape' : self.target_shape,
+            'activation': self.activation,
             # layers
             'conv_a' : self.conv_a,
-            'reshape_a' : self.reshape_a,
+            'activation_layer' : self.activation_layer,
         })
         return config
 

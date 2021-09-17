@@ -49,7 +49,7 @@ def get_config_2():
     config.learning_rate = 0.01
     config.weight_decay = 1e-4
     config.momentum = 0.9
-    config.batch_size = 256
+    config.batch_size = 4
     config.num_epochs = 10
     config.image_height = 256
     config.image_width = 256

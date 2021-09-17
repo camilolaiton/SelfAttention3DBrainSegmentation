@@ -292,7 +292,7 @@ def main():
 
     steps_per_epoch = len(train_imgs_lst)//config.batch_size
     val_steps_per_epoch = len(test_imgs_lst)//config.batch_size
-
+    
     history = model.fit(train_datagen,
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,

@@ -9,7 +9,7 @@ import segmentation_models as sm
 import numpy as np
 
 # import tensorflow_addons as tfa
-def build_model_test(config):
+def build_model(config):
     # Here I have an input size of 256x256x256x1
     inputs = Input(shape=config.image_size)
 
@@ -18,8 +18,9 @@ def build_model_test(config):
         patch_size=config.transformer.patch_size, 
         name='patches_0'
     )(inputs)
-    
+
     # Adding positional encoding to patches
+    # ( (256**3)x(16**3) = 4096)
     encoded_patches = PatchEncoder(
         num_patches=config.transformer.num_patches,
         projection_dim=config.transformer.projection_dim,
@@ -28,6 +29,7 @@ def build_model_test(config):
 
     transformer_layers = []
     # Successive transformer layers
+    # Layers of (4096, 192)
     for idx in range(config.transformer.layers):
         encoded_patches = TransformerBlock(
             num_heads=config.transformer.num_heads,
@@ -40,132 +42,131 @@ def build_model_test(config):
         transformer_layers.append(encoded_patches)
 
     # Reshape and initiating decoder
-    dec = 32
+    # (4096, 192) => (16, 16, 16, 192) => (32, 32, 32, 64)
+    dec = 16
     decoder_block_cup = DecoderBlockCup(
         target_shape=(
             config.image_height//dec, 
             config.image_width//dec, 
             config.image_depth//dec, 
-            config.transformer.projection_dim//2
+            config.transformer.projection_dim
         ),
         filters=64,
         normalization_rate=config.transformer.normalization_rate,
         name=f'decoder_cup_{0}'
     )(encoded_patches)
 
-    # Decoder upsample blocks & skip connections
-    
+    # Upsample layer : (32, 32, 32, 64) => (64, 64, 64, 32)
     decoder_up_block_0 = DecoderUpsampleBlock(
         filters=32, 
         kernel_size=3,
         name=f"decoder_upsample_0"
     )(decoder_block_cup)
 
-    # Reshaping transformer for skip connection
-    skip_conn_0 = DecoderBlockCup(
-        target_shape=(
-            config.image_height//dec, 
-            config.image_width//dec, 
-            config.image_depth//dec, 
-            config.transformer.projection_dim//2
-        ),
-        filters=64,
-        normalization_rate=None,
-        name='reshaping_trans_skip_0'
-    )(transformer_layers[-1])
+    # Skip connection with transformer layer
+    if (config.skip_connections):
+        skip_conn_0 = DecoderBlockCup(
+            target_shape=(
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim
+            ),
+            filters=64,
+            normalization_rate=None,
+            name='reshaping_trans_skip_0'
+        )(transformer_layers[-3])
 
-    skip_conn_0 = EncoderDecoderConnections(
-        filters=32,
-        kernel_size=3,
-        name="skip_connection_0"
-    )(skip_conn_0)
+        skip_conn_0 = EncoderDecoderConnections(
+            filters=32,
+            kernel_size=3,
+            name="skip_connection_0_0"
+        )(skip_conn_0)
 
-    skip_conn_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
+        decoder_up_block_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
 
-
+    # Upsample layer : (64, 64, 64, 32) => (128, 128, 128, 16)
     decoder_up_block_1 = DecoderUpsampleBlock(
         filters=16, 
         kernel_size=3,
         name=f"decoder_upsample_1"
-    )(skip_conn_0)
+    )(decoder_up_block_0)
 
-    # Reshaping transformer for skip connection
-    skip_conn_1 = DecoderBlockCup(
-        target_shape=(
-            config.image_height//dec, 
-            config.image_width//dec, 
-            config.image_depth//dec, 
-            config.transformer.projection_dim//2
-        ),
-        filters=64,
-        normalization_rate=None,
-        name='reshaping_trans_skip_1'
-    )(transformer_layers[-4])
+    # Skip connection with transformer layer
+    if (config.skip_connections):
+        skip_conn_1 = DecoderBlockCup(
+            target_shape=(
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim
+            ),
+            filters=64,
+            normalization_rate=None,
+            name='reshaping_trans_skip_1'
+        )(transformer_layers[-5])
 
-    skip_conn_1 = DecoderUpsampleBlock(
-        filters=32, 
-        kernel_size=3,
-        name='skip_connection_1_up_32'
-    )(skip_conn_1)
+        skip_conn_1 = EncoderDecoderConnections(
+            filters=32,
+            kernel_size=3,
+            name="skip_connection_1_0"
+        )(skip_conn_1)
 
-    skip_conn_1 = EncoderDecoderConnections(
-        filters=16,
-        kernel_size=3,
-        name="skip_connection_16"
-    )(skip_conn_1)
-    skip_conn_1 = layers.Add()([decoder_up_block_1, skip_conn_1])
+        skip_conn_1 = EncoderDecoderConnections(
+            filters=16,
+            kernel_size=3,
+            name="skip_connection_1_1"
+        )(skip_conn_1)
 
+        decoder_up_block_1 = layers.Add()([decoder_up_block_1, skip_conn_1])
 
+    # Upsample layer : (128, 128, 128, 16) => (256, 256, 256, 8)
     decoder_up_block_2 = DecoderUpsampleBlock(
         filters=8, 
         kernel_size=3,
-        name=f"decoder_upsample_2"
-    )(skip_conn_1)
+        name="decoder_upsample_2"
+    )(decoder_up_block_1)
 
+    # Skip connection with transformer layer
+    if (config.skip_connections):
+        skip_conn_2 = DecoderBlockCup(
+            target_shape=(
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim
+            ),
+            filters=64,
+            normalization_rate=None,
+            name='reshaping_trans_skip_2'
+        )(transformer_layers[0])
 
-    # Reshaping transformer
-    skip_conn_2 = DecoderBlockCup(
-        target_shape=(
-            config.image_height//dec, 
-            config.image_width//dec, 
-            config.image_depth//dec, 
-            config.transformer.projection_dim//2
-        ),
-        filters=64,
-        normalization_rate=None,
-        name='reshaping_trans_skip_2'
-    )(transformer_layers[0])
+        skip_conn_2 = EncoderDecoderConnections(
+            filters=32,
+            kernel_size=3,
+            name="skip_connection_2_0"
+        )(skip_conn_2)
 
-    skip_conn_2 = DecoderUpsampleBlock(
-        filters=32, 
-        kernel_size=3,
-        name='skip_connection_2_up_32'
-    )(skip_conn_2)
+        skip_conn_2 = EncoderDecoderConnections(
+            filters=16,
+            kernel_size=3,
+            name="skip_connection_2_1"
+        )(skip_conn_2)
 
-    skip_conn_2 = DecoderUpsampleBlock(
-        filters=16, 
-        kernel_size=3,
-        name='skip_connection_2_up_16'
-    )(skip_conn_2)
+        skip_conn_2 = EncoderDecoderConnections(
+            filters=8,
+            kernel_size=3,
+            name="skip_connection_2_2"
+        )(skip_conn_2)
 
-    skip_conn_2 = EncoderDecoderConnections(
-        filters=8,
-        kernel_size=3,
-        name="skip_connection_2"
-    )(skip_conn_2)
-    skip_conn_2 = layers.Add()([decoder_up_block_2, skip_conn_2])
+        decoder_up_block_2 = layers.Add()([decoder_up_block_2, skip_conn_2])
 
-    decoder_up_block_3 = DecoderUpsampleBlock(
-        filters=8, 
-        kernel_size=3,
-        name="decoder_upsample_3"
-    )(skip_conn_2)
-
+    # Segmentation Head : (256, 256, 256, 8) => (256, 256, 256, 4)
     segmentation_head = DecoderSegmentationHead(
         filters=config.n_classes, 
         kernel_size=1,
         name="segmentation_head"
-    )(decoder_up_block_3)
+    )(decoder_up_block_2)
 
     return Model(inputs=inputs, outputs=segmentation_head)
 
@@ -199,8 +200,8 @@ if __name__ == "__main__":
 
     if (config_num == 1):
         config = get_config_1()
-        # model = build_model(config)
-        model = build_model_test(config)
+        model = build_model(config)
+        # model = build_model_test(config)
 
 
     # elif (config_num == 2):
@@ -211,10 +212,10 @@ if __name__ == "__main__":
     #     config = get_config_3()
     #     model = build_model_3(config)
 
-    print(f"[+] Building model {config_num} with config {config}")    
+    print(f"[+] Building model {config.config_name} with config {config}")    
     model.summary()
 
-    if not (config.residual_blocks):
+    if not (config.skip_connections):
         architecture_image_name = architecture_image_name.replace("_skip_connection", "")
     
     tf.keras.utils.plot_model(
@@ -230,27 +231,27 @@ if __name__ == "__main__":
 
     # plot_model(model)
 
-    wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
-    dice_loss = sm.losses.DiceLoss(class_weights=np.array([wt0, wt1, wt2, wt3])) 
-    focal_loss = sm.losses.CategoricalFocalLoss()
-    loss = dice_loss + (1 * focal_loss)
+    # wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
+    # dice_loss = sm.losses.DiceLoss(class_weights=np.array([wt0, wt1, wt2, wt3])) 
+    # focal_loss = sm.losses.CategoricalFocalLoss()
+    # loss = dice_loss + (1 * focal_loss)
 
-    optimizer = tf.optimizers.SGD(
-        learning_rate=config.learning_rate, 
-        momentum=config.momentum,
-        name='optimizer_SGD_0'
-    )
+    # optimizer = tf.optimizers.SGD(
+    #     learning_rate=config.learning_rate, 
+    #     momentum=config.momentum,
+    #     name='optimizer_SGD_0'
+    # )
 
-    model.compile(
-        optimizer=optimizer,
-        loss=loss,
-        metrics=[
-            # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
-            'accuracy',
-            dice_coef_3cat,
-            sm.metrics.IOUScore(threshold=0.5),
-            # IoU_coef
-        ],
-    )
+    # model.compile(
+    #     optimizer=optimizer,
+    #     loss=loss,
+    #     metrics=[
+    #         # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
+    #         'accuracy',
+    #         dice_coef_3cat,
+    #         sm.metrics.IOUScore(threshold=0.5),
+    #         # IoU_coef
+    #     ],
+    # )
 
     # model.save('model/model.h5')

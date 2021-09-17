@@ -22,7 +22,7 @@ import elasticdeform
 from utils import utils
 from matplotlib import pyplot
 from model.config import get_config_1
-from model.model import build_model_test
+from model.model import build_model
 from model.losses import dice_coef_3cat, IoU_coef
 import segmentation_models as sm
 sm.set_framework('tf.keras')
@@ -197,13 +197,13 @@ def main():
 
     # creating model
     config = get_config_1()
-    model = build_model_test(config)
+    model = build_model(config)
     print(f"[+] Building model with config {config}")    
     model.summary()
 
     tf.keras.utils.plot_model(
         model,
-        to_file="model/trained_architecture.png",
+        to_file="trainings/trained_architecture.png",
         show_shapes=True,
         show_dtype=True,
         show_layer_names=True,
@@ -292,7 +292,7 @@ def main():
 
     steps_per_epoch = len(train_imgs_lst)//config.batch_size
     val_steps_per_epoch = len(test_imgs_lst)//config.batch_size
-    
+
     history = model.fit(train_datagen,
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,

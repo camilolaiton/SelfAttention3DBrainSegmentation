@@ -54,11 +54,15 @@ def main():
         utils.create_folder(folder)
 
     # Generating images
+    print("\n[+] Generating patched images for training")
     generating_images(patch_size, train_dir_imgs, dest_train_dir_imgs)
+    print("\n[+] Generating patched images for test")
     generating_images(patch_size, test_dir_imgs, dest_test_dir_imgs)
 
     # Generating masks
+    print("\n[+] Generating patched masks for training")
     generating_msks(patch_size, train_dir_msks, dest_train_dir_msks, num_classes)
+    print("\n[+] Generating patched masks for test")
     generating_msks(patch_size, test_dir_msks, dest_test_dir_msks, num_classes)
 
 

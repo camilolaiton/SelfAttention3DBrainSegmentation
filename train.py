@@ -21,8 +21,8 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import elasticdeform
 from utils import utils
 from matplotlib import pyplot
-from model.config import get_config_1
-from model.model import build_model
+from model.config import *
+from model.model import *
 from model.losses import dice_coef_3cat, IoU_coef
 import segmentation_models as sm
 sm.set_framework('tf.keras')
@@ -196,8 +196,8 @@ def testing_datagens(config):
 def main():
 
     # creating model
-    config = get_config_1()
-    model = build_model(config)
+    config = get_config_32()
+    model = build_model_patchsize_32(config)
     print(f"[+] Building model with config {config}")    
     model.summary()
 

@@ -196,8 +196,8 @@ def testing_datagens(config):
 def main():
 
     # creating model
-    config = get_config_32()
-    model = build_model_patchsize_32(config)
+    config = get_config_patchified()
+    model = build_model_patchified(config)
     print(f"[+] Building model with config {config}")    
     model.summary()
 

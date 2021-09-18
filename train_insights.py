@@ -73,7 +73,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path):
     ax2.imshow(prediction[idx, :, 45, :])
     ax2.set_title(f"prediction[{idx}, :, 45, :]")
     plt.savefig(f"{dest_path}/example_prediction_{idx}.png")
-    plt.show()
+    # plt.show()
 
 def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -84,7 +84,7 @@ def main():
     model_history_path = f"{training_folder}/history.obj"
 
     config = get_config_patchified()
-    # model = build_model_patchified(config)
+    model = build_model_patchified(config)
     # print(f"[+] Building model with config {config}")
     
     model.load_weights(model_path)

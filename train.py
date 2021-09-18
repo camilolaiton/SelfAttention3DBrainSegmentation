@@ -258,11 +258,11 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss="sparse_categorical_crossentropy",#loss,
+        loss="categorical_crossentropy",#loss,
         metrics=[
             # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
             'accuracy',
-            dice_coef_3cat,
+            # dice_coef_3cat,
             sm.metrics.IOUScore(threshold=0.5),
             sm.metrics.FScore(threshold=0.5),
             # IoU_coef

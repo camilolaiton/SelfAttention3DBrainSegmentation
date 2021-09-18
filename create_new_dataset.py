@@ -10,7 +10,8 @@ def generating_images(patch_size, ori_path, dest_path):
         np_file_patches = patchify(np_file, (patch_size, patch_size, patch_size), step=patch_size)
         np_file_patches = np.reshape(np_file_patches, (-1, np_file_patches.shape[3], np_file_patches.shape[4], np_file_patches.shape[5]))
         np_file_patches = np.expand_dims(np_file_patches, axis=4)
-        name = filename.split('/')[-1].split('.')[0]
+        name = filename.split('/')[-1] # .split('.')[0]
+        name = name.split('\\')[-1].split('.')[0]
 
         print("Saving imgs patches for ", name)
         for idx in range(np_file_patches.shape[0]):
@@ -23,7 +24,8 @@ def generating_msks(patch_size, ori_path, dest_path, num_classes):
         np_file_patches = np.reshape(np_file_patches, (-1, np_file_patches.shape[3], np_file_patches.shape[4], np_file_patches.shape[5]))
         np_file_patches = np.expand_dims(np_file_patches, axis=4)
         np_file_patches = to_categorical(np_file_patches, num_classes=num_classes)
-        name = filename.split('/')[-1].split('.')[0]
+        name = filename.split('/')[-1] # .split('.')[0]
+        name = name.split('\\')[-1].split('.')[0]
 
         print("Saving masks patches for ", name)
         for idx in range(np_file_patches.shape[0]):

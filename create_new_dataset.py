@@ -14,7 +14,7 @@ def generating_images(patch_size, ori_path, dest_path):
 
         print("Saving imgs patches for ", name)
         for idx in range(np_file_patches.shape[0]):
-            np.save(dest_path + f"/{name}-patch-{idx}.npy", np_file_patches[idx, :, :, :, :])
+            np.save(dest_path + f"//{name}-patch-{idx}.npy", np_file_patches[idx, :, :, :, :])
 
 def generating_msks(patch_size, ori_path, dest_path, num_classes):
     for filename in glob.glob(ori_path):
@@ -27,7 +27,7 @@ def generating_msks(patch_size, ori_path, dest_path, num_classes):
 
         print("Saving masks patches for ", name)
         for idx in range(np_file_patches.shape[0]):
-            np.save(dest_path + f"/{name}-patch-{idx}.npy", np_file_patches[idx, :, :, :, :])
+            np.save(dest_path + f"//{name}-patch-{idx}.npy", np_file_patches[idx, :, :, :, :])
 
 def main():
     patch_size = 64

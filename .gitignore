@@ -3,3 +3,4 @@ dataset*/*
 !dataset/folder_structure.txt
 **/__pycache__/
 papers/*
+trainings/*/*.npy

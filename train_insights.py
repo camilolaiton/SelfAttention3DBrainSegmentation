@@ -98,10 +98,12 @@ def main():
         f"{config.dataset_path}train/masks/*"
     ), axis=4)
 
+    # prediction = np.load(training_folder+'/prediction.npy')
+
     # print(msk_patches.shape)
     # for i in range(64):
     #     print(i)
-    #     plt.imshow(msk_patches[i, :, 45, :])
+    #     plt.imshow(prediction[i, :, 45, :])
     #     plt.show()
 
     model = build_model_patchified(config)
@@ -113,7 +115,8 @@ def main():
 
     prediction = model.predict(img_patches)
     prediction = np.argmax(prediction, axis=4)
-    np.save(training_folder+'prediction.npy', prediction)
+    np.save(training_folder+'/prediction.npy', prediction)
+    np.save(training_folder+'/ground_truth.npy', msk_patches)
 
     plot_examples(msk_patches, prediction, 20, training_folder)
 

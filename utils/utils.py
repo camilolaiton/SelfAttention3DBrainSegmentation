@@ -36,6 +36,7 @@ from glob import glob
 import shutil
 import elasticdeform
 from sklearn.preprocessing import MinMaxScaler
+import json 
 
 scaler = MinMaxScaler()
 
@@ -1138,3 +1139,8 @@ def mri_generator(mri_path:str, mri_list:list, msk_path:str, msk_list:list, batc
 
       batch_start += batch_size
       batch_end += batch_size
+
+def write_dict_to_txt(config, name):
+  with open(name, "w") as dicti_file:
+    for k, v in config.items():
+        dicti_file.write(f"{k} : {v}\n")

@@ -262,7 +262,7 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss="categorical_crossentropy",#loss,
+        loss=loss,#"categorical_crossentropy"
         metrics=[
             # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
             'accuracy',
@@ -282,7 +282,7 @@ def main():
         monitor=monitor, 
         mode=mode, 
         verbose=1,
-        patience=10
+        patience=20
     )
 
     # Model Checkpoing
@@ -308,6 +308,11 @@ def main():
 
     with open('trainings/history.obj', 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
+
+    utils.write_dict_to_txt(
+        config, 
+        "trainings/version_1_0/trained_architecture_config.txt"
+    )
 
 if __name__ == "__main__":
     main()

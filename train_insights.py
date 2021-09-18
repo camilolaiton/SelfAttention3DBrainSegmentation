@@ -75,6 +75,21 @@ def plot_examples(msk_patches, prediction, idx, dest_path):
     plt.savefig(f"{dest_path}/example_prediction_{idx}.png")
     # plt.show()
 
+def test_models(training_folder):
+    prediction = np.load(training_folder+'/prediction.npy')
+    msk_patches = np.load(training_folder+'/ground_truth.npy')
+
+    for idx in range(64):
+        print(idx)
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.suptitle("Original mask VS Predicted")
+        ax1.imshow(msk_patches[idx, :, 45, :])
+        ax1.set_title(f"msk_patch[{idx}, :, 45, :]")
+        ax2.imshow(prediction[idx, :, 45, :])
+        ax2.set_title(f"prediction[{idx}, :, 45, :]")
+        # plt.imshow(prediction[idx, :, 45, :])
+        plt.show()
+
 def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
@@ -97,14 +112,6 @@ def main():
         test_filename, 
         f"{config.dataset_path}train/masks/*"
     ), axis=4)
-
-    # prediction = np.load(training_folder+'/prediction.npy')
-
-    # print(msk_patches.shape)
-    # for i in range(64):
-    #     print(i)
-    #     plt.imshow(prediction[i, :, 45, :])
-    #     plt.show()
 
     model = build_model_patchified(config)
     # print(f"[+] Building model with config {config}")

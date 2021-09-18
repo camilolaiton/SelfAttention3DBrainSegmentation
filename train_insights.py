@@ -82,15 +82,9 @@ def main():
     training_folder = 'trainings/version_1_0'
     model_path = f"{training_folder}/trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
-
     config = get_config_patchified()
-    model = build_model_patchified(config)
-    # print(f"[+] Building model with config {config}")
-    
-    model.load_weights(model_path)
-    # model_history = read_history(model_history_path)
-    # plot_model_training_info(model_history, training_folder)
-    
+
+    # Getting images
     test_filename = 'HLN-12-1'
     # Use 5 and 6 for idx
     
@@ -110,10 +104,18 @@ def main():
     #     plt.imshow(msk_patches[i, :, 45, :])
     #     plt.show()
 
+    model = build_model_patchified(config)
+    # print(f"[+] Building model with config {config}")
+    
+    model.load_weights(model_path)
+    # model_history = read_history(model_history_path)
+    # plot_model_training_info(model_history, training_folder)
+
     prediction = model.predict(img_patches)
     prediction = np.argmax(prediction, axis=4)
+    np.save(training_folder+'prediction.npy', prediction)
 
-    plot_examples(msk_patches, prediction, 5, training_folder)
+    plot_examples(msk_patches, prediction, 20, training_folder)
 
 if __name__ == "__main__":
     main()

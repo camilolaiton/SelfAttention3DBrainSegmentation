@@ -195,6 +195,10 @@ def testing_datagens(config):
 
 def main():
 
+    # Selecting cuda device
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"]="1"
+
     # creating model
     config = get_config_patchified()
     model = build_model_patchified(config)
@@ -270,7 +274,7 @@ def main():
     )
 
     # Setting up callbacks
-    monitor = 'val_IOUScore'
+    monitor = 'val_iou_score'
     mode = 'max'
 
     # Early stopping

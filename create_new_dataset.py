@@ -38,8 +38,8 @@ def main():
     train_dir_imgs = 'dataset_3D/train/images/*'
     train_dir_msks = 'dataset_3D/train/masks/*'
     
-    test_dir_imgs = 'dataset_3D/train/images/*'
-    test_dir_msks = 'dataset_3D/train/masks/*'
+    test_dir_imgs = 'dataset_3D/test/images/*'
+    test_dir_msks = 'dataset_3D/test/masks/*'
 
     dest_train_dir_imgs = 'dataset_3D_2/train/images'
     dest_train_dir_msks = 'dataset_3D_2/train/masks'

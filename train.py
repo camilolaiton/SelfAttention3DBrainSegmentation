@@ -248,7 +248,7 @@ def main():
     wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
 
     # Setting up neural network loss
-    loss = dice_focal_loss([wt0, wt1, wt2, wt3])
+    #loss = tversky_loss()#dice_focal_loss([wt0, wt1, wt2, wt3])
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
@@ -258,7 +258,7 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss=loss,#"categorical_crossentropy"
+        loss=tversky_loss,#loss,#"categorical_crossentropy"
         metrics=[
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),

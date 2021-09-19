@@ -264,12 +264,9 @@ def main():
         optimizer=optimizer,
         loss=loss,#"categorical_crossentropy"
         metrics=[
-            # tf.keras.metrics.BinaryAccuracy(name="accuracy"),
-            'accuracy',
-            # dice_coef_3cat,
+            # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),
             sm.metrics.FScore(threshold=0.5),
-            # IoU_coef
         ],
     )
 

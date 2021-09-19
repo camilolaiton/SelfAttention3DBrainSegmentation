@@ -92,7 +92,7 @@ def get_config_patchified():
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.batch_size = 16
-    config.num_epochs = 100
+    config.num_epochs = 200
     config.image_height = 64
     config.image_width = 64
     config.image_depth = 64

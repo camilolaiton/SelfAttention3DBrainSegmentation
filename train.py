@@ -196,12 +196,19 @@ def main():
     # Selecting cuda device
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
+    retrain = True
+    training_folder = 'trainings/'
+    model_path = f"{training_folder}/trained_architecture.hdf5"
 
     # creating model
     config = get_config_patchified()
     model = build_model_patchified(config)
     print(f"[+] Building model with config {config}")    
     model.summary()
+
+    if (retrain):
+        model.load_weights(model_path)
+
 
     tf.keras.utils.plot_model(
         model,
@@ -304,7 +311,7 @@ def main():
 
     utils.write_dict_to_txt(
         config, 
-        "trainings/version_1_0/trained_architecture_config.txt"
+        "trainings/trained_architecture_config.txt"
     )
 
 if __name__ == "__main__":

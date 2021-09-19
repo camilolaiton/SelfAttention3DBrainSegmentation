@@ -23,9 +23,7 @@ from utils import utils
 from matplotlib import pyplot
 from model.config import *
 from model.model import *
-from model.losses import dice_coef_3cat, IoU_coef
-import segmentation_models as sm
-sm.set_framework('tf.keras')
+from model.losses import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
 import pickle
 
@@ -250,9 +248,7 @@ def main():
     wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
 
     # Setting up neural network loss
-    dice_loss = sm.losses.DiceLoss(class_weights=np.array([wt0, wt1, wt2, wt3])) 
-    focal_loss = sm.losses.CategoricalFocalLoss()
-    loss = dice_loss + (1 * focal_loss)
+    loss = dice_focal_loss([wt0, wt1, wt2, wt3])
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 

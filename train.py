@@ -202,13 +202,43 @@ def main():
 
     # creating model
     config = get_config_patchified()
-    model = build_model_patchified(config)
+    model = None
+
+    # Mirrored strategy for parallel training
+    mirrored_strategy = tf.distribute.MirroredStrategy()
+    # GPU Devices
+    devices = tf.config.experimental.list_physical_devices("GPU")
+
+    # Setting up weights 
+    wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
+
+    # Setting up neural network loss
+    #loss = tversky_loss()#dice_focal_loss([wt0, wt1, wt2, wt3])
+    
+    with mirrored_strategy.scope():
+        model = build_model_patchified(config)
+
+        if (retrain):
+            model.load_weights(model_path)
+
+        optimizer = tf.optimizers.SGD(
+            learning_rate=config.learning_rate, 
+            momentum=config.momentum,
+            name='optimizer_SGD_0'
+        )
+
+        model.compile(
+            optimizer=optimizer,
+            loss=tversky_loss,#loss,#"categorical_crossentropy"
+            metrics=[
+                # 'accuracy',
+                sm.metrics.IOUScore(threshold=0.5),
+                sm.metrics.FScore(threshold=0.5),
+            ],
+        )
+
     print(f"[+] Building model with config {config}")    
     model.summary()
-
-    if (retrain):
-        model.load_weights(model_path)
-
 
     tf.keras.utils.plot_model(
         model,
@@ -249,28 +279,6 @@ def main():
         TEST_MSKS_DIR,
         test_msks_lst,
         config.batch_size
-    )
-
-    # Setting up weights 
-    wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
-
-    # Setting up neural network loss
-    #loss = tversky_loss()#dice_focal_loss([wt0, wt1, wt2, wt3])
-
-    optimizer = tf.optimizers.SGD(
-        learning_rate=config.learning_rate, 
-        momentum=config.momentum,
-        name='optimizer_SGD_0'
-    )
-
-    model.compile(
-        optimizer=optimizer,
-        loss=tversky_loss,#loss,#"categorical_crossentropy"
-        metrics=[
-            # 'accuracy',
-            sm.metrics.IOUScore(threshold=0.5),
-            sm.metrics.FScore(threshold=0.5),
-        ],
     )
 
     # Setting up callbacks

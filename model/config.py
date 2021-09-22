@@ -91,7 +91,7 @@ def get_config_patchified():
     config.learning_rate = 0.001
     config.weight_decay = 1e-4
     config.momentum = 0.9
-    config.batch_size = 8
+    config.batch_size = 16
     config.num_epochs = 40
     config.image_height = 64
     config.image_width = 64

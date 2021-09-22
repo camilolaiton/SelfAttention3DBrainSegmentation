@@ -194,7 +194,7 @@ def testing_datagens(config):
 
 def load_files_py(img_path, msk_path):
     img = np.load(img_path).astype(np.float32)
-    msk = np.load(msk_path).astype(np.uint8)
+    msk = np.load(msk_path).astype(np.float32)
     return img, msk
 
 def load_files(img_path, msk_path):

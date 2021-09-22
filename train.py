@@ -26,6 +26,7 @@ from model.model import *
 from model.losses import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 import pickle
+import glob
 
 # import tensorflow_addons as tfa
 
@@ -191,12 +192,25 @@ def testing_datagens(config):
     # show the figure
     # pyplot.show()
 
+def load_files_py(img_path, msk_path):
+    img = np.load(img_path).astype(np.float32)
+    msk = np.load(msk_path).astype(np.uint8)
+    return img, msk
+
+def load_files(img_path, msk_path):
+    return tf.numpy_function(
+        load_files_py,
+        inp=[img_path, msk_path],
+        Tout=[tf.float32, tf.uint8]
+    )
+
 def main():
 
     # Selecting cuda device
 
     # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     # os.environ["CUDA_VISIBLE_DEVICES"]="1"
+    SEED = 12
     
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
@@ -211,7 +225,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
+    retrain = False
     training_folder = 'trainings/'
     model_path = f"{training_folder}/trained_architecture.hdf5"
 
@@ -267,34 +281,71 @@ def main():
     )
 
     # Setting up variables for data generators
-    TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'
-    TRAIN_MSKS_DIR = config.dataset_path + 'train/masks/'
+    # TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'
+    # TRAIN_MSKS_DIR = config.dataset_path + 'train/masks/'
 
-    TEST_IMGS_DIR = config.dataset_path + 'test/images/'
-    TEST_MSKS_DIR = config.dataset_path + 'test/masks/'
+    # TEST_IMGS_DIR = config.dataset_path + 'test/images/'
+    # TEST_MSKS_DIR = config.dataset_path + 'test/masks/'
 
-    train_imgs_lst = os.listdir(TRAIN_IMGS_DIR)
-    train_msks_lst = os.listdir(TRAIN_MSKS_DIR)
+    # train_imgs_lst = os.listdir(TRAIN_IMGS_DIR)
+    # train_msks_lst = os.listdir(TRAIN_MSKS_DIR)
 
-    test_imgs_lst = os.listdir(TEST_IMGS_DIR)
-    test_msks_lst = os.listdir(TEST_MSKS_DIR)
+    # test_imgs_lst = os.listdir(TEST_IMGS_DIR)
+    # test_msks_lst = os.listdir(TEST_MSKS_DIR)
+
+    image_list_train = sorted(glob.glob(
+        config.dataset_path + 'train/images/*'))
+    mask_list_train = sorted(glob.glob(
+        config.dataset_path + 'train/masks/*'))
+    print(len(image_list_train), " ", len(mask_list_train))
+    image_list_test = sorted(glob.glob(
+        config.dataset_path + 'test/images/*'))
+    mask_list_test = sorted(glob.glob(
+        config.dataset_path + 'test/masks/*'))
 
     # Getting image data generators
-    train_datagen = utils.mri_generator(
-        TRAIN_IMGS_DIR,
-        train_imgs_lst,
-        TRAIN_MSKS_DIR,
-        train_msks_lst,
-        config.batch_size
+    # train_datagen = utils.mri_generator(
+    #     TRAIN_IMGS_DIR,
+    #     train_imgs_lst,
+    #     TRAIN_MSKS_DIR,
+    #     train_msks_lst,
+    #     config.batch_size
+    # )
+
+    train_datagen = tf.data.Dataset.from_tensor_slices(
+        (image_list_train, 
+        mask_list_train)
     )
 
-    val_datagen = utils.mri_generator(
-        TEST_IMGS_DIR,
-        test_imgs_lst,
-        TEST_MSKS_DIR,
-        test_msks_lst,
-        config.batch_size
+    # val_datagen = utils.mri_generator(
+    #     TEST_IMGS_DIR,
+    #     test_imgs_lst,
+    #     TEST_MSKS_DIR,
+    #     test_msks_lst,
+    #     config.batch_size
+    # )
+
+    val_datagen = tf.data.Dataset.from_tensor_slices(
+        (image_list_test, 
+        mask_list_test)
     )
+
+    dataset = {
+        "train" : train_datagen,
+        "val" : val_datagen
+    }
+
+    AUTOTUNE = tf.data.experimental.AUTOTUNE
+    dataset['train'] = dataset['train'].map(load_files)
+    # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
+    dataset['train'] = dataset['train'].repeat()
+    dataset['train'] = dataset['train'].batch(config.batch_size)
+    dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
+
+    dataset['val'] = dataset['val'].map(load_files)
+    dataset['val'] = dataset['val'].repeat()
+    dataset['val'] = dataset['val'].batch(config.batch_size)
+    dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
 
     # Setting up callbacks
     monitor = 'val_iou_score'
@@ -323,14 +374,14 @@ def main():
         update_freq='epoch'
     )
 
-    steps_per_epoch = len(train_imgs_lst)//config.batch_size
-    val_steps_per_epoch = len(test_imgs_lst)//config.batch_size
+    steps_per_epoch = len(image_list_train)//config.batch_size
+    val_steps_per_epoch = len(image_list_test)//config.batch_size
 
-    history = model.fit(train_datagen,
+    history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,
         verbose=1,
-        validation_data=val_datagen,
+        validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
         callbacks=[early_stop, model_check, tb]
     )

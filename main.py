@@ -124,12 +124,19 @@ def test_tf_function():
     patches = tf.reshape(patches, [1, -1, patch_dims])
     print("resp: \n", patches)
 
-@tf.function
-def load_image_train(datapoint: dict):
-    input_image = tf.keras.utils.get_file(datapoint['images'])
-    input_mask = tf.keras.utils.get_file(datapoint['masks'])
+import glob
 
-    return input_image, input_mask
+def load_files_py(img_path, msk_path):
+    img = np.load(img_path).astype(np.float32)
+    msk = np.load(msk_path).astype(np.uint8)
+    return img, msk
+
+def load_files(img_path, msk_path):
+    return tf.numpy_function(
+        load_files_py,
+        inp=[img_path, msk_path],
+        Tout=[tf.float32, tf.uint8]
+    )
 
 def main():
     scaler = MinMaxScaler()
@@ -147,8 +154,6 @@ def main():
     }
 
     config = get_config_patchified()
-
-    import glob
 
     image_list_train = sorted(glob.glob(
         config.dataset_path + 'train/images/*'))
@@ -173,16 +178,17 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     BATCH_SIZE = 8
 
+    dataset['train'] = dataset['train'].map(load_files)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)
-    
+    print("SEE: ", next(iter(dataset['train'])))
     # dataset['val'] = dataset['val'].from_generator(val_datagen)
     # dataset['val'] = dataset['val'].repeat()
     # dataset['val'] = dataset['val'].batch(BATCH_SIZE)
     # dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
 
-    print(dataset['train'])
+    # print(dataset['train'])
     # print(dataset['val'])
     # test_tf_function()
     exit()

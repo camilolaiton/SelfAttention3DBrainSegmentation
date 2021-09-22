@@ -201,7 +201,7 @@ def load_files(img_path, msk_path):
     return tf.numpy_function(
         load_files_py,
         inp=[img_path, msk_path],
-        Tout=[tf.float32, tf.uint8]
+        Tout=[tf.float32, tf.float32]
     )
 
 def main():
@@ -335,17 +335,24 @@ def main():
         "val" : val_datagen
     }
 
+    # Disable AutoShard.
+    options = tf.data.Options()
+    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     dataset['train'] = dataset['train'].map(load_files)
     # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
+    dataset['train'] = dataset['train'].with_options(options)
+
 
     dataset['val'] = dataset['val'].map(load_files)
     dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
+    dataset['val'] = dataset['val'].with_options(options)
 
     # Setting up callbacks
     monitor = 'val_iou_score'

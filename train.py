@@ -216,6 +216,7 @@ def main():
     if gpus:
         # Restrict TensorFlow to only allocate 10GB of memory on the GPU
         try:
+            f.config.set_visible_devices(gpus, 'GPU')
             tf.config.experimental.set_virtual_device_configuration(gpus[0], [
                 tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
 
@@ -234,7 +235,7 @@ def main():
     model = None
 
     # Mirrored strategy for parallel training
-    mirrored_strategy = tf.distribute.MirroredStrategy()
+    mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
     # GPU Devices
     devices = tf.config.experimental.list_physical_devices("GPU")
 

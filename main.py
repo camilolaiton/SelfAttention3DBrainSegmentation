@@ -24,6 +24,7 @@ import random
 import os
 import nilearn
 import tensorflow as tf
+from model.config import *
 
 def structure_validation():
 
@@ -123,6 +124,13 @@ def test_tf_function():
     patches = tf.reshape(patches, [1, -1, patch_dims])
     print("resp: \n", patches)
 
+@tf.function
+def load_image_train(datapoint: dict):
+    input_image = tf.keras.utils.get_file(datapoint['images'])
+    input_mask = tf.keras.utils.get_file(datapoint['masks'])
+
+    return input_image, input_mask
+
 def main():
     scaler = MinMaxScaler()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
@@ -137,7 +145,46 @@ def main():
         'RAS': True, 
         'normalize': False
     }
-    test_tf_function()
+
+    config = get_config_patchified()
+
+    import glob
+
+    image_list_train = sorted(glob.glob(
+        config.dataset_path + 'train/images/*'))
+    mask_list_train = sorted(glob.glob(
+        config.dataset_path + 'train/masks/*'))
+    print(len(image_list_train), " ", len(mask_list_train))
+    image_list_test = sorted(glob.glob(
+        config.dataset_path + 'test/images/*'))
+    mask_list_test = sorted(glob.glob(
+        config.dataset_path + 'test/masks/*'))
+
+    train_dataset = tf.data.Dataset.from_tensor_slices(
+        (image_list_train, 
+        mask_list_train)
+    )
+
+    dataset = {
+        "train" : train_dataset,
+        # "val" : val_dataset
+    }
+
+    AUTOTUNE = tf.data.experimental.AUTOTUNE
+    BATCH_SIZE = 8
+
+    dataset['train'] = dataset['train'].repeat()
+    dataset['train'] = dataset['train'].batch(BATCH_SIZE)
+    dataset['train'] = dataset['train'].prefetch(AUTOTUNE)
+    
+    # dataset['val'] = dataset['val'].from_generator(val_datagen)
+    # dataset['val'] = dataset['val'].repeat()
+    # dataset['val'] = dataset['val'].batch(BATCH_SIZE)
+    # dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
+
+    print(dataset['train'])
+    # print(dataset['val'])
+    # test_tf_function()
     exit()
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     mri_paths = utils.read_test_to_list('data/common_mri_images.txt')

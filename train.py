@@ -24,7 +24,7 @@ from matplotlib import pyplot
 from model.config import *
 from model.model import *
 from model.losses import *
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 import pickle
 
 # import tensorflow_addons as tfa
@@ -194,8 +194,23 @@ def testing_datagens(config):
 def main():
 
     # Selecting cuda device
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]="1"
+
+    # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    # os.environ["CUDA_VISIBLE_DEVICES"]="1"
+    
+    gpus = tf.config.experimental.list_physical_devices('GPU')
+    if gpus:
+        # Restrict TensorFlow to only allocate 10GB of memory on the GPU
+        try:
+            tf.config.experimental.set_virtual_device_configuration(gpus[0], [
+                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+
+            tf.config.experimental.set_virtual_device_configuration(gpus[1], [
+                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+        except RuntimeError as e:
+            # Virtual devices must be set before GPUs have been initialized
+            print(e)
+
     retrain = True
     training_folder = 'trainings/'
     model_path = f"{training_folder}/trained_architecture.hdf5"
@@ -302,6 +317,12 @@ def main():
         mode=mode
     )
 
+    tb = TensorBoard(
+        log_dir='trainings/logs_tr', 
+        write_graph=True, 
+        update_freq='epoch'
+    )
+
     steps_per_epoch = len(train_imgs_lst)//config.batch_size
     val_steps_per_epoch = len(test_imgs_lst)//config.batch_size
 
@@ -311,7 +332,7 @@ def main():
         verbose=1,
         validation_data=val_datagen,
         validation_steps=val_steps_per_epoch,
-        callbacks=[early_stop, model_check]
+        callbacks=[early_stop, model_check, tb]
     )
 
     with open('trainings/history.obj', 'wb') as file_pi:

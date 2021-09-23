@@ -293,10 +293,10 @@ def main():
                 sm.metrics.FScore(threshold=0.5),
             ],
         )
-
+    
     print(f"[+] Building model with config {config}")    
     model.summary()
-
+    
     tf.keras.utils.plot_model(
         model,
         to_file="trainings/trained_architecture.png",

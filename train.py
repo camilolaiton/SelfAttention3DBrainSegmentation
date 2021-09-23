@@ -227,6 +227,7 @@ def main():
     # os.environ["CUDA_VISIBLE_DEVICES"]="1"
     SEED = 12
     
+    mb_limit = 9011
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         # Restrict TensorFlow to only allocate 10GB of memory on the GPU
@@ -235,17 +236,17 @@ def main():
             tf.config.set_visible_devices(gpus, 'GPU')
             
             # Setting max memory
-            tf.config.experimental.set_per_process_memory_fraction(0.80)
-            # tf.config.experimental.set_virtual_device_configuration(gpus[0], [
-            #     tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+            # tf.config.experimental.set_per_process_memory_fraction(0.80)
+            tf.config.experimental.set_virtual_device_configuration(gpus[0], [
+                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
-            # tf.config.experimental.set_virtual_device_configuration(gpus[1], [
-            #     tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+            tf.config.experimental.set_virtual_device_configuration(gpus[1], [
+                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
             # Setting memory growth
-            # tf.config.experimental.set_memory_growth(gpus[0], True)
-            # tf.config.experimental.set_memory_growth(gpus[1], True)
-            tf.config.experimental.set_per_process_memory_growth(True)
+            tf.config.experimental.set_memory_growth(gpus[0], True)
+            tf.config.experimental.set_memory_growth(gpus[1], True)
+            # tf.config.experimental.set_per_process_memory_growth(True)
 
         except RuntimeError as e:
             # Virtual devices must be set before GPUs have been initialized

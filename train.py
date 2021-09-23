@@ -303,7 +303,7 @@ def main():
         dpi=96,
     )
     
-    aug = get_augmentation(config.image_size)
+    # aug = get_augmentation(config.image_size)
 
     # Setting up variables for data generators
     # TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'

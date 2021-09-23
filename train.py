@@ -25,10 +25,25 @@ from model.config import *
 from model.model import *
 from model.losses import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
+from volumentations import *
 import pickle
 import glob
 
 # import tensorflow_addons as tfa
+
+def get_augmentation(patch_size):
+    return Compose([
+        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
+        # RandomCropFromBorders(crop_value=0.1, p=0.5),
+        ElasticTransform((0, 0.25), interpolation=2, p=0.1),
+        # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
+        # Flip(0, p=0.5),
+        # Flip(1, p=0.5),
+        # Flip(2, p=0.5),
+        # RandomRotate90((1, 2), p=0.5),
+        # GaussianNoise(var_limit=(0, 5), p=0.2),
+        # RandomGamma(gamma_limit=(0.5, 1.5), p=0.2),
+    ], p=1.0)
 
 def eslastic_deform_datagen_individual(img):
     # def el_deform(img):
@@ -287,6 +302,8 @@ def main():
         expand_nested=False,
         dpi=96,
     )
+    
+    aug = get_augmentation(config.image_size)
 
     # Setting up variables for data generators
     # TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'

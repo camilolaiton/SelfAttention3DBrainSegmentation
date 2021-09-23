@@ -234,7 +234,11 @@ def main():
         try:
             # Setting visible devices
             tf.config.set_visible_devices(gpus, 'GPU')
-            
+
+            # Setting memory growth
+            tf.config.experimental.set_memory_growth(gpus[0], True)
+            tf.config.experimental.set_memory_growth(gpus[1], True)
+
             # Setting max memory
             # tf.config.experimental.set_per_process_memory_fraction(0.80)
             tf.config.experimental.set_virtual_device_configuration(gpus[0], [
@@ -243,9 +247,6 @@ def main():
             tf.config.experimental.set_virtual_device_configuration(gpus[1], [
                 tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
-            # Setting memory growth
-            tf.config.experimental.set_memory_growth(gpus[0], True)
-            tf.config.experimental.set_memory_growth(gpus[1], True)
             # tf.config.experimental.set_per_process_memory_growth(True)
 
         except RuntimeError as e:

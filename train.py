@@ -234,16 +234,19 @@ def main():
             # Setting visible devices
             tf.config.set_visible_devices(gpus, 'GPU')
             
-            # Setting memory growth
-            tf.config.experimental.set_memory_growth(gpus[0], True)
-            tf.config.experimental.set_memory_growth(gpus[1], True)
-            
             # Setting max memory
-            tf.config.experimental.set_virtual_device_configuration(gpus[0], [
-                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+            tf.config.gpu.set_per_process_memory_fraction(0.80)
+            # tf.config.experimental.set_virtual_device_configuration(gpus[0], [
+            #     tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
 
-            tf.config.experimental.set_virtual_device_configuration(gpus[1], [
-                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+            # tf.config.experimental.set_virtual_device_configuration(gpus[1], [
+            #     tf.config.experimental.VirtualDeviceConfiguration(memory_limit=10240)])
+
+            # Setting memory growth
+            # tf.config.experimental.set_memory_growth(gpus[0], True)
+            # tf.config.experimental.set_memory_growth(gpus[1], True)
+            tf.config.gpu.set_per_process_memory_growth(True)
+
         except RuntimeError as e:
             # Virtual devices must be set before GPUs have been initialized
             print(e)

@@ -268,7 +268,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
+    retrain = False
     training_folder = 'trainings/'
     model_path = f"{training_folder}/trained_architecture.hdf5"
 
@@ -384,13 +384,12 @@ def main():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(load_files)
+    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE).cache()
     # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)
-
 
     dataset['val'] = dataset['val'].map(load_files)
     dataset['val'] = dataset['val'].repeat()

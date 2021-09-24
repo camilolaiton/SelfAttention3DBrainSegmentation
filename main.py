@@ -25,6 +25,7 @@ import os
 import nilearn
 import tensorflow as tf
 from model.config import *
+from volumentations import *
 
 def structure_validation():
 
@@ -138,6 +139,35 @@ def load_files(img_path, msk_path):
         Tout=[tf.float32, tf.uint8]
     )
 
+def get_augmentation():
+    return Compose([
+        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
+        # RandomCropFromBorders(crop_value=0.1, p=0.5),
+        ElasticTransform((0, 0.25), interpolation=2, p=0.1),
+        # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
+        # Flip(0, p=0.5),
+        # Flip(1, p=0.5),
+        # Flip(2, p=0.5),
+        # RandomRotate90((1, 2), p=0.5),
+        # GaussianNoise(var_limit=(0, 5), p=0.2),
+        # RandomGamma(gamma_limit=(0.5, 1.5), p=0.2),
+    ], p=1.0)
+
+def augmentor_py(img, msk):
+    aug = get_augmentation()
+    data = {'image': img, 'msk': msk}
+    aug_data = aug(**data)
+    img = aug_data['image']
+    msk = aug_data['msk']
+    return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
+
+def augmentor(img, msk):
+    return tf.numpy_function(
+        augmentor_py,
+        inp=[img, msk],
+        Tout=[tf.float32, tf.float32]
+    )
+
 def main():
     scaler = MinMaxScaler()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
@@ -178,11 +208,12 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     BATCH_SIZE = 8
 
-    dataset['train'] = dataset['train'].map(load_files)
+    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)
-    print("SEE: ", next(iter(dataset['train'])))
+    see = next(iter(dataset['train']))
+    print("SEE: ", see, " ", len(see))
     # dataset['val'] = dataset['val'].from_generator(val_datagen)
     # dataset['val'] = dataset['val'].repeat()
     # dataset['val'] = dataset['val'].batch(BATCH_SIZE)

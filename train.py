@@ -384,7 +384,7 @@ def main():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE).cache()
+    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)#.cache()
     # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
@@ -411,7 +411,7 @@ def main():
 
     # Model Checkpoing
     model_check = ModelCheckpoint(
-        'trainings/trained_architecture.hdf5', 
+        'trainings/model_trained_architecture.hdf5', 
         save_best_only=True,
         save_weights_only=True, 
         monitor=monitor, 
@@ -429,7 +429,7 @@ def main():
 
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
-        epochs=config.num_epochs - 35,
+        epochs=config.num_epochs,
         verbose=1,
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,

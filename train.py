@@ -278,8 +278,6 @@ def main():
 
     # Mirrored strategy for parallel training
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
-    # GPU Devices
-    devices = tf.config.experimental.list_physical_devices("GPU")
 
     # Setting up weights 
     wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25

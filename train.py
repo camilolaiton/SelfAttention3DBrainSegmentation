@@ -31,20 +31,6 @@ import glob
 
 # import tensorflow_addons as tfa
 
-def get_augmentation(patch_size):
-    return Compose([
-        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
-        # RandomCropFromBorders(crop_value=0.1, p=0.5),
-        ElasticTransform((0, 0.25), interpolation=2, p=0.1),
-        # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
-        # Flip(0, p=0.5),
-        # Flip(1, p=0.5),
-        # Flip(2, p=0.5),
-        # RandomRotate90((1, 2), p=0.5),
-        # GaussianNoise(var_limit=(0, 5), p=0.2),
-        # RandomGamma(gamma_limit=(0.5, 1.5), p=0.2),
-    ], p=1.0)
-
 def eslastic_deform_datagen_individual(img):
     # def el_deform(img):
     img_deformed = elasticdeform.deform_grid(np.reshape(img, (256, 256)), displacement=np.random.randn(2,3,3)*3)
@@ -219,6 +205,35 @@ def load_files(img_path, msk_path):
         Tout=[tf.float32, tf.float32]
     )
 
+def get_augmentation():
+    return Compose([
+        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
+        # RandomCropFromBorders(crop_value=0.1, p=0.5),
+        ElasticTransform((0, 0.25), interpolation=2, p=0.1),
+        # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
+        # Flip(0, p=0.5),
+        # Flip(1, p=0.5),
+        # Flip(2, p=0.5),
+        # RandomRotate90((1, 2), p=0.5),
+        # GaussianNoise(var_limit=(0, 5), p=0.2),
+        # RandomGamma(gamma_limit=(0.5, 1.5), p=0.2),
+    ], p=1.0)
+
+def augmentor_py(img, msk):
+    aug = get_augmentation()
+    data = {'image': img, 'msk': msk}
+    aug_data = aug(**data)
+    img = aug_data['image']
+    msk = aug_data['msk']
+    return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
+
+def augmentor(img, msk):
+    return tf.numpy_function(
+        augmentor_py,
+        inp=[img, msk],
+        Tout=[tf.float32, tf.float32]
+    )
+
 def main():
 
     # Selecting cuda device
@@ -253,7 +268,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
+    retrain = True
     training_folder = 'trainings/'
     model_path = f"{training_folder}/trained_architecture.hdf5"
 
@@ -308,8 +323,7 @@ def main():
         dpi=96,
     )
     
-    # aug = get_augmentation(config.image_size)
-
+    
     # Setting up variables for data generators
     # TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'
     # TRAIN_MSKS_DIR = config.dataset_path + 'train/masks/'
@@ -406,7 +420,7 @@ def main():
     )
 
     tb = TensorBoard(
-        log_dir='trainings/logs_tr', 
+        log_dir='trainings/logs_tr_2', 
         write_graph=True, 
         update_freq='epoch'
     )
@@ -416,7 +430,7 @@ def main():
 
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
-        epochs=config.num_epochs,
+        epochs=config.num_epochs - 35,
         verbose=1,
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,

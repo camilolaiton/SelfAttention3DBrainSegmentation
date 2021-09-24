@@ -312,7 +312,7 @@ def main():
     
     tf.keras.utils.plot_model(
         model,
-        to_file="trainings/trained_architecture.png",
+        to_file="trainings/trained_architecture_3.png",
         show_shapes=True,
         show_dtype=True,
         show_layer_names=True,
@@ -395,8 +395,8 @@ def main():
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)
 
-    dataset['val'] = dataset['val'].map(load_files)
-    dataset['val'] = dataset['val'].cache().repeat()
+    # dataset['val'] = dataset['val'].map(load_files)
+    dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
     dataset['val'] = dataset['val'].with_options(options)
@@ -415,7 +415,7 @@ def main():
 
     # Model Checkpoing
     model_check = ModelCheckpoint(
-        'trainings/model_trained_architecture.hdf5', 
+        'trainings/model_trained_architecture_3.hdf5', 
         save_best_only=True,
         save_weights_only=True, 
         monitor=monitor, 
@@ -423,7 +423,7 @@ def main():
     )
 
     tb = TensorBoard(
-        log_dir='trainings/logs_tr_2', 
+        log_dir='trainings/logs_tr_3', 
         write_graph=True, 
         update_freq='epoch'
     )
@@ -440,12 +440,12 @@ def main():
         callbacks=[early_stop, model_check, tb]
     )
 
-    with open('trainings/history.obj', 'wb') as file_pi:
+    with open('trainings/history_3.obj', 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
     utils.write_dict_to_txt(
         config, 
-        "trainings/trained_architecture_config.txt"
+        "trainings/trained_architecture_config_3.txt"
     )
 
 if __name__ == "__main__":

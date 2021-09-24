@@ -307,7 +307,7 @@ def main():
             ],
         )
     
-    print(f"[+] Building model with config {config}")    
+    print(f"[+] Building model with config {config}")
     model.summary()
     
     tf.keras.utils.plot_model(

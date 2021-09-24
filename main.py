@@ -168,6 +168,12 @@ def augmentor(img, msk):
         Tout=[tf.float32, tf.float32]
     )
 
+def read_files_from_directory(files_path):
+    files = []
+    for file_path in files_path:
+        files.append(np.load(file_path))
+    return np.array(files)
+
 def main():
     scaler = MinMaxScaler()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
@@ -195,9 +201,15 @@ def main():
     mask_list_test = sorted(glob.glob(
         config.dataset_path + 'test/masks/*'))
 
+    train_imgs = read_files_from_directory(image_list_train)
+    train_msks = read_files_from_directory(mask_list_train)
+
+    print(train_imgs.shape, "  ", train_msks.shape)
+
     train_dataset = tf.data.Dataset.from_tensor_slices(
-        (image_list_train, 
-        mask_list_train)
+        (train_imgs, train_msks)
+        #(image_list_train, 
+        #mask_list_train)
     )
 
     dataset = {
@@ -208,7 +220,7 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     BATCH_SIZE = 8
 
-    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)
+    dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE) #.map(load_files).
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)

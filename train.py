@@ -354,9 +354,16 @@ def main():
     #     config.batch_size
     # )
 
+    # reading for training
+    train_imgs = utils.read_files_from_directory(image_list_train)
+    train_msks = utils.read_files_from_directory(mask_list_train)
+
+    # Reading for validation
+    test_imgs = utils.read_files_from_directory(image_list_test)
+    test_msks = utils.read_files_from_directory(mask_list_test)
+
     train_datagen = tf.data.Dataset.from_tensor_slices(
-        (image_list_train, 
-        mask_list_train)
+        (train_imgs, train_msks)
     )
 
     # val_datagen = utils.mri_generator(
@@ -368,8 +375,7 @@ def main():
     # )
 
     val_datagen = tf.data.Dataset.from_tensor_slices(
-        (image_list_test, 
-        mask_list_test)
+        (test_imgs, test_msks)
     )
 
     dataset = {
@@ -382,15 +388,15 @@ def main():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)#.cache()
-    # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
+    dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)#.cache().map(load_files)
+    dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)
 
     dataset['val'] = dataset['val'].map(load_files)
-    dataset['val'] = dataset['val'].repeat()
+    dataset['val'] = dataset['val'].cache().repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
     dataset['val'] = dataset['val'].with_options(options)

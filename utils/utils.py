@@ -1145,8 +1145,12 @@ def write_dict_to_txt(config, name):
     for k, v in config.items():
         dicti_file.write(f"{k} : {v}\n")
 
-def read_files_from_directory(files_path):
+def read_files_from_directory(files_path, limit=None):
     files = []
+    i = 0
     for file_path in files_path:
         files.append(np.load(file_path))
+        if (i == limit):
+          break
+        i += 1
     return np.array(files)

@@ -355,8 +355,9 @@ def main():
     # )
 
     # reading for training
-    train_imgs = utils.read_files_from_directory(image_list_train)
-    train_msks = utils.read_files_from_directory(mask_list_train)
+    half = len(image_list_train)//2
+    train_imgs = utils.read_files_from_directory(image_list_train, half)
+    train_msks = utils.read_files_from_directory(mask_list_train, half)
 
     # Reading for validation
     test_imgs = utils.read_files_from_directory(image_list_test)

@@ -355,7 +355,7 @@ def main():
     # )
 
     # reading for training
-    half = int(len(image_list_train)*0.7)
+    half = int(len(image_list_train)*0.5)
     train_imgs = utils.read_files_from_directory(image_list_train, half)
     train_msks = utils.read_files_from_directory(mask_list_train, half)
 

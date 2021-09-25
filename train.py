@@ -433,7 +433,7 @@ def main():
     steps_per_epoch = len(image_list_train)//config.batch_size
     val_steps_per_epoch = len(image_list_test)//config.batch_size
 
-    history = model.fit(train_datagen,
+    history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,
         # batch_size=config.batch_size,

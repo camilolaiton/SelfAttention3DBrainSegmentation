@@ -355,13 +355,13 @@ def main():
     # )
 
     # reading for training
-    half = int(len(image_list_train)*0.1)
+    half = int(len(image_list_train)*0.01)
     train_imgs = utils.read_files_from_directory(image_list_train, half)
     train_msks = utils.read_files_from_directory(mask_list_train, half)
 
     # Reading for validation
-    test_imgs = utils.read_files_from_directory(image_list_test)
-    test_msks = utils.read_files_from_directory(mask_list_test)
+    # test_imgs = utils.read_files_from_directory(image_list_test)
+    # test_msks = utils.read_files_from_directory(mask_list_test)
 
     train_datagen = tf.data.Dataset.from_tensor_slices(
         (train_imgs, train_msks)
@@ -376,7 +376,8 @@ def main():
     # )
 
     val_datagen = tf.data.Dataset.from_tensor_slices(
-        (test_imgs, test_msks)
+        # (test_imgs, test_msks)
+        (image_list_test, mask_list_test)
     )
 
     dataset = {
@@ -396,7 +397,7 @@ def main():
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)
 
-    # dataset['val'] = dataset['val'].map(load_files)
+    dataset['val'] = dataset['val'].map(load_files)
     dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)

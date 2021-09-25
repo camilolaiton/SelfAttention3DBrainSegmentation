@@ -238,8 +238,8 @@ def main():
 
     # Selecting cuda device
 
-    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]="1"
+    # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    # os.environ["CUDA_VISIBLE_DEVICES"]="1"
     
     SEED = 12
     mb_limit = 9011
@@ -248,7 +248,7 @@ def main():
         # Restrict TensorFlow to only allocate 10GB of memory on the GPU
         try:
             # Setting visible devices
-            tf.config.set_visible_devices(gpus, 'GPU')
+            tf.config.set_visible_devices(gpus[1:], 'GPU')
 
             # Setting memory growth
             # tf.config.experimental.set_memory_growth(gpus[0], True)
@@ -386,8 +386,8 @@ def main():
     }
 
     # Disable AutoShard.
-    options = tf.data.Options()
-    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+    # options = tf.data.Options()
+    # options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)#.cache().map(load_files)
@@ -395,13 +395,13 @@ def main():
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
-    dataset['train'] = dataset['train'].with_options(options)
+    # dataset['train'] = dataset['train'].with_options(options)
 
     dataset['val'] = dataset['val'].map(load_files)
     dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
-    dataset['val'] = dataset['val'].with_options(options)
+    # dataset['val'] = dataset['val'].with_options(options)
 
     # Setting up callbacks
     monitor = 'val_iou_score'

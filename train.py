@@ -238,10 +238,10 @@ def main():
 
     # Selecting cuda device
 
-    # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    # os.environ["CUDA_VISIBLE_DEVICES"]="1"
-    SEED = 12
+    os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
+    os.environ["CUDA_VISIBLE_DEVICES"]="1"
     
+    SEED = 12
     mb_limit = 9011
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
@@ -251,13 +251,13 @@ def main():
             tf.config.set_visible_devices(gpus, 'GPU')
 
             # Setting memory growth
-            tf.config.experimental.set_memory_growth(gpus[0], True)
+            # tf.config.experimental.set_memory_growth(gpus[0], True)
             tf.config.experimental.set_memory_growth(gpus[1], True)
 
             # Setting max memory
             # tf.config.experimental.set_per_process_memory_fraction(0.80)
-            tf.config.experimental.set_virtual_device_configuration(gpus[0], [
-                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
+            # tf.config.experimental.set_virtual_device_configuration(gpus[0], [
+            #     tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
             tf.config.experimental.set_virtual_device_configuration(gpus[1], [
                 tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
@@ -277,7 +277,7 @@ def main():
     model = None
 
     # Mirrored strategy for parallel training
-    mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
+    # mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
     # Setting up weights 
     wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
@@ -285,27 +285,27 @@ def main():
     # Setting up neural network loss
     #loss = tversky_loss()#dice_focal_loss([wt0, wt1, wt2, wt3])
     
-    with mirrored_strategy.scope():
-        model = build_model_patchified(config)
+    # with mirrored_strategy.scope():
+    model = build_model_patchified(config)
 
-        if (retrain):
-            model.load_weights(model_path)
+    if (retrain):
+        model.load_weights(model_path)
 
-        optimizer = tf.optimizers.SGD(
-            learning_rate=config.learning_rate, 
-            momentum=config.momentum,
-            name='optimizer_SGD_0'
-        )
+    optimizer = tf.optimizers.SGD(
+        learning_rate=config.learning_rate, 
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
+    )
 
-        model.compile(
-            optimizer=optimizer,
-            loss=tversky_loss,#loss,#"categorical_crossentropy"
-            metrics=[
-                # 'accuracy',
-                sm.metrics.IOUScore(threshold=0.5),
-                sm.metrics.FScore(threshold=0.5),
-            ],
-        )
+    model.compile(
+        optimizer=optimizer,
+        loss=tversky_loss,#loss,#"categorical_crossentropy"
+        metrics=[
+            # 'accuracy',
+            sm.metrics.IOUScore(threshold=0.5),
+            sm.metrics.FScore(threshold=0.5),
+        ],
+    )
     
     print(f"[+] Building model with config {config}")
     model.summary()
@@ -355,9 +355,9 @@ def main():
     # )
 
     # reading for training
-    half = int(len(image_list_train)*0.01)
-    train_imgs = utils.read_files_from_directory(image_list_train, half)
-    train_msks = utils.read_files_from_directory(mask_list_train, half)
+    # half = int(len(image_list_train)*0.01)
+    train_imgs = utils.read_files_from_directory(image_list_train)#, half)
+    train_msks = utils.read_files_from_directory(mask_list_train)#, half)
 
     # Reading for validation
     # test_imgs = utils.read_files_from_directory(image_list_test)

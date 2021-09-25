@@ -363,9 +363,9 @@ def main():
     # test_imgs = utils.read_files_from_directory(image_list_test)
     # test_msks = utils.read_files_from_directory(mask_list_test)
 
-    train_datagen = tf.data.Dataset.from_tensor_slices(
-        (train_imgs, train_msks)
-    )
+    # train_datagen = tf.data.Dataset.from_tensor_slices(
+    #     (train_imgs, train_msks)
+    # )
 
     # val_datagen = utils.mri_generator(
     #     TEST_IMGS_DIR,
@@ -375,32 +375,32 @@ def main():
     #     config.batch_size
     # )
 
-    val_datagen = tf.data.Dataset.from_tensor_slices(
-        # (test_imgs, test_msks)
-        (image_list_test, mask_list_test)
-    )
+    # val_datagen = tf.data.Dataset.from_tensor_slices(
+    #     # (test_imgs, test_msks)
+    #     (image_list_test, mask_list_test)
+    # )
 
-    dataset = {
-        "train" : train_datagen,
-        "val" : val_datagen
-    }
+    # dataset = {
+    #     # "train" : train_datagen,
+    #     "val" : val_datagen
+    # }
 
     # Disable AutoShard.
     # options = tf.data.Options()
     # options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
-    AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)#.cache().map(load_files)
-    dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
-    dataset['train'] = dataset['train'].repeat()
-    dataset['train'] = dataset['train'].batch(config.batch_size)
-    dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
-    # dataset['train'] = dataset['train'].with_options(options)
+    # AUTOTUNE = tf.data.experimental.AUTOTUNE
+    # dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)#.cache().map(load_files)
+    # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
+    # dataset['train'] = dataset['train'].repeat()
+    # dataset['train'] = dataset['train'].batch(config.batch_size)
+    # dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
+    # # dataset['train'] = dataset['train'].with_options(options)
 
-    dataset['val'] = dataset['val'].map(load_files)
-    dataset['val'] = dataset['val'].repeat()
-    dataset['val'] = dataset['val'].batch(config.batch_size)
-    dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
+    # dataset['val'] = dataset['val'].map(load_files)
+    # dataset['val'] = dataset['val'].repeat()
+    # dataset['val'] = dataset['val'].batch(config.batch_size)
+    # dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
     # dataset['val'] = dataset['val'].with_options(options)
 
     # Setting up callbacks
@@ -431,14 +431,15 @@ def main():
     )
 
     steps_per_epoch = len(image_list_train)//config.batch_size
-    val_steps_per_epoch = len(image_list_test)//config.batch_size
+    # val_steps_per_epoch = len(image_list_test)//config.batch_size
 
-    history = model.fit(dataset['train'],
+    history = model.fit([train_imgs, train_msks],
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,
+        batch_size=config.batch_size,
         verbose=1,
-        validation_data=dataset['val'],
-        validation_steps=val_steps_per_epoch,
+        # validation_data=dataset['val'],
+        # validation_steps=val_steps_per_epoch,
         callbacks=[early_stop, model_check, tb]
     )
 

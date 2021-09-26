@@ -268,9 +268,9 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
+    retrain = True
     training_folder = 'trainings/'
-    model_path = f"{training_folder}/trained_architecture.hdf5"
+    model_path = f"{training_folder}/model_trained_architecture_3.hdf5"
 
     # creating model
     config = get_config_patchified()
@@ -435,7 +435,7 @@ def main():
 
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
-        epochs=config.num_epochs,
+        epochs=config.num_epochs - 35,
         # batch_size=config.batch_size,
         verbose=1,
         validation_data=dataset['val'],

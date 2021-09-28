@@ -94,9 +94,9 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_1_0'
-    model_path = f"{training_folder}/trained_architecture.hdf5"
-    model_history_path = f"{training_folder}/history.obj"
+    training_folder = 'trainings/version_2_0'
+    model_path = f"{training_folder}/model_trained_architecture_3.hdf5"
+    model_history_path = f"{training_folder}/history_3.obj"
     config = get_config_patchified()
 
     # Getting images
@@ -125,7 +125,8 @@ def main():
     np.save(training_folder+'/prediction.npy', prediction)
     np.save(training_folder+'/ground_truth.npy', msk_patches)
 
-    plot_examples(msk_patches, prediction, 20, training_folder)
+    for i in [31, 19, 15, 14, 5]:
+        plot_examples(msk_patches, prediction, i, training_folder)
 
 if __name__ == "__main__":
     main()

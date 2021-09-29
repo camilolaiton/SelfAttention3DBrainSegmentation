@@ -201,15 +201,15 @@ def main():
     mask_list_test = sorted(glob.glob(
         config.dataset_path + 'test/masks/*'))
 
-    train_imgs = read_files_from_directory(image_list_train)
-    train_msks = read_files_from_directory(mask_list_train)
+    # train_imgs = read_files_from_directory(image_list_train)
+    # train_msks = read_files_from_directory(mask_list_train)
 
-    print(train_imgs.shape, "  ", train_msks.shape)
+    # print(train_imgs.shape, "  ", train_msks.shape)
 
     train_dataset = tf.data.Dataset.from_tensor_slices(
-        (train_imgs, train_msks)
-        #(image_list_train, 
-        #mask_list_train)
+        # (train_imgs, train_msks)
+        (image_list_train, 
+        mask_list_train)
     )
 
     dataset = {

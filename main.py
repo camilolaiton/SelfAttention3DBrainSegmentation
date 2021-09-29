@@ -218,7 +218,7 @@ def main():
     }
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    BATCH_SIZE = 8
+    BATCH_SIZE = 2
 
     dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE) #.
     dataset['train'] = dataset['train'].repeat()

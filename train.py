@@ -31,6 +31,60 @@ import glob
 
 # import tensorflow_addons as tfa
 
+# all_files_loc = "datapsycho/imglake/population/train/image_files/"
+# all_files = os.listdir(all_files_loc)
+
+# image_label_map = {
+#         "image_file_{}.npy".format(i+1): "label_file_{}.npy".format(i+1)
+#         for i in range(int(len(all_files)/2))}
+# partition = [item for item in all_files if "image_file" in item]
+
+# class DataGenerator(keras.utils.Sequence):
+
+#     def __init__(self, file_list):
+#         """Constructor can be expanded,
+#            with batch size, dimentation etc.
+#         """
+#         self.file_list = file_list
+#         self.on_epoch_end()
+
+#     def __len__(self):
+#       'Take all batches in each iteration'
+#       return int(len(self.file_list))
+
+#     def __getitem__(self, index):
+#       'Get next batch'
+#       # Generate indexes of the batch
+#       indexes = self.indexes[index:(index+1)]
+
+#       # single file
+#       file_list_temp = [self.file_list[k] for k in indexes]
+
+#       # Set of X_train and y_train
+#       X, y = self.__data_generation(file_list_temp)
+
+#       return X, y
+
+#     def on_epoch_end(self):
+#       'Updates indexes after each epoch'
+#       self.indexes = np.arange(len(self.file_list))
+
+#     def __data_generation(self, file_list_temp):
+#       'Generates data containing batch_size samples'
+#       data_loc = "datapsycho/imglake/population/train/image_files/"
+#       # Generate data
+#       for ID in file_list_temp:
+#           x_file_path = os.path.join(data_loc, ID)
+#           y_file_path = os.path.join(data_loc, image_label_map.get(ID))
+
+#           # Store sample
+#           X = np.load(x_file_path)
+
+#           # Store class
+#           y = np.load(y_file_path)
+
+#       return X, y
+
 def eslastic_deform_datagen_individual(img):
     # def el_deform(img):
     img_deformed = elasticdeform.deform_grid(np.reshape(img, (256, 256)), displacement=np.random.randn(2,3,3)*3)
@@ -257,7 +311,7 @@ def main():
             # Setting max memory
             # tf.config.experimental.set_per_process_memory_fraction(0.80)
             # tf.config.experimental.set_virtual_device_configuration(gpus[0], [
-            #     tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
+            #     tf.config.experimentamsk_pathl.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
             tf.config.experimental.set_virtual_device_configuration(gpus[1], [
                 tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
@@ -268,9 +322,9 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
+    retrain = False
     training_folder = 'trainings/'
-    model_path = f"{training_folder}/model_trained_architecture_3.hdf5"
+    model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     # creating model
     config = get_config_patchified()
@@ -312,7 +366,7 @@ def main():
     
     tf.keras.utils.plot_model(
         model,
-        to_file="trainings/trained_architecture_3.png",
+        to_file="trainings/trained_architecture.png",
         show_shapes=True,
         show_dtype=True,
         show_layer_names=True,
@@ -320,7 +374,6 @@ def main():
         expand_nested=False,
         dpi=96,
     )
-    
     
     # Setting up variables for data generators
     # TRAIN_IMGS_DIR = config.dataset_path + 'train/images/'
@@ -390,7 +443,7 @@ def main():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)#.cache()
+    dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE)#.cache()
     dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
@@ -401,7 +454,7 @@ def main():
     dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
-    dataset['val'] = dataset['val'].with_options(options)
+    # dataset['val'] = dataset['val'].with_options(options)
 
     # Setting up callbacks
     monitor = 'val_iou_score'
@@ -417,7 +470,7 @@ def main():
 
     # Model Checkpoing
     model_check = ModelCheckpoint(
-        'trainings/model_trained_architecture_3.hdf5', 
+        'trainings/model_trained_architecture.hdf5', 
         save_best_only=True,
         save_weights_only=True, 
         monitor=monitor, 
@@ -425,7 +478,7 @@ def main():
     )
 
     tb = TensorBoard(
-        log_dir='trainings/logs_tr_3', 
+        log_dir='trainings/logs_tr', 
         write_graph=True, 
         update_freq='epoch'
     )
@@ -435,7 +488,7 @@ def main():
 
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
-        epochs=config.num_epochs - 35,
+        epochs=config.num_epochs,
         # batch_size=config.batch_size,
         verbose=1,
         validation_data=dataset['val'],
@@ -443,12 +496,12 @@ def main():
         callbacks=[early_stop, model_check, tb]
     )
 
-    with open('trainings/history_3.obj', 'wb') as file_pi:
+    with open('trainings/history.obj', 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
     utils.write_dict_to_txt(
         config, 
-        "trainings/trained_architecture_config_3.txt"
+        "trainings/trained_architecture_config.txt"
     )
 
 if __name__ == "__main__":

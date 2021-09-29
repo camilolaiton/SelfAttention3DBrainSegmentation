@@ -225,7 +225,7 @@ def main():
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)
     see = next(iter(dataset['train']))
-    print("SEE: ", see, " ", len(see))
+    print("SEE: ", see.shape, " ", len(see))
     # dataset['val'] = dataset['val'].from_generator(val_datagen)
     # dataset['val'] = dataset['val'].repeat()
     # dataset['val'] = dataset['val'].batch(BATCH_SIZE)

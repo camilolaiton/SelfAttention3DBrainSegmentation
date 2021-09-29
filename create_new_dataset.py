@@ -36,7 +36,7 @@ def main():
     patch_size = 64
     num_classes = 4
 
-    dataset_name_folder = 'dataset_3D_2'
+    dataset_name_folder = 'dataset_3D_3'
 
     train_dir_imgs = 'dataset_3D/train/images/*'
     train_dir_msks = 'dataset_3D/train/masks/*'

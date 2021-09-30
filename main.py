@@ -206,7 +206,7 @@ def main():
 
     # print(train_imgs.shape, "  ", train_msks.shape)
 
-    train_dataset = tf.data.Dataset.from_tensors(#tf.data.Dataset.from_tensor_slices(
+    train_dataset = tf.data.Dataset.from_tensor_slices(
         # (train_imgs, train_msks)
         (image_list_train, 
         mask_list_train)
@@ -220,7 +220,7 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     BATCH_SIZE = 2
 
-    #dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE) #.
+    dataset['train'] = tf.squeeze(dataset['train'].map(load_files))#.map(augmentor, num_parallel_calls=AUTOTUNE) #.
     # dataset['train'] = dataset['train'].apply(tf.contrib.data.unbatch())
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)

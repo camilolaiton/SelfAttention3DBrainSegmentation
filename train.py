@@ -498,6 +498,11 @@ def main():
         update_freq='epoch'
     )
 
+    pltau = tf.keras.callbacks.ReduceLROnPlateau(
+        monitor='val_loss', factor=0.1, patience=2, verbose=0,
+        mode='auto', min_delta=0.0001, cooldown=0, min_lr=0
+    )
+
     factor = 1
 
     if (config.unbatch):
@@ -513,7 +518,7 @@ def main():
         verbose=1,
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
-        callbacks=[early_stop, model_check, model_check_2, tb]
+        callbacks=[early_stop, model_check, model_check_2, tb, pltau]
     )
 
     with open('trainings/history.obj', 'wb') as file_pi:

@@ -322,7 +322,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
+    retrain = True
     training_folder = 'trainings/'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
@@ -481,10 +481,10 @@ def main():
         mode=mode
     )
 
-    utils.create_folder("trainings/checkpoints")
+    utils.create_folder("trainings/checkpoints_2")
 
     model_check_2 = ModelCheckpoint(
-        "trainings/checkpoints/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
+        "trainings/checkpoints_2/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
         save_best_only=False,
         save_weights_only=True, 
         monitor=monitor, 

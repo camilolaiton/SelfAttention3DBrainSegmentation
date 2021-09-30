@@ -94,9 +94,9 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_2_0'
-    model_path = f"{training_folder}/model_trained_architecture_3.hdf5"
-    model_history_path = f"{training_folder}/history_3.obj"
+    training_folder = 'trainings/version_3_0'
+    model_path = f"{training_folder}/model_trained_architecture.hdf5"
+    model_history_path = f"{training_folder}/history.obj"
     config = get_config_patchified()
 
     # Getting images

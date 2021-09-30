@@ -481,6 +481,15 @@ def main():
         mode=mode
     )
 
+    model_check_2 = ModelCheckpoint(
+        "trainings/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
+        save_best_only=False,
+        save_weights_only=True, 
+        monitor=monitor, 
+        mode=mode,
+        period=10
+    )
+
     tb = TensorBoard(
         log_dir='trainings/logs_tr', 
         write_graph=True, 
@@ -502,7 +511,7 @@ def main():
         verbose=1,
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
-        callbacks=[early_stop, model_check, tb]
+        callbacks=[early_stop, model_check, model_check_2, tb]
     )
 
     with open('trainings/history.obj', 'wb') as file_pi:

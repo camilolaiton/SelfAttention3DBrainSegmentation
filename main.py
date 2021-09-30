@@ -221,13 +221,13 @@ def main():
     BATCH_SIZE = 8
 
     dataset['train'] = dataset['train'].map(load_files)
-    dataset['train'] = dataset['train'].unbatch()
+    # dataset['train'] = dataset['train'].unbatch()
     # dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)
     see = next(iter(dataset['train']))
-    print(dataset['train'].element_spec)
+    print("SEE: ", see, " ", len(see))
     # dataset['val'] = dataset['val'].from_generator(val_datagen)
     # dataset['val'] = dataset['val'].repeat()
     # dataset['val'] = dataset['val'].batch(BATCH_SIZE)

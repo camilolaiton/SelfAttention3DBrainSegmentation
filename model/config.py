@@ -87,7 +87,8 @@ def get_config_patchified():
 
     config = ml_collections.ConfigDict()
     config.config_name = "architecture_1"
-    config.dataset_path = 'dataset_3D_2/'
+    config.dataset_path = 'dataset_3D_3/'
+    config.unbatch = True
     config.learning_rate = 0.001
     config.weight_decay = 1e-4
     config.momentum = 0.9

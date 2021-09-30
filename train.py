@@ -392,7 +392,7 @@ def main():
         config.dataset_path + 'train/images/*'))
     mask_list_train = sorted(glob.glob(
         config.dataset_path + 'train/masks/*'))
-    print(print(config.dataset_path), " ", len(image_list_train), " ", len(mask_list_train))
+    print(config.dataset_path, " ", len(image_list_train), " ", len(mask_list_train))
     image_list_test = sorted(glob.glob(
         config.dataset_path + 'test/images/*'))
     mask_list_test = sorted(glob.glob(
@@ -445,19 +445,25 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE)#.cache()
     # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
-    dataset['train'] = dataset['train'].unbatch()
+    if (config.unbatch):
+        dataset['train'] = dataset['train'].unbatch()
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     # dataset['train'] = dataset['train'].with_options(options)
 
     dataset['val'] = dataset['val'].map(load_files)
-    dataset['train'] = dataset['train'].unbatch()
+    if (config.unbatch):
+        dataset['val'] = dataset['val'].unbatch()
     dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
     # dataset['val'] = dataset['val'].with_options(options)
 
+    see = next(iter(dataset['train']))
+    print("SEE: ", see, " ", len(see))
+
+    exit()
     # Setting up callbacks
     monitor = 'val_iou_score'
     mode = 'max'

@@ -195,7 +195,7 @@ def main():
         config.dataset_path + 'train/images/*'))
     mask_list_train = sorted(glob.glob(
         config.dataset_path + 'train/masks/*'))
-    print(print(config.dataset_path), " ", len(image_list_train), " ", len(mask_list_train))
+    print(config.dataset_path, " ", len(image_list_train), " ", len(mask_list_train))
     image_list_test = sorted(glob.glob(
         config.dataset_path + 'test/images/*'))
     mask_list_test = sorted(glob.glob(
@@ -227,7 +227,7 @@ def main():
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)
     see = next(iter(dataset['train']))
-    print("SEE: ", see, " ", len(see))
+    print(dataset['train'].element_spec)
     # dataset['val'] = dataset['val'].from_generator(val_datagen)
     # dataset['val'] = dataset['val'].repeat()
     # dataset['val'] = dataset['val'].batch(BATCH_SIZE)

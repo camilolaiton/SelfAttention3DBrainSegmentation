@@ -115,18 +115,26 @@ def main():
 
     model = build_model_patchified(config)
     # print(f"[+] Building model with config {config}")
-    
-    model.load_weights(model_path)
-    # model_history = read_history(model_history_path)
-    # plot_model_training_info(model_history, training_folder)
+    np.save(training_folder+"/ground_truth.npy", msk_patches)
 
-    prediction = model.predict(img_patches)
-    prediction = np.argmax(prediction, axis=4)
-    np.save(training_folder+'/prediction.npy', prediction)
-    np.save(training_folder+'/ground_truth.npy', msk_patches)
+    x = 0
+    for i in [
+        '/checkpoints/model_trained_10_0.70.hdf5',
+        '/checkpoints_2/model_trained_10_0.73.hdf5',
+        '/checkpoints_3/model_trained_20_0.74.hdf5',
+        '/model_trained_architecture.hdf5',
+    ]:
+        model.load_weights(i)
+        # model_history = read_history(model_history_path)
+        # plot_model_training_info(model_history, training_folder)
 
-    for i in [31, 19, 15, 14, 5]:
-        plot_examples(msk_patches, prediction, i, training_folder)
+        prediction = model.predict(img_patches)
+        prediction = np.argmax(prediction, axis=4)
+        
+        np.save(training_folder+"/prediction_{x}.npy", prediction)
+
+        for i in [31, 19, 15, 14, 5]:
+            plot_examples(msk_patches, prediction, i, training_folder)
 
 if __name__ == "__main__":
     main()

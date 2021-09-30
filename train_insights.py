@@ -124,7 +124,7 @@ def main():
         '/checkpoints_3/model_trained_20_0.74.hdf5',
         '/model_trained_architecture.hdf5',
     ]:
-        model.load_weights(i)
+        model.load_weights(training_folder + i)
         # model_history = read_history(model_history_path)
         # plot_model_training_info(model_history, training_folder)
 
@@ -132,9 +132,9 @@ def main():
         prediction = np.argmax(prediction, axis=4)
         
         np.save(training_folder+"/prediction_{x}.npy", prediction)
-
-        for i in [31, 19, 15, 14, 5]:
-            plot_examples(msk_patches, prediction, i, training_folder)
+        x += 1
+        for id in [31, 19, 15, 14, 5]:
+            plot_examples(msk_patches, prediction, id, training_folder)
 
 if __name__ == "__main__":
     main()

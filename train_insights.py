@@ -132,7 +132,7 @@ def main():
         deep_folder = ''
 
         if (x != 0):
-            deep_folder = '/' + i.split('/')[0]
+            deep_folder = '/' + i.split('/')[1]
 
         prediction = model.predict(img_patches)
         prediction = np.argmax(prediction, axis=4)

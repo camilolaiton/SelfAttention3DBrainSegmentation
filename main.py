@@ -218,11 +218,11 @@ def main():
     }
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    BATCH_SIZE = 1
+    BATCH_SIZE = 8
 
-    dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE) #.
+    dataset['train'] = dataset['train'].map(load_files)
     dataset['train'] = dataset['train'].unbatch()
-    # dataset['train'] = dataset['train'].apply(tf.contrib.data.unbatch())
+    # dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)
     dataset['train'] = dataset['train'].prefetch(AUTOTUNE)

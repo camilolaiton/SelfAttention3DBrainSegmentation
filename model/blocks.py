@@ -3,39 +3,28 @@ from tensorflow.keras import layers
 
 class ConvolutionalBlock(layers.Layer):
 
-    def __init__(self, filters, kernel_size, padding, dropout_rate, activation, **kwargs):
+    def __init__(self, filters, kernel_size, strides, **kwargs):
         super(ConvolutionalBlock, self).__init__(**kwargs)
         self.filters = filters
         self.kernel_size = kernel_size
-        self.padding = padding
-        self.dropout_rate = dropout_rate
-        self.activation = activation
-
-    def build(self, input_shape):
-        self.w = tf.random_normal_initializer(mean=0.0, stddev=1e-4)
-
-        if (self.bias):
-            self.b = tf.constant_initializer(0.0)
-        else:
-            self.b = None
-
-        self.conv_a = layers.Conv2D(
+        self.strides = strides
+        # self.padding = padding
+        # self.dropout_rate = dropout_rate
+        self.activation = 'relu'
+        
+        # Layers
+        self.conv_a = layers.Conv3D(
             filters=self.filters, 
             kernel_size=self.kernel_size, 
-            strides=1, 
-            padding='same',
-            kernel_initializer=self.w,
-            use_bias=True,
-            bias_initializer=self.b
+            strides=self.strides, 
+            padding='same'
         )
 
-        self.max_pool_a = layers.MaxPool2D(pool_size=(2,2))
         self.bn_a = layers.BatchNormalization()
-        self.activation_fnc = layers.Activation('relu')
+        self.activation_fnc = layers.Activation(self.activation)
 
     def call(self, inputs):
         x = self.conv_a(inputs)
-        x = self.max_pool_a(x)
         x = self.bn_a(x)
         return self.activation_fnc(x)
     

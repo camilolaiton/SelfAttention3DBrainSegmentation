@@ -17,6 +17,10 @@ from utils import utils
 import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.utils import to_categorical
+from model.model import *
+from model.config import *
+import segmentation_models as sm
+sm.set_framework('tf.keras')
 # from tifffile import imsave
 from sklearn.preprocessing import MinMaxScaler
 # import time
@@ -190,6 +194,35 @@ def main():
     }
 
     config = get_config_patchified()
+    model = build_model_patchified_patchsize8(config)
+    optimizer = tf.optimizers.SGD(
+        learning_rate=config.learning_rate, 
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
+    )
+
+    model.compile(
+        optimizer=optimizer,
+        loss="categorical_crossentropy",#loss,#tversky_loss,
+        metrics=[
+            # 'accuracy',
+            sm.metrics.IOUScore(threshold=0.5),
+            sm.metrics.FScore(threshold=0.5),
+        ],
+    )
+    print(f"[+] Building model with config {config}")
+    model.summary()
+    tf.keras.utils.plot_model(
+        model,
+        to_file="test_model.png",
+        show_shapes=True,
+        show_dtype=True,
+        show_layer_names=True,
+        rankdir="TB",
+        expand_nested=False,
+        dpi=96,
+    )
+    exit()
 
     image_list_train = sorted(glob.glob(
         config.dataset_path + 'train/images/*'))
@@ -237,7 +270,6 @@ def main():
     # print(dataset['train'])
     # print(dataset['val'])
     # test_tf_function()
-    exit()
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
     

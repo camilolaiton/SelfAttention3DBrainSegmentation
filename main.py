@@ -221,7 +221,7 @@ def main():
     BATCH_SIZE = 8
 
     dataset['train'] = dataset['train'].map(load_files)
-    dataset['train'] = dataset['train'].unbatch()
+    # dataset['train'] = dataset['train'].unbatch()
     # dataset['train'] = dataset['train'].map(augmentor, num_parallel_calls=AUTOTUNE)
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)

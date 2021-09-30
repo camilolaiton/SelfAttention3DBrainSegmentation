@@ -119,10 +119,10 @@ def main():
 
     x = 0
     for i in [
+        '/model_trained_architecture.hdf5',
         '/checkpoints/model_trained_10_0.70.hdf5',
         '/checkpoints_2/model_trained_10_0.73.hdf5',
         '/checkpoints_3/model_trained_20_0.74.hdf5',
-        '/model_trained_architecture.hdf5',
     ]:
         model.load_weights(training_folder + i)
         # model_history = read_history(model_history_path)
@@ -131,10 +131,18 @@ def main():
         prediction = model.predict(img_patches)
         prediction = np.argmax(prediction, axis=4)
         
-        np.save(training_folder+"/prediction_{x}.npy", prediction)
-        x += 1
+        name = "prediction_{x}.npy"
+
+        np.save(training_folder+name, prediction)
+        
         for id in [31, 19, 15, 14, 5]:
-            plot_examples(msk_patches, prediction, id, training_folder)
+            if (x):
+                folder = i.split('/')[0]
+                plot_examples(msk_patches, prediction, id, training_folder + folder)
+            else:
+                plot_examples(msk_patches, prediction, id, training_folder)
+        
+        x += 1
 
 if __name__ == "__main__":
     main()

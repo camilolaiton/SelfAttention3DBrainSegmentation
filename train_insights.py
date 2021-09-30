@@ -72,6 +72,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path):
     ax1.set_title(f"msk_patch[{idx}, :, 45, :]")
     ax2.imshow(prediction[idx, :, 45, :])
     ax2.set_title(f"prediction[{idx}, :, 45, :]")
+    print(dest_path)
     plt.savefig(f"{dest_path}/example_prediction_{idx}.png")
     # plt.show()
 
@@ -131,9 +132,9 @@ def main():
         prediction = model.predict(img_patches)
         prediction = np.argmax(prediction, axis=4)
         
-        name = "prediction_{x}.npy"
+        name = training_folder + f"prediction_{x}.npy"
 
-        np.save(training_folder+name, prediction)
+        np.save(name, prediction)
         
         for id in [31, 19, 15, 14, 5]:
             if (x):

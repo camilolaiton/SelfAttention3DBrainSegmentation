@@ -353,7 +353,7 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss=tversky_loss,#loss,#"categorical_crossentropy"
+        loss="categorical_crossentropy",#loss,#tversky_loss,
         metrics=[
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),

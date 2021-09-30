@@ -129,14 +129,14 @@ import glob
 
 def load_files_py(img_path, msk_path):
     img = np.load(img_path).astype(np.float32)
-    msk = np.load(msk_path).astype(np.uint8)
+    msk = np.load(msk_path).astype(np.float32)
     return img, msk
 
 def load_files(img_path, msk_path):
     return tf.numpy_function(
         load_files_py,
         inp=[img_path, msk_path],
-        Tout=[tf.float32, tf.uint8]
+        Tout=[tf.float32, tf.float32]
     )
 
 def get_augmentation():
@@ -220,7 +220,7 @@ def main():
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     BATCH_SIZE = 2
 
-    dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE) #.
+    #dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE) #.
     # dataset['train'] = dataset['train'].apply(tf.contrib.data.unbatch())
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(BATCH_SIZE)

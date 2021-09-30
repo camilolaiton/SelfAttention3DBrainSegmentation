@@ -487,8 +487,13 @@ def main():
         update_freq='epoch'
     )
 
-    steps_per_epoch = len(image_list_train)//config.batch_size
-    val_steps_per_epoch = len(image_list_test)//config.batch_size
+    factor = 1
+
+    if (config.unbatch):
+        factor = 64
+
+    steps_per_epoch = (len(image_list_train)*factor)//config.batch_size
+    val_steps_per_epoch = (len(image_list_test)*factor)//config.batch_size
 
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,

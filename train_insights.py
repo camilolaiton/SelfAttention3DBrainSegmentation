@@ -125,23 +125,24 @@ def main():
         '/checkpoints_2/model_trained_10_0.73.hdf5',
         '/checkpoints_3/model_trained_20_0.74.hdf5',
     ]:
+        print("Loading model in ", training_folder + i)
         model.load_weights(training_folder + i)
         # model_history = read_history(model_history_path)
         # plot_model_training_info(model_history, training_folder)
+        deep_folder = ''
+
+        if (x != 0):
+            deep_folder = '/' + i.split('/')[0]
 
         prediction = model.predict(img_patches)
         prediction = np.argmax(prediction, axis=4)
         
-        name = training_folder + f"prediction_{x}.npy"
-
+        name = training_folder + deep_folder + f"/prediction_{x}.npy"
+        print("Saving prediction ", name)
         np.save(name, prediction)
         
         for id in [31, 19, 15, 14, 5]:
-            if (x):
-                folder = i.split('/')[0]
-                plot_examples(msk_patches, prediction, id, training_folder + folder)
-            else:
-                plot_examples(msk_patches, prediction, id, training_folder)
+            plot_examples(msk_patches, prediction, id, training_folder + deep_folder)
         
         x += 1
 

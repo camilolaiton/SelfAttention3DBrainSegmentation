@@ -481,8 +481,10 @@ def main():
         mode=mode
     )
 
+    utils.create_folder("trainings/checkpoints")
+
     model_check_2 = ModelCheckpoint(
-        "trainings/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
+        "trainings/checkpoints/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
         save_best_only=False,
         save_weights_only=True, 
         monitor=monitor, 

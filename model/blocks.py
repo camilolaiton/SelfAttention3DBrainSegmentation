@@ -33,9 +33,11 @@ class ConvolutionalBlock(layers.Layer):
         config.update({
             'filters' : self.filters,
             'kernel_size' : self.kernel_size,
-            'padding' : self.padding,
-            'dropout_rate' : self.dropout_rate,
             'activation' : self.activation,
+            # layers
+            'conv_a' : self.conv_a,
+            'bn_a' : self.bn_a,
+            'activation_fnc' : self.activation_fnc,
         })
         return config
 

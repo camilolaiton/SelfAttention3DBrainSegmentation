@@ -459,11 +459,7 @@ def main():
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
     # dataset['val'] = dataset['val'].with_options(options)
-
-    see = next(iter(dataset['train']))
-    print("SEE: ", see, " ", len(see))
-
-    exit()
+    
     # Setting up callbacks
     monitor = 'val_iou_score'
     mode = 'max'

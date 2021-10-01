@@ -512,6 +512,11 @@ def main():
     steps_per_epoch = (len(image_list_train)*factor)//config.batch_size
     val_steps_per_epoch = (len(image_list_test)*factor)//config.batch_size
 
+    utils.write_dict_to_txt(
+        config, 
+        "trainings/trained_architecture_config.txt"
+    )
+    
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,
@@ -524,11 +529,6 @@ def main():
 
     with open('trainings/history.obj', 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
-
-    utils.write_dict_to_txt(
-        config, 
-        "trainings/trained_architecture_config.txt"
-    )
 
 if __name__ == "__main__":
     main()

@@ -341,7 +341,7 @@ def main():
     
     # with mirrored_strategy.scope():
     # model = build_model_patchified_patchsize16(config)
-    model = build_model_patchified_patchsize8(config)
+    model = build_model_patchified_patchsize16(config)
 
     if (retrain):
         model.load_weights(model_path)
@@ -490,7 +490,7 @@ def main():
         save_weights_only=True, 
         monitor=monitor, 
         mode=mode,
-        period=10
+        period=5
     )
 
     tb = TensorBoard(

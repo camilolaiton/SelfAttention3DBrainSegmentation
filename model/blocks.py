@@ -155,20 +155,30 @@ class ConvProjection(layers.Layer):
                 self.reshape_dim,
                 self.projection_dim
             ),
-            name='conv_projection'
         )
 
         # conv layer encoder
         self.conv_layer_encoded = PatchEncoder(
             num_patches=self.num_patches,
             projection_dim=self.projection_dim,
-            name='conv_projection_encoded'
         )
 
     def call(self, conv_input):
         output = self.reshape_lyr(conv_input)
         output = self.conv_layer_encoded(output)
         return output
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'reshape_dim' : self.reshape_dim,
+            'projection_dim' : self.projection_dim,
+            'num_patches' : self.num_patches,
+            # layers
+            'reshape_lyr' : self.reshape_lyr,
+            'conv_layer_encoded' : self.conv_layer_encoded
+        })
+        return config
 
 class TransformerBlock(layers.Layer):
     def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, **kwarks):

@@ -8,3 +8,4 @@ trainings/*/*.hdf5
 trainings/*/*/*.hdf5
 trainings/*/*/*.npy
 trainings/*/logs*
+test_model.png

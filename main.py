@@ -193,8 +193,12 @@ def main():
         'normalize': False
     }
 
-    config = get_config_patchified()
-    model = build_model_patchified_patchsize8(config)
+    # config = get_config_patchified()
+    # model = build_model_patchified_patchsize8(config)
+
+    config = get_config_test()
+    model = test_model(config)
+    
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
         momentum=config.momentum,

@@ -258,6 +258,45 @@ class DecoderBlockCup(layers.Layer):
         })
         return config
 
+class DecoderTransposeBlock(layers.Layer):
+    def __init__(self, filters, kernel_size=3, strides=(2, 2, 2), activation='relu', **kwargs):
+        super(DecoderTransposeBlock, self).__init__(**kwargs)
+        self.filters = filters
+        self.kernel_size = kernel_size
+        self.strides = strides
+        self.activation = activation
+
+        # Layers
+        self.conv_tr = layers.Conv3DTranspose(
+            filters=self.filters,
+            kernel_size=self.kernel_size,
+            strides=self.strides,
+            padding='same',
+        )
+
+        self.bn = layers.BatchNormalization()
+        self.activation_layer = layers.Activation(self.activation)
+
+    def call(self, inputs):
+        x = self.conv_tr(inputs)
+        x = self.bn(x)
+        x = self.activation_layer(x)
+        return x
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'filters' : self.filters,
+            'kernel_size' : self.kernel_size,
+            'strides' : self.strides,
+            'activation': self.activation,
+            # layers
+            'conv_tr' : self.conv_tr,
+            'bn' : self.bn,
+            'activation_layer' : self.activation_layer,
+        })
+        return config
+
 class DecoderUpsampleBlock(layers.Layer):
     
     def __init__(self, filters, kernel_size=3, strides=(1, 1, 1), pool_size=(2, 2, 1), activation='relu', **kwarks):

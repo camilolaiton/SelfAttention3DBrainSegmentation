@@ -1,0 +1,30 @@
+activation : softmax
+batch_size : 16
+config_name : architecture_1
+data_augmentation : False
+dataset_path : dataset_3D_3/
+decoder_filters : [64, 64, 32, 16]
+image_channels : 1
+image_depth : 64
+image_height : 64
+image_size : (64, 64, 64, 1)
+image_width : 64
+learning_rate : 0.001
+loss_fnc : tversky
+momentum : 0.9
+n_classes : 4
+num_epochs : 100
+skip_connections : True
+transformer : dropout_rate: 0.1
+layers: 8
+normalization_rate: 1.0e-06
+num_heads: 4
+num_patches: 64
+patch_size: 16
+projection_dim: 64
+units:
+- 192
+- 64
+
+unbatch : True
+weight_decay : 0.0001

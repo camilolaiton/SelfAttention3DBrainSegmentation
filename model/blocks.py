@@ -142,6 +142,34 @@ class PatchEncoder(layers.Layer):
         })
         return config
 
+class ConvProjection(layers.Layer):
+    def __init__(self, reshape_dim, projection_dim, num_patches, **kwargs):
+        super(ConvProjection, self).__init__(**kwargs)
+        self.reshape_dim = reshape_dim
+        self.projection_dim = projection_dim
+        self.num_patches = num_patches
+
+        # Layers
+        self.reshape_lyr = layers.Reshape(
+            target_shape=(
+                self.reshape_dim,
+                self.projection_dim
+            ),
+            name='conv_projection'
+        )
+
+        # conv layer encoder
+        self.conv_layer_encoded = PatchEncoder(
+            num_patches=self.num_patches,
+            projection_dim=self.projection_dim,
+            name='conv_projection_encoded'
+        )
+
+    def call(self, conv_input):
+        output = self.reshape_lyr(conv_input)
+        output = self.conv_layer_encoded(output)
+        return output
+
 class TransformerBlock(layers.Layer):
     def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, **kwarks):
         super(TransformerBlock, self).__init__(**kwarks)
@@ -241,7 +269,7 @@ class DecoderBlockCup(layers.Layer):
         x = self.conv_a(x)
         x = self.bn_a(x)
         x = self.activation_fnc(x)
-        x = self.upsample_a(x)
+        # x = self.upsample_a(x)
         return x
 
     def get_config(self):
@@ -448,13 +476,14 @@ class ConnectionComponents(layers.Layer):
 
 class EncoderDecoderConnections(layers.Layer):
     
-    def __init__(self, filters, kernel_size, **kwarks):
+    def __init__(self, filters, kernel_size, upsample=True, **kwarks):
         super(EncoderDecoderConnections, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
+        self.upsample = upsample
 
         # self.concatenate = layers.Concatenate()
-        self.upsample = layers.UpSampling3D(
+        self.upsample_lyr = layers.UpSampling3D(
             size=(2, 2, 2)
         )
 
@@ -486,7 +515,8 @@ class EncoderDecoderConnections(layers.Layer):
         out = self.con_comp_3(out)
         out = self.con_comp_4(out)
         
-        out = self.upsample(out)
+        if (self.upsample):
+            out = self.upsample_lyr(out)
         return out
 
     def get_config(self):
@@ -494,8 +524,9 @@ class EncoderDecoderConnections(layers.Layer):
         config.update({
             'filters' : self.filters,
             'kernel_size' : self.kernel_size,
+            'upsample' : self.upsample,
             # layers
-            'upsample': self.upsample,
+            'upsample_lyr': self.upsample_lyr,
             'con_comp_1': self.con_comp_1,
             'con_comp_2': self.con_comp_2,
             'con_comp_3': self.con_comp_3,

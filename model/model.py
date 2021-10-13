@@ -973,10 +973,115 @@ def test_model(config):
 
     return Model(inputs, segmentation_head)
 
-def tet_model_2(config):
+def test_model_2(config):
     # Here I have an input size of 64x64x64x1
     inputs = Input(shape=config.image_size)
-    
+
+    conv_layers = inputs
+    conv_blocks = []
+
+    for filters in [8, 16, 32, 64]:
+
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"conv_block_{filters}_stride1_0"
+        )(conv_layers)
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"conv_block_{filters}_stride1_1"
+        )(conv_layers)
+
+        conv_blocks.append(conv_layers)
+
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=2,
+            name=f"down_conv_block_{filters}"
+        )(conv_layers)
+
+    conv_proj = ConvProjection(
+        config.transformer.projection_dim,
+        config.transformer.projection_dim,
+        num_patches=config.transformer.num_patches,
+        name='conv_projection'
+    )(conv_layers)
+
+    transformer_layers = []
+    # Successive transformer layers
+    for idx in range(config.transformer.layers):
+        conv_proj = TransformerBlock(
+            num_heads=config.transformer.num_heads,
+            projection_dim=config.transformer.projection_dim, 
+            dropout_rate=config.transformer.dropout_rate, 
+            normalization_rate=config.transformer.normalization_rate, 
+            transformer_units=config.transformer.units, 
+            name=f"transformer_block_{idx}"
+        )(conv_proj)
+        transformer_layers.append(conv_proj)
+
+    dec = config.transformer.patch_size
+    decoder_block_cup = DecoderBlockCup(
+        target_shape=(
+            config.image_height//dec, 
+            config.image_width//dec, 
+            config.image_depth//dec, 
+            config.transformer.projection_dim
+        ),
+        filters=config.transformer.projection_dim,
+        normalization_rate=config.transformer.normalization_rate,
+        name=f'decoder_cup_{0}'
+    )(conv_proj)
+
+    deconv_layers = decoder_block_cup
+
+    i = 0
+    for filters in [64, 32, 16, 8]:
+        deconv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"deconv_block_{filters}_stride1_0"
+        )(deconv_layers)
+
+        deconv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"deconv_block_{filters}_stride1_1"
+        )(deconv_layers)
+
+        deconv_layers = DecoderTransposeBlock(
+            filters=filters,
+            name=f"up_transpose_{filters}"
+        )(deconv_layers)
+
+        if (config.skip_connections):
+
+            skip_conn_1 = EncoderDecoderConnections(
+                filters=filters,
+                kernel_size=3,
+                upsample=False,
+                name=f"skip_connection_{filters}"
+            )(conv_blocks[-1-i])
+
+            # print("conv block: ", conv_blocks[-1-i].shape, " ", skip_conn_1.shape)
+            # print("deconv block: ", deconv_layers.shape)
+            i += 1
+            deconv_layers = layers.Add()([skip_conn_1, deconv_layers])
+
+    segmentation_head = DecoderSegmentationHead(
+        filters=config.n_classes, 
+        kernel_size=1,
+        name="segmentation_head"
+    )(deconv_layers)
+
+    return Model(inputs, segmentation_head)
+
 
 def plot_model(model, input_shape=(None, 256, 256, 1)):
     all_layers = []

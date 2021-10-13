@@ -197,8 +197,8 @@ def main():
     # model = build_model_patchified_patchsize8(config)
 
     config = get_config_test()
-    model = test_model(config)
-    
+    model = test_model_2(config)
+
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
         momentum=config.momentum,

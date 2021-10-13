@@ -164,7 +164,7 @@ def get_config_test():
     ]
     config.transformer.layers = 4
     config.transformer.num_heads = 4 #8
-    config.transformer.dropout_rate = 0.1
+    config.transformer.dropout_rate = 0.4
     config.transformer.normalization_rate = 1e-6
 
     config.decoder_filters = [

@@ -327,7 +327,8 @@ def main():
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     # creating model
-    config = get_config_patchified()
+    # config = get_config_patchified()
+    config = get_config_test()
     model = None
 
     # Mirrored strategy for parallel training
@@ -341,8 +342,9 @@ def main():
     
     # with mirrored_strategy.scope():
     # model = build_model_patchified_patchsize16(config)
-    model = build_model_patchified_patchsize16(config)
-
+    # model = build_model_patchified_patchsize16(config)
+    model = test_model_2(config)
+    
     if (retrain):
         model.load_weights(model_path)
 

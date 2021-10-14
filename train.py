@@ -296,7 +296,7 @@ def main():
     # os.environ["CUDA_VISIBLE_DEVICES"]="1"
     
     SEED = 12
-    mb_limit = 10137
+    mb_limit = 9500
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         # Restrict TensorFlow to only allocate 10GB of memory on the GPU

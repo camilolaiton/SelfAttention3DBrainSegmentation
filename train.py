@@ -492,7 +492,7 @@ def main():
         save_weights_only=True, 
         monitor=monitor, 
         mode=mode,
-        period=5
+        period=3
     )
 
     tb = TensorBoard(

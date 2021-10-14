@@ -1082,6 +1082,272 @@ def test_model_2(config):
 
     return Model(inputs, segmentation_head)
 
+def test_model_3(config):
+    # Here I have an input size of 64x64x64x1
+    inputs = Input(shape=config.image_size)
+
+    # [First path]
+    conv_layers = inputs
+    conv_blocks = []
+
+    for filters in [8, 16, 32, 64]:
+
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"conv_block_{filters}_stride1_0"
+        )(conv_layers)
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"conv_block_{filters}_stride1_1"
+        )(conv_layers)
+
+        conv_blocks.append(conv_layers)
+
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=2,
+            name=f"down_conv_block_{filters}"
+        )(conv_layers)
+
+    conv_proj = ConvProjection(
+        config.transformer.projection_dim,
+        config.transformer.projection_dim,
+        num_patches=config.transformer.num_patches,
+        name='conv_projection'
+    )(conv_layers)
+
+    transformer_layers_path_1 = []
+    # Successive transformer layers
+    for idx in range(config.transformer.layers):
+        conv_proj = TransformerBlock(
+            num_heads=config.transformer.num_heads,
+            projection_dim=config.transformer.projection_dim, 
+            dropout_rate=config.transformer.dropout_rate, 
+            normalization_rate=config.transformer.normalization_rate, 
+            transformer_units=config.transformer.units, 
+            name=f"transformer_block_{idx}"
+        )(conv_proj)
+        transformer_layers_path_1.append(conv_proj)
+
+    dec = config.transformer.patch_size
+    decoder_block_cup = DecoderBlockCup(
+        target_shape=(
+            config.image_height//dec, 
+            config.image_width//dec, 
+            config.image_depth//dec, 
+            config.transformer.projection_dim
+        ),
+        filters=config.transformer.projection_dim,
+        normalization_rate=config.transformer.normalization_rate,
+        upsample=False,
+        name=f'decoder_cup_{0}'
+    )(conv_proj)
+
+    deconv_layers = decoder_block_cup
+
+    i = 0
+    for filters in [64, 32, 16, 8]:
+        deconv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"deconv_block_{filters}_stride1_0"
+        )(deconv_layers)
+
+        deconv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            name=f"deconv_block_{filters}_stride1_1"
+        )(deconv_layers)
+
+        # deconv_layers = DecoderTransposeBlock(
+        #     filters=filters,
+        #     name=f"up_transpose_{filters}"
+        # )(deconv_layers)
+
+        deconv_layers = DecoderUpsampleBlock(
+            filters=filters, 
+            kernel_size=3,
+            name=f"up_transpose_{filters}"
+        )(deconv_layers)
+
+        if (config.skip_connections):
+
+            skip_conn_1 = EncoderDecoderConnections(
+                filters=filters,
+                kernel_size=3,
+                upsample=False,
+                name=f"skip_connection_{filters}"
+            )(conv_blocks[-1-i])
+
+            # print("conv block: ", conv_blocks[-1-i].shape, " ", skip_conn_1.shape)
+            # print("deconv block: ", deconv_layers.shape)
+            i += 1
+            deconv_layers = layers.Add()([skip_conn_1, deconv_layers])
+
+    # [second path]
+
+    # Split the volume into multiple volumes of 16x16x16
+    patches = Patches(
+        patch_size=config.transformer.patch_size, 
+        name='patches_0'
+    )(inputs)
+
+    # Adding positional encoding to patches
+    encoded_patches = PatchEncoder(
+        num_patches=config.transformer.num_patches,
+        projection_dim=config.transformer.projection_dim,
+        name='encoded_patches_0',
+    )(patches)
+
+    transformer_layers_path_2 = []
+    # Successive transformer layers
+    for idx in range(config.transformer.layers):
+        encoded_patches = TransformerBlock(
+            num_heads=config.transformer.num_heads,
+            projection_dim=config.transformer.projection_dim, 
+            dropout_rate=config.transformer.dropout_rate, 
+            normalization_rate=config.transformer.normalization_rate, 
+            transformer_units=config.transformer.units, 
+            name=f"transformer_block_path_2{idx}"
+        )(encoded_patches)
+        transformer_layers_path_2.append(encoded_patches)
+    
+    # Reshape and initiating decoder
+    # (64, 128) => (4, 4, 4, 128) => (8, 8, 8, 128)
+    dec = config.transformer.patch_size
+    decoder_block_cup = DecoderBlockCup(
+        target_shape=(
+            config.image_height//dec, 
+            config.image_width//dec, 
+            config.image_depth//dec, 
+            config.transformer.projection_dim
+        ),
+        filters=config.transformer.projection_dim,
+        normalization_rate=config.transformer.normalization_rate,
+        name=f'decoder_cup_path_2_0'
+    )(encoded_patches)
+
+    # Upsample layer : (8, 8, 8, 64) => (16, 16, 16, 32)
+    decoder_up_block_0 = DecoderUpsampleBlock(
+        filters=32, 
+        kernel_size=3,
+        name=f"decoder_upsample_0"
+    )(decoder_block_cup)
+
+    # Skip connection with transformer layer
+    if (config.skip_connections):
+        skip_conn_0 = DecoderBlockCup(
+            target_shape=(
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim
+            ),
+            filters=config.transformer.projection_dim,
+            normalization_rate=None,
+            name='reshaping_trans_skip_0'
+        )(transformer_layers_path_2[-2])
+
+        skip_conn_0 = EncoderDecoderConnections(
+            filters=32,
+            kernel_size=3,
+            name="skip_connection_0_0"
+        )(skip_conn_0)
+
+        decoder_up_block_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
+
+    # Upsample layer : (16, 16, 16, 32) => (32, 32, 32, 16)
+    decoder_up_block_1 = DecoderUpsampleBlock(
+        filters=16, 
+        kernel_size=3,
+        name=f"decoder_upsample_1"
+    )(decoder_up_block_0)
+
+    # Skip connection with transformer layer
+    if (config.skip_connections):
+        skip_conn_1 = DecoderBlockCup(
+            target_shape=(
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim
+            ),
+            filters=config.transformer.projection_dim,
+            normalization_rate=None,
+            name='reshaping_trans_skip_1'
+        )(transformer_layers_path_2[-3])
+
+        skip_conn_1 = EncoderDecoderConnections(
+            filters=32,
+            kernel_size=3,
+            name="skip_connection_1_0"
+        )(skip_conn_1)
+
+        skip_conn_1 = EncoderDecoderConnections(
+            filters=16,
+            kernel_size=3,
+            name="skip_connection_1_1"
+        )(skip_conn_1)
+
+        decoder_up_block_1 = layers.Add()([decoder_up_block_1, skip_conn_1])
+
+    # Upsample layer : (32, 32, 32, 16) => (64, 64, 64, 8)
+    decoder_up_block_2 = DecoderUpsampleBlock(
+        filters=8, 
+        kernel_size=3,
+        name="decoder_upsample_2"
+    )(decoder_up_block_1)
+
+    # Skip connection with transformer layer
+    if (config.skip_connections):
+        skip_conn_2 = DecoderBlockCup(
+            target_shape=(
+                config.image_height//dec, 
+                config.image_width//dec, 
+                config.image_depth//dec, 
+                config.transformer.projection_dim
+            ),
+            filters=config.transformer.projection_dim,
+            normalization_rate=None,
+            name='reshaping_trans_skip_2'
+        )(transformer_layers_path_2[0])
+
+        skip_conn_2 = EncoderDecoderConnections(
+            filters=32,
+            kernel_size=3,
+            name="skip_connection_2_0"
+        )(skip_conn_2)
+
+        skip_conn_2 = EncoderDecoderConnections(
+            filters=16,
+            kernel_size=3,
+            name="skip_connection_2_1"
+        )(skip_conn_2)
+
+        skip_conn_2 = EncoderDecoderConnections(
+            filters=8,
+            kernel_size=3,
+            name="skip_connection_2_2"
+        )(skip_conn_2)
+
+        decoder_up_block_2 = layers.Add()([decoder_up_block_2, skip_conn_2])
+
+    deconv_layers = layers.Add()([deconv_layers, decoder_up_block_2])
+
+    segmentation_head = DecoderSegmentationHead(
+        filters=config.n_classes, 
+        kernel_size=1,
+        name="segmentation_head"
+    )(deconv_layers)
+
+    return Model(inputs, segmentation_head)
 
 def plot_model(model, input_shape=(None, 256, 256, 1)):
     all_layers = []

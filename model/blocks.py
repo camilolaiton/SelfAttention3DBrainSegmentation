@@ -240,13 +240,14 @@ class TransformerBlock(layers.Layer):
 
 class DecoderBlockCup(layers.Layer):
 
-    def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 2, 1), kernel_size=3, activation=None, **kwarks):
+    def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 2, 1), kernel_size=3, activation=None, upsample=True, **kwarks):
         super(DecoderBlockCup, self).__init__(**kwarks)
         self.normalization_rate = normalization_rate
         self.target_shape = target_shape
         self.filters = filters
         self.kernel_size = kernel_size
         self.pool_size = pool_size
+        self.upsample = upsample
 
         if not activation:
             activation = tf.nn.relu
@@ -279,7 +280,8 @@ class DecoderBlockCup(layers.Layer):
         x = self.conv_a(x)
         x = self.bn_a(x)
         x = self.activation_fnc(x)
-        # x = self.upsample_a(x)
+        if (self.upsample):
+            x = self.upsample_a(x)
         return x
 
     def get_config(self):

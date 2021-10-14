@@ -311,7 +311,7 @@ def main():
             # Setting max memory
             # tf.config.experimental.set_per_process_memory_fraction(0.80)
             tf.config.experimental.set_virtual_device_configuration(gpus[0], [
-                tf.config.experimentamsk_pathl.VirtualDeviceConfiguration(memory_limit=mb_limit)])
+                tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
             tf.config.experimental.set_virtual_device_configuration(gpus[1], [
                 tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])

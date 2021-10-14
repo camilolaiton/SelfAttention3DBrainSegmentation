@@ -322,7 +322,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
+    retrain = False
     training_folder = 'trainings/new_model'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 

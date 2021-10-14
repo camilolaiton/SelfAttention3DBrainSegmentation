@@ -296,22 +296,22 @@ def main():
     # os.environ["CUDA_VISIBLE_DEVICES"]="1"
     
     SEED = 12
-    mb_limit = 9011
+    mb_limit = 10137
     gpus = tf.config.experimental.list_physical_devices('GPU')
     if gpus:
         # Restrict TensorFlow to only allocate 10GB of memory on the GPU
         try:
             # Setting visible devices
-            tf.config.set_visible_devices(gpus[1:], 'GPU')
+            tf.config.set_visible_devices(gpus, 'GPU')
 
             # Setting memory growth
-            # tf.config.experimental.set_memory_growth(gpus[0], True)
+            tf.config.experimental.set_memory_growth(gpus[0], True)
             tf.config.experimental.set_memory_growth(gpus[1], True)
 
             # Setting max memory
             # tf.config.experimental.set_per_process_memory_fraction(0.80)
-            # tf.config.experimental.set_virtual_device_configuration(gpus[0], [
-            #     tf.config.experimentamsk_pathl.VirtualDeviceConfiguration(memory_limit=mb_limit)])
+            tf.config.experimental.set_virtual_device_configuration(gpus[0], [
+                tf.config.experimentamsk_pathl.VirtualDeviceConfiguration(memory_limit=mb_limit)])
 
             tf.config.experimental.set_virtual_device_configuration(gpus[1], [
                 tf.config.experimental.VirtualDeviceConfiguration(memory_limit=mb_limit)])
@@ -322,7 +322,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
+    retrain = True
     training_folder = 'trainings/version_8_0_2paths'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
@@ -334,7 +334,7 @@ def main():
     model = None
 
     # Mirrored strategy for parallel training
-    # mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
+    mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
     # Setting up weights 
     wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
@@ -342,10 +342,10 @@ def main():
     # Setting up neural network loss
     #loss = tversky_loss()#dice_focal_loss([wt0, wt1, wt2, wt3])
     
-    # with mirrored_strategy.scope():
+    with mirrored_strategy.scope():
     # model = build_model_patchified_patchsize16(config)
     # model = build_model_patchified_patchsize16(config)
-    model = test_model_3(config)
+        model = test_model_3(config)
     
     if (retrain):
         model.load_weights(model_path)

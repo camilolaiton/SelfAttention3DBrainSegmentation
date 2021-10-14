@@ -1032,6 +1032,7 @@ def test_model_2(config):
             config.image_depth//dec, 
             config.transformer.projection_dim
         ),
+        upsample=False,
         filters=config.transformer.projection_dim,
         normalization_rate=config.transformer.normalization_rate,
         name=f'decoder_cup_{0}'

@@ -323,7 +323,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/new_model'
+    training_folder = 'trainings/version_8_0_2paths'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -345,7 +345,7 @@ def main():
     # with mirrored_strategy.scope():
     # model = build_model_patchified_patchsize16(config)
     # model = build_model_patchified_patchsize16(config)
-    model = test_model_2(config)
+    model = test_model_3(config)
     
     if (retrain):
         model.load_weights(model_path)

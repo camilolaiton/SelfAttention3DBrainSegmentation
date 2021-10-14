@@ -141,7 +141,7 @@ def get_config_test():
     config.learning_rate = 0.001
     config.weight_decay = 1e-4
     config.momentum = 0.9
-    config.dropout = 0.5
+    config.dropout = 0.2
     config.batch_size = 16
     config.num_epochs = 100
     config.image_height = 64

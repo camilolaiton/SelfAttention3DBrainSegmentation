@@ -323,8 +323,10 @@ def main():
             print(e)
 
     retrain = True
-    training_folder = 'trainings/'
+    training_folder = 'trainings/new_model'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
+
+    utils.create_folder(f"{training_folder}/checkpoints")
 
     # creating model
     # config = get_config_patchified()
@@ -369,7 +371,7 @@ def main():
     
     tf.keras.utils.plot_model(
         model,
-        to_file="trainings/trained_architecture.png",
+        to_file=f"{training_folder}/trained_architecture.png",
         show_shapes=True,
         show_dtype=True,
         show_layer_names=True,
@@ -477,17 +479,15 @@ def main():
 
     # Model Checkpoing
     model_check = ModelCheckpoint(
-        'trainings/model_trained_architecture.hdf5', 
+        f"{training_folder}/model_trained_architecture.hdf5", 
         save_best_only=True,
         save_weights_only=True, 
         monitor=monitor, 
         mode=mode
     )
 
-    utils.create_folder("trainings/checkpoints")
-
     model_check_2 = ModelCheckpoint(
-        "trainings/checkpoints/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
+        training_folder + "/checkpoints/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
         save_best_only=False,
         save_weights_only=True, 
         monitor=monitor, 
@@ -496,7 +496,7 @@ def main():
     )
 
     tb = TensorBoard(
-        log_dir='trainings/logs_tr', 
+        log_dir=f"{training_folder}/logs_tr", 
         write_graph=True, 
         update_freq='epoch'
     )
@@ -516,7 +516,7 @@ def main():
 
     utils.write_dict_to_txt(
         config, 
-        "trainings/trained_architecture_config.txt"
+        f"{training_folder}/trained_architecture_config.txt"
     )
     
     history = model.fit(dataset['train'],
@@ -529,7 +529,7 @@ def main():
         callbacks=[early_stop, model_check, model_check_2, tb, pltau]
     )
 
-    with open('trainings/history.obj', 'wb') as file_pi:
+    with open(f"{training_folder}/history.obj", 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
 
 if __name__ == "__main__":

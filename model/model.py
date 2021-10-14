@@ -1055,8 +1055,14 @@ def test_model_2(config):
             name=f"deconv_block_{filters}_stride1_1"
         )(deconv_layers)
 
-        deconv_layers = DecoderTransposeBlock(
-            filters=filters,
+        # deconv_layers = DecoderTransposeBlock(
+        #     filters=filters,
+        #     name=f"up_transpose_{filters}"
+        # )(deconv_layers)
+
+        deconv_layers = DecoderUpsampleBlock(
+            filters=filters, 
+            kernel_size=3,
             name=f"up_transpose_{filters}"
         )(deconv_layers)
 

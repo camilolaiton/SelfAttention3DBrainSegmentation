@@ -455,7 +455,7 @@ def main():
     dataset['train'] = dataset['train'].repeat()
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
-    # dataset['train'] = dataset['train'].with_options(options)
+    dataset['train'] = dataset['train'].with_options(options)
 
     dataset['val'] = dataset['val'].map(load_files)
     if (config.unbatch):
@@ -463,7 +463,7 @@ def main():
     dataset['val'] = dataset['val'].repeat()
     dataset['val'] = dataset['val'].batch(config.batch_size)
     dataset['val'] = dataset['val'].prefetch(buffer_size=AUTOTUNE)
-    # dataset['val'] = dataset['val'].with_options(options)
+    dataset['val'] = dataset['val'].with_options(options)
     
     # Setting up callbacks
     monitor = 'val_iou_score'

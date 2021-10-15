@@ -101,7 +101,7 @@ def main():
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
-    config = get_config_patchified()
+    config = get_config_test()
     config.dataset_path = 'dataset_3D_2/'
     # Getting images
     test_filename = 'HLN-12-1'

@@ -65,7 +65,7 @@ def read_patches_filename(filename, path):
     print("Size: ", patches.shape)
     return patches
 
-def plot_examples(msk_patches, prediction, idx, dest_path):
+def plot_examples(msk_patches, prediction, idx, dest_path, name):
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Original mask VS Predicted")
     ax1.imshow(msk_patches[idx, :, 45, :])
@@ -73,7 +73,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path):
     ax2.imshow(prediction[idx, :, 45, :])
     ax2.set_title(f"prediction[{idx}, :, 45, :]")
     print(dest_path)
-    plt.savefig(f"{dest_path}/example_prediction_{idx}.png")
+    plt.savefig(f"{dest_path}/example_prediction_{idx}_{name}.png")
     # plt.show()
 
 def test_models(training_folder):
@@ -95,7 +95,7 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_3_0'
+    training_folder = 'trainings/version_8_0_2paths'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_patchified()
@@ -114,25 +114,28 @@ def main():
         f"{config.dataset_path}train/masks/*"
     ), axis=4)
 
-    model = build_model_patchified(config)
+    model = test_model_3(config)
     # print(f"[+] Building model with config {config}")
     np.save(training_folder+"/ground_truth.npy", msk_patches)
 
     x = 0
+    # for i in [
+    #     '/model_trained_architecture.hdf5',
+    #     '/checkpoints/model_trained_10_0.70.hdf5',
+    #     '/checkpoints_2/model_trained_10_0.73.hdf5',
+    #     '/checkpoints_3/model_trained_20_0.74.hdf5',
+    # ]:
     for i in [
-        '/model_trained_architecture.hdf5',
-        '/checkpoints/model_trained_10_0.70.hdf5',
-        '/checkpoints_2/model_trained_10_0.73.hdf5',
-        '/checkpoints_3/model_trained_20_0.74.hdf5',
-    ]:
-        print("Loading model in ", training_folder + i)
-        model.load_weights(training_folder + i)
+        f"{training_folder}/model_trained_architecture.hdf5", 
+        ] + glob.glob(training_folder + 'checkpoints_2/*') + glob.glob(training_folder + '/checkpoints/*'):
+        print("Loading model in ", i)
+        model.load_weights(i)
         # model_history = read_history(model_history_path)
         # plot_model_training_info(model_history, training_folder)
         deep_folder = ''
 
-        if (x != 0):
-            deep_folder = '/' + i.split('/')[1]
+        # if (x != 0):
+        #     deep_folder = '/' + i.split('/')[1]
 
         prediction = model.predict(img_patches)
         prediction = np.argmax(prediction, axis=4)
@@ -142,7 +145,7 @@ def main():
         np.save(name, prediction)
         
         for id in [31, 19, 15, 14, 5]:
-            plot_examples(msk_patches, prediction, id, training_folder + deep_folder)
+            plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         
         x += 1
 

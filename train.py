@@ -445,7 +445,7 @@ def main():
 
     # Disable AutoShard.
     options = tf.data.Options()
-    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.OFF
+    options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
     dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE)#.cache()

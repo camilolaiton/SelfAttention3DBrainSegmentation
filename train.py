@@ -322,7 +322,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
+    retrain = True
     training_folder = 'trainings/version_9_0_2paths_tversky'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
@@ -350,6 +350,14 @@ def main():
     if (retrain):
         model.load_weights(model_path)
 
+    loss = None
+    if config.loss_fnc == 'tversky':
+        loss = tversky_loss
+        print('Using tversky loss...')
+    elif config.loss_fnc == 'crossentropy':
+        loss = 'categorical_crossentropy'
+        print('Using categorical crossentropy loss...')
+
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
         momentum=config.momentum,
@@ -358,7 +366,7 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss=tversky_loss, #"categorical_crossentropy",#loss
+        loss=loss,
         metrics=[
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),

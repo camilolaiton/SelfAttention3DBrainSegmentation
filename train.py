@@ -322,8 +322,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_8_0_2paths'
+    retrain = False
+    training_folder = 'trainings/version_9_0_2paths_tversky'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -358,7 +358,7 @@ def main():
 
     model.compile(
         optimizer=optimizer,
-        loss="categorical_crossentropy",#loss,#tversky_loss,
+        loss=tversky_loss, #"categorical_crossentropy",#loss
         metrics=[
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),

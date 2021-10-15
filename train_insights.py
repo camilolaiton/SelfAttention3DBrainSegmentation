@@ -131,7 +131,7 @@ def main():
     deep_folder = '/insights'
     for i in [
         f"{training_folder}/model_trained_architecture.hdf5", 
-        ] + glob.glob(training_folder + 'checkpoints_2/*') + glob.glob(training_folder + '/checkpoints/*'):
+        ] + glob(training_folder + 'checkpoints_2/*') + glob(training_folder + '/checkpoints/*'):
         print("Loading model in ", i)
         model.load_weights(i)
         # model_history = read_history(model_history_path)

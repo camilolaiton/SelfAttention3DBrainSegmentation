@@ -6,6 +6,7 @@ import pickle
 import matplotlib.pyplot as plt
 # from utils import utils
 from glob import glob
+from utils import utils
 import os
 
 def plot_model_training_info(model_history, dest_path):
@@ -96,6 +97,8 @@ def main():
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
     training_folder = 'trainings/version_8_0_2paths'
+    utils.create_folder(f"{training_folder}/insights")
+    
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_patchified()
@@ -125,6 +128,7 @@ def main():
     #     '/checkpoints_2/model_trained_10_0.73.hdf5',
     #     '/checkpoints_3/model_trained_20_0.74.hdf5',
     # ]:
+    deep_folder = '/insights'
     for i in [
         f"{training_folder}/model_trained_architecture.hdf5", 
         ] + glob.glob(training_folder + 'checkpoints_2/*') + glob.glob(training_folder + '/checkpoints/*'):
@@ -132,7 +136,6 @@ def main():
         model.load_weights(i)
         # model_history = read_history(model_history_path)
         # plot_model_training_info(model_history, training_folder)
-        deep_folder = ''
 
         # if (x != 0):
         #     deep_folder = '/' + i.split('/')[1]

@@ -760,6 +760,10 @@ def read_test_to_list(path:str):
     Returns:
       - list
   """
+
+  if not os.path.isfile(path):
+    return False
+
   list_text = []
 
   with open(path, 'r') as anat_file:
@@ -1144,6 +1148,13 @@ def write_dict_to_txt(config, name):
   with open(name, "w") as dicti_file:
     for k, v in config.items():
         dicti_file.write(f"{k} : {v}\n")
+  print(f"File {name} written!")
+
+def write_list_to_txt(list_values, name):
+  with open(name, "w") as dicti_file:
+    for value in list_values:
+        dicti_file.write(f"{value}\n")
+  print(f"File {name} written!")
 
 def read_files_from_directory(files_path, limit=None):
     files = []
@@ -1154,3 +1165,65 @@ def read_files_from_directory(files_path, limit=None):
           break
         i += 1
     return np.array(files)
+
+def median_frequency_balancing(image_files, num_classes=4):
+    '''
+    Perform median frequency balancing on the image files, given by the formula:
+    f = Median_freq_c / total_freq_c
+    where median_freq_c is the median frequency of the class for all pixels of C that appeared in images
+    and total_freq_c is the total number of pixels of c in the total pixels of the images where c appeared.
+    INPUTS:
+    - image_files(list): a list of image_filenames which element can be read immediately
+    - num_classes(int): the number of classes of pixels in all images
+    OUTPUTS:
+    - class_weights(list): a list of class weights where each index represents each class label and the element is the class weight for that label.
+    '''
+    len_files = len(image_files)
+    print("Amount of files: ", len_files)
+    if not len_files:
+      return False
+      
+    #Initialize all the labels key with a list value
+    label_to_frequency_dict = {}
+    # class_weights = {}
+
+    for i in range(num_classes):
+        label_to_frequency_dict[i] = []
+        # class_weights[i] = -1
+
+    for n in range(len(image_files)):
+        image = np.argmax(np.load(image_files[n]), axis=3)
+
+        #For each image sum up the frequency of each label in that image and append to the dictionary if frequency is positive.
+        for i in range(num_classes):
+            class_mask = np.equal(image, i)
+            class_mask = class_mask.astype(np.float32)
+            class_frequency = np.sum(class_mask)
+
+            if class_frequency != 0.0:
+                label_to_frequency_dict[i].append(class_frequency)
+
+    class_weights = []
+
+    #Get the total pixels to calculate total_frequency later
+    total_pixels = 0
+    for frequencies in label_to_frequency_dict.values():
+        total_pixels += sum(frequencies)
+
+    print("keys: ", label_to_frequency_dict.keys())
+    # print("labels sorted: ", sorted(label_to_frequency_dict[0]))
+
+    for i, j in label_to_frequency_dict.items():
+        j = sorted(j) #To obtain the median, we got to sort the frequencies
+
+        median_frequency = np.median(j) / sum(j)
+        total_frequency = sum(j) / total_pixels
+        median_frequency_balanced = median_frequency / total_frequency
+        class_weights.append(median_frequency_balanced)
+        # class_weights[i] = median_frequency_balanced
+
+    #Set the last class_weight to 0.0 as it's the background class
+    # class_weights[0] = 0.0
+    class_weights[0] = 0.0
+
+    return class_weights # class_weights, 

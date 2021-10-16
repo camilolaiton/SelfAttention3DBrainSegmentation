@@ -182,7 +182,8 @@ def main():
     scaler = MinMaxScaler()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     lut_file = utils.load_lut(LUT_PATH)
-    DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_test/'
+    DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_3D/'
+    DATASET_PATH_MASKS = '/home/camilo/Programacion/master_thesis/dataset_3D/train/masks'
     class_info = utils.get_classes_same_id()
     config_orig = {
         'RAS': True, 
@@ -195,7 +196,14 @@ def main():
 
     # config = get_config_patchified()
     # model = build_model_patchified_patchsize8(config)
+    # image_files = [os.path.join(DATASET_PATH_MASKS, file) for file in os.listdir(DATASET_PATH_MASKS) if file.endswith('.npy')]
+    # print("Executing median frequency balancing in with ", len(image_files), " files")
+    # results_dict, results_list = median_frequency_balancing(image_files, num_classes=4)
 
+    # print("Dict: ", results_dict)
+    # print("List: ", results_list)
+
+    # exit()
     config = get_config_test()
     model = test_model_3(config)
 

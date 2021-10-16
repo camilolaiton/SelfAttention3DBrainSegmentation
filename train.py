@@ -337,10 +337,22 @@ def main():
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
     # Setting up weights 
-    wt0, wt1, wt2, wt3 = 0.25,0.25,0.25,0.25
+    weights = utils.read_test_to_list(config.dataset_path + 'weights.txt')
+
+    if (weights == False):
+        end_path = '/train/masks'
+        image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
+        weights = utils.median_frequency_balancing(image_files=image_files, num_classes=4)
+        if (weights == False):
+            print("Please check the path")
+            exit()
+        utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
+    else:
+        weights = [float(weight) for weight in weights]
+        print("Weights read! ", weights)
 
     # Setting up neural network loss
-    #loss = tversky_loss()#dice_focal_loss([wt0, wt1, wt2, wt3])
+    #loss = tversky_loss()#
     
     with mirrored_strategy.scope():
     # model = build_model_patchified_patchsize16(config)
@@ -357,6 +369,9 @@ def main():
     elif config.loss_fnc == 'crossentropy':
         loss = 'categorical_crossentropy'
         print('Using categorical crossentropy loss...')
+    elif config.loss_fnc == 'dice_focal_loss':
+        loss = dice_focal_loss(weights)
+        print('Using dice focal loss...')
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 

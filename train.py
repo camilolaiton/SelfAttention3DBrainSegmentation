@@ -485,7 +485,7 @@ def main():
     if (config.unbatch):
         dataset['train'] = dataset['train'].unbatch()
     dataset['train'] = dataset['train'].repeat()
-    dataset['train'] = dataset['train'].shuffle(config.batch_size, reshuffle_each_iteration=True)
+    # dataset['train'] = dataset['train'].shuffle(config.batch_size, reshuffle_each_iteration=True)
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)

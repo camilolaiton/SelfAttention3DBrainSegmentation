@@ -372,6 +372,9 @@ def main():
     elif config.loss_fnc == 'dice_focal_loss':
         loss = dice_focal_loss(weights)
         print('Using dice focal loss...')
+    elif config.loss_fnc == 'weighted_crossentropy':
+        loss = weighted_categorical_crossentropy(weights)
+        print("Using weighted crossentropy")
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 

@@ -36,7 +36,6 @@ from glob import glob
 import shutil
 import elasticdeform
 from sklearn.preprocessing import MinMaxScaler
-import json 
 
 scaler = MinMaxScaler()
 
@@ -1182,7 +1181,7 @@ def median_frequency_balancing(image_files, num_classes=4):
     print("Amount of files: ", len_files)
     if not len_files:
       return False
-      
+
     #Initialize all the labels key with a list value
     label_to_frequency_dict = {}
     # class_weights = {}

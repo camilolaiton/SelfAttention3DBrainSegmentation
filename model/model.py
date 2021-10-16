@@ -1,12 +1,8 @@
 import tensorflow as tf
 from tensorflow.keras import Model, Input, layers
-from tensorflow.keras.callbacks import ModelCheckpoint
 from .blocks import *
 from .config import *
-from .losses import dice_coef_3cat, IoU_coef
-from tensorflow.keras import models
-import segmentation_models as sm
-import numpy as np
+# import segmentation_models as sm
 
 # import tensorflow_addons as tfa
 def build_model_patchsize_16(config):

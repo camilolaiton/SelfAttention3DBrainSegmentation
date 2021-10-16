@@ -12,7 +12,7 @@
         de atención".
 """
 
-import os
+# import os
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import elasticdeform
 from utils import utils
-from matplotlib import pyplot
+# from matplotlib import pyplot
 from model.config import *
 from model.model import *
 from model.losses import *

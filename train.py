@@ -379,6 +379,8 @@ def main():
         print("Using weighted crossentropy")
     elif config.loss_fnc == 'wc_dice':
         loss = wce_dice(weights)
+    elif config.loss_fnc == 'gen_dice':
+        loss = generalized_dice_loss(weights)
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 

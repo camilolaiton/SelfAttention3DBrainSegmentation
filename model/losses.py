@@ -113,3 +113,6 @@ def weighted_categorical_crossentropy(weights):
 
 def wce_dice(weights):
     return weighted_categorical_crossentropy(weights) + sm.losses.DiceLoss(class_weights=np.array(weights))
+
+def generalized_dice_loss(weights):
+    return sm.losses.DiceLoss(class_weights=np.array(weights))

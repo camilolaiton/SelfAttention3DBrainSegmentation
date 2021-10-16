@@ -85,6 +85,7 @@ def dice_focal_loss(weights):
     loss = dice_loss + (1 * focal_loss)
     return loss
 
+# https://github.com/nabsabraham/focal-tversky-unet/blob/master/losses.pys
 def tversky(y_true, y_pred):
     y_true_pos = K.flatten(y_true)
     y_pred_pos = K.flatten(y_pred)

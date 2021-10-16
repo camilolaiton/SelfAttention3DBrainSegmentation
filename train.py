@@ -324,8 +324,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_10_0_2paths_dicefocal'
+    retrain = False
+    training_folder = 'trainings/version_13_0_2paths_tversky_focal'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -381,6 +381,11 @@ def main():
         loss = wce_dice(weights)
     elif config.loss_fnc == 'gen_dice':
         loss = generalized_dice_loss(weights)
+    elif config.loss_fnc == 'focal_tversky':
+        loss = focal_tversky
+    else:
+        print("No loss function")
+        exit()
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 

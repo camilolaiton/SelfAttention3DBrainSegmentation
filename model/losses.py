@@ -103,13 +103,16 @@ def focal_tversky(y_true,y_pred):
     return K.pow((1-pt_1), gamma)
 
 def weighted_categorical_crossentropy(weights):
-    # weights = [0.9,0.05,0.04,0.01]
-    def wcce(y_true, y_pred):
-        Kweights = K.constant(weights)
-        if not K.is_tensor(y_pred): y_pred = K.constant(y_pred)
-        y_true = K.cast(y_true, y_pred.dtype)
-        return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
-    return wcce
+    weights = K.variable(weights)
+
+    def loss(y_true, y_pred):
+        y_pred /= K.sum(y_pred, axis=-1, keepdims=True)
+
+        y_pred = K.clip(y_pred, K.epsilon(), 1 - K.epsilon())
+        loss = y_true * K.log(y_pred) * weights
+        loss = -K.sum(loss, -1)
+        return loss
+    return loss
 
 def wce_dice(weights):
     return weighted_categorical_crossentropy(weights) + sm.losses.DiceLoss(class_weights=np.array(weights))

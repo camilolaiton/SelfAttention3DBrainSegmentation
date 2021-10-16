@@ -325,7 +325,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_11_0_2paths_wce'
+    training_folder = 'trainings/version_12_0_2paths_wce'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -485,7 +485,7 @@ def main():
     if (config.unbatch):
         dataset['train'] = dataset['train'].unbatch()
     dataset['train'] = dataset['train'].repeat()
-    dataset['train'] = dataset['train'].shuffle(3, reshuffle_each_iteration=True)
+    dataset['train'] = dataset['train'].shuffle(config.batch_size, reshuffle_each_iteration=True)
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)

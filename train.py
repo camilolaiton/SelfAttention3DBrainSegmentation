@@ -28,6 +28,8 @@ from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoa
 from volumentations import *
 import pickle
 import glob
+import segmentation_models as sm
+sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
 
@@ -323,7 +325,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_10_0_2paths_dicefocal'
+    training_folder = 'trainings/version_11_0_2paths_wce'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -375,6 +377,8 @@ def main():
     elif config.loss_fnc == 'weighted_crossentropy':
         loss = weighted_categorical_crossentropy(weights)
         print("Using weighted crossentropy")
+    elif config.loss_fnc == 'wc_dice':
+        loss = wce_dice(weights)
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
@@ -479,6 +483,7 @@ def main():
     if (config.unbatch):
         dataset['train'] = dataset['train'].unbatch()
     dataset['train'] = dataset['train'].repeat()
+    dataset['train'] = dataset['train'].shuffle(3, reshuffle_each_iteration=True)
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)
     dataset['train'] = dataset['train'].with_options(options)

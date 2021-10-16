@@ -1,7 +1,9 @@
 import tensorflow as tf
 from tensorflow.keras import backend as K
-# import segmentation_models as sm
-# sm.set_framework('tf.keras')
+import numpy as np
+import segmentation_models as sm
+sm.set_framework('tf.keras')
+
 
 def IoU_coef(y_true, y_pred):
     T = K.flatten(y_true)
@@ -77,11 +79,11 @@ def categorical_focal_loss(gamma=2.0, alpha=0.25):
     
     return focal_loss
 
-# def dice_focal_loss(weights):
-#     dice_loss = sm.losses.DiceLoss(class_weights=np.array(weights)) 
-#     focal_loss = sm.losses.CategoricalFocalLoss()
-#     loss = dice_loss + (1 * focal_loss)
-#     return loss
+def dice_focal_loss(weights):
+    dice_loss = sm.losses.DiceLoss(class_weights=np.array(weights)) 
+    focal_loss = sm.losses.CategoricalFocalLoss()
+    loss = dice_loss + (1 * focal_loss)
+    return loss
 
 def tversky(y_true, y_pred):
     y_true_pos = K.flatten(y_true)
@@ -108,3 +110,6 @@ def weighted_categorical_crossentropy(weights):
         y_true = K.cast(y_true, y_pred.dtype)
         return K.categorical_crossentropy(y_true, y_pred) * K.sum(y_true * Kweights, axis=-1)
     return wcce
+
+def wce_dice(weights):
+    return weighted_categorical_crossentropy(weights) + sm.losses.DiceLoss(class_weights=np.array(weights))

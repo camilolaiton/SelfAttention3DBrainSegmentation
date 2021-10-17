@@ -144,22 +144,22 @@ def main():
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_test()
-    config.dataset_path = 'dataset_3D_3/'
+    config.dataset_path = 'dataset_3D_2/'
     # Getting images
-    test_filename = 'HLN-12-12-patchified.npy'
+    test_filename = 'HLN-12-12'
     # Use 5 and 6 for idx
     
-    # img_patches = read_patches_filename(
-    #     test_filename, 
-    #     f"{config.dataset_path}train/images/*"
-    # )
-    img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
+    img_patches = read_patches_filename(
+        test_filename, 
+        f"{config.dataset_path}test/images/*"
+    )
+    # img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
-    # msk_patches = np.argmax(read_patches_filename(
-    #     test_filename, 
-    #     f"{config.dataset_path}train/masks/*"
-    # ), axis=4)
-    msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
+    msk_patches = np.argmax(read_patches_filename(
+        test_filename, 
+        f"{config.dataset_path}test/masks/*"
+    ), axis=4)
+    # msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
     model = test_model_3(config)
     # print(f"[+] Building model with config {config}")

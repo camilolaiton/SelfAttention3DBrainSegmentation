@@ -138,7 +138,7 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_13_0_2paths_focal_tversky'
+    training_folder = 'trainings/version_17_0_2paths_dice_focal_trans'
     utils.create_folder(f"{training_folder}/insights")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
@@ -175,7 +175,7 @@ def main():
     deep_folder = '/insights'
     model_paths = [
         f"{training_folder}/model_trained_architecture.hdf5",
-    ] + glob(training_folder + '/checkpoints_2/*') + glob(training_folder + '/checkpoints_3/*')
+    ] + glob(training_folder + '/checkpoints/*')
 
     for i in model_paths:
         print("Loading model in ", i)

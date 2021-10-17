@@ -324,8 +324,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_13_0_2paths_focal_tversky'
+    retrain = False
+    training_folder = 'trainings/version_14_0_2paths_wce_dice'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -530,7 +530,7 @@ def main():
         save_weights_only=True, 
         monitor=monitor, 
         mode=mode,
-        period=1
+        period=2
     )
 
     tb = TensorBoard(

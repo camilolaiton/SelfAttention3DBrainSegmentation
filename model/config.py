@@ -151,7 +151,7 @@ def get_config_test():
     config.image_size = (config.image_height, config.image_width, config.image_depth, config.image_channels)
     config.skip_connections = True
     config.data_augmentation = False
-    config.loss_fnc = 'focal_tversky'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
+    config.loss_fnc = 'wc_dice'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
 
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16

@@ -1169,16 +1169,17 @@ def test_model_3(config):
             name=f"deconv_block_{filters}_stride1_1"
         )(deconv_layers)
 
-        deconv_layers = DecoderTransposeBlock(
-            filters=filters,
-            name=f"up_transpose_{filters}"
-        )(deconv_layers)
-
-        # deconv_layers = DecoderUpsampleBlock(
-        #     filters=filters, 
-        #     kernel_size=3,
-        #     name=f"up_3dblock_{filters}"
-        # )(deconv_layers)
+        if (config.decoder_conv_localpath):
+            deconv_layers = DecoderTransposeBlock(
+                filters=filters,
+                name=f"up_transpose_{filters}"
+            )(deconv_layers)
+        else:
+            deconv_layers = DecoderUpsampleBlock(
+                filters=filters, 
+                kernel_size=3,
+                name=f"up_3dblock_{filters}"
+            )(deconv_layers)
 
         if (config.skip_connections):
 
@@ -1238,11 +1239,18 @@ def test_model_3(config):
     )(encoded_patches)
 
     # Upsample layer : (8, 8, 8, 64) => (16, 16, 16, 32)
-    decoder_up_block_0 = DecoderUpsampleBlock(
-        filters=32, 
-        kernel_size=3,
-        name=f"decoder_upsample_0"
-    )(decoder_block_cup)
+    decoder_up_block_0 = None
+    if (config.decoder_conv_globalpath):
+        decoder_up_block_0 = DecoderTransposeBlock(
+            filters=32,
+            name=f"decoder_trans_0"
+        )(decoder_block_cup)
+    else:
+        decoder_up_block_0 = DecoderUpsampleBlock(
+            filters=32, 
+            kernel_size=3,
+            name=f"decoder_upsample_0"
+        )(decoder_block_cup)
 
     # Skip connection with transformer layer
     if (config.skip_connections):
@@ -1267,11 +1275,18 @@ def test_model_3(config):
         decoder_up_block_0 = layers.Add()([decoder_up_block_0, skip_conn_0])
 
     # Upsample layer : (16, 16, 16, 32) => (32, 32, 32, 16)
-    decoder_up_block_1 = DecoderUpsampleBlock(
-        filters=16, 
-        kernel_size=3,
-        name=f"decoder_upsample_1"
-    )(decoder_up_block_0)
+    decoder_up_block_1 = None
+    if (config.decoder_conv_globalpath):
+        decoder_up_block_1 = DecoderTransposeBlock(
+            filters=16,
+            name=f"decoder_trans_1"
+        )(decoder_up_block_0)
+    else:
+        decoder_up_block_1 = DecoderUpsampleBlock(
+            filters=16, 
+            kernel_size=3,
+            name=f"decoder_upsample_1"
+        )(decoder_up_block_0)
 
     # Skip connection with transformer layer
     if (config.skip_connections):
@@ -1302,11 +1317,18 @@ def test_model_3(config):
         decoder_up_block_1 = layers.Add()([decoder_up_block_1, skip_conn_1])
 
     # Upsample layer : (32, 32, 32, 16) => (64, 64, 64, 8)
-    decoder_up_block_2 = DecoderUpsampleBlock(
-        filters=8, 
-        kernel_size=3,
-        name="decoder_upsample_2"
-    )(decoder_up_block_1)
+    decoder_up_block_2 = None
+    if (config.decoder_conv_globalpath):
+        decoder_up_block_2 = DecoderTransposeBlock(
+            filters=8,
+            name=f"decoder_trans_2"
+        )(decoder_up_block_1)
+    else:
+        decoder_up_block_2 = DecoderUpsampleBlock(
+            filters=8, 
+            kernel_size=3,
+            name="decoder_upsample_2"
+        )(decoder_up_block_1)
 
     # Skip connection with transformer layer
     if (config.skip_connections):
@@ -1381,8 +1403,8 @@ if __name__ == "__main__":
     model = None
 
     if (config_num == 1):
-        config = get_config_32()
-        model = build_model_patchsize_32(config)
+        config = get_config_test()
+        model = test_model_3(config)
         # model = build_model_test(config)
 
 

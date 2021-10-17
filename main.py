@@ -198,9 +198,8 @@ def main():
     # model = build_model_patchified_patchsize8(config)
     # image_files = [os.path.join(DATASET_PATH_MASKS, file) for file in os.listdir(DATASET_PATH_MASKS) if file.endswith('.npy')]
     # print("Executing median frequency balancing in with ", len(image_files), " files")
-    # results_dict, results_list = median_frequency_balancing(image_files, num_classes=4)
+    # results_list = utils.median_frequency_balancing(image_files, num_classes=4)
 
-    # print("Dict: ", results_dict)
     # print("List: ", results_list)
 
     # exit()

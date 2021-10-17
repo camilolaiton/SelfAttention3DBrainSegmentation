@@ -138,7 +138,7 @@ def get_config_test():
     config.config_name = "testing"
     config.dataset_path = 'dataset_3D_3/'
     config.unbatch = True
-    config.learning_rate = 0.001
+    config.learning_rate = 0.0001
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
@@ -152,8 +152,8 @@ def get_config_test():
     config.skip_connections = True
     config.data_augmentation = False
     config.loss_fnc = 'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
-    config.decoder_conv_localpath = True
-    config.decoder_conv_globalpath = True
+    config.decoder_conv_localpath = False
+    config.decoder_conv_globalpath = False
 
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
@@ -164,10 +164,10 @@ def get_config_test():
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
-    config.transformer.layers = 4
-    config.transformer.num_heads = 4 #8
-    config.transformer.dropout_rate = 0.1
-    config.transformer.normalization_rate = 1e-6
+    config.transformer.layers = 8
+    config.transformer.num_heads = 8 #8
+    config.transformer.dropout_rate = 0.2
+    config.transformer.normalization_rate = 1e-5
 
     config.decoder_filters = [
       config.transformer.projection_dim,

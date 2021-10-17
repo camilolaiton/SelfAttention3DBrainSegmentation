@@ -1300,7 +1300,7 @@ def test_model_3(config):
             filters=config.transformer.projection_dim,
             normalization_rate=None,
             name='reshaping_trans_skip_1'
-        )(transformer_layers_path_2[-3])
+        )(transformer_layers_path_2[3])
 
         skip_conn_1 = EncoderDecoderConnections(
             filters=32,

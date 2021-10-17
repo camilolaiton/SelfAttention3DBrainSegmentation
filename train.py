@@ -324,7 +324,7 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
+    retrain = True
     training_folder = 'trainings/version_18_0_2paths_dice_focal_up'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 

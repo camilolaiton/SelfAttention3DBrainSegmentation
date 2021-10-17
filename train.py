@@ -324,8 +324,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_10_0_2paths_dicefocal'
+    retrain = False
+    training_folder = 'trainings/version_10_0_2paths_unified_focal'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -382,7 +382,9 @@ def main():
     elif config.loss_fnc == 'gen_dice':
         loss = generalized_dice_loss(weights)
     elif config.loss_fnc == 'focal_tversky':
-        loss = focal_tversky
+        loss = focal_tversky_loss
+    elif config.loss_fnc == 'unified_focal':
+        loss = unified_focal_loss
     else:
         print("No loss function")
         exit()

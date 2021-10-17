@@ -8,6 +8,8 @@ import matplotlib.pyplot as plt
 from glob import glob
 from utils import utils
 import os
+import numpy as np
+from matplotlib.colors import ListedColormap
 
 def plot_model_training_info(model_history, dest_path):
     loss = model_history['loss']
@@ -67,11 +69,19 @@ def read_patches_filename(filename, path):
     return patches
 
 def plot_examples(msk_patches, prediction, idx, dest_path, name):
+    palette = np.array([[  0,   0,   0],   # black
+                    [255,   0,   0],   # red
+                    [  0, 255,   0],   # green
+                    [  0,   0, 255]])   # blue
+                    # [255, 255, 255]])  # white
+    RGB_ground = palette[msk_patches[idx, :, 45, :]]
+    RGB_prediction = palette[prediction[idx, :, 45, :]]
+
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Original mask VS Predicted")
-    ax1.imshow(msk_patches[idx, :, 45, :])
+    ax1.imshow(RGB_ground)
     ax1.set_title(f"msk_patch[{idx}, :, 45, :]")
-    ax2.imshow(prediction[idx, :, 45, :])
+    ax2.imshow(RGB_prediction)
     ax2.set_title(f"prediction[{idx}, :, 45, :]")
     print(dest_path)
     plt.savefig(f"{dest_path}/example_prediction_{idx}_{name}.png")
@@ -80,7 +90,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
 def test_models(training_folder):
     prediction = np.load(training_folder+'/prediction.npy')
     msk_patches = np.load(training_folder+'/ground_truth.npy')
-
+    
     for idx in range(64):
         print(idx)
         fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -92,30 +102,64 @@ def test_models(training_folder):
         # plt.imshow(prediction[idx, :, 45, :])
         plt.show()
 
+def plot_predicted(msk_patches, prediction, idx, idx2, dest_path, name):
+    palette = np.array([[  0,   0,   0],   # black
+                    [255,   0,   0],   # red
+                    [  0, 255,   0],   # green
+                    [  0,   0, 255]])   # blue
+                    # [255, 255, 255]])  # white
+    RGB_ground = palette[msk_patches[idx, :, idx2, :]]
+    RGB_prediction = palette[prediction[idx, :, idx2, :]]
+
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    fig.suptitle("Original mask VS Predicted")
+    # ax1.imshow(msk_patches[idx, :, idx2, :], cmap=cmap)
+    ax1.imshow(RGB_ground)
+    ax1.set_title(f"msk_patch[{idx}, :, {idx2}, :]")
+    print("unique values here: ", np.unique(prediction[idx, :, idx2, :]))
+    # ax2.imshow(prediction[idx, :, idx2, :], cmap=cmap)
+    ax2.imshow(RGB_prediction)
+    ax2.set_title(f"prediction[{idx}, :, {idx2}, :]")
+    print(dest_path)
+    plt.savefig(f"{dest_path}/test_example_prediction_{idx}_{idx2}_{name}.png")
+    plt.show()
+
 def main():
+
+    # path_prediction = 'trainings/version_8_0_2paths/insights/prediction_0.npy'
+    # truth_path = 'trainings/version_8_0_2paths/ground_truth.npy'
+    # dest_path = 'trainings/version_8_0_2paths'
+
+    # arr_predicted = np.load(path_prediction)
+    # ground_truth = np.load(truth_path)
+
+    # plot_predicted(ground_truth, arr_predicted, 14, 36, dest_path, 'test_label')
+    # exit()
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_8_0_2paths'
+    training_folder = 'trainings/version_10_0_2paths_dicefocal'
     utils.create_folder(f"{training_folder}/insights")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_test()
-    config.dataset_path = 'dataset_3D_2/'
+    config.dataset_path = 'dataset_3D_3/'
     # Getting images
-    test_filename = 'HLN-12-1'
+    test_filename = 'HLN-12-12-patchified.npy'
     # Use 5 and 6 for idx
     
-    img_patches = read_patches_filename(
-        test_filename, 
-        f"{config.dataset_path}train/images/*"
-    )
+    # img_patches = read_patches_filename(
+    #     test_filename, 
+    #     f"{config.dataset_path}train/images/*"
+    # )
+    img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
-    msk_patches = np.argmax(read_patches_filename(
-        test_filename, 
-        f"{config.dataset_path}train/masks/*"
-    ), axis=4)
+    # msk_patches = np.argmax(read_patches_filename(
+    #     test_filename, 
+    #     f"{config.dataset_path}train/masks/*"
+    # ), axis=4)
+    msk_patches = np.argmax(f"{config.dataset_path}test/masks/{test_filename}", axis=4)
 
     model = test_model_3(config)
     # print(f"[+] Building model with config {config}")
@@ -131,7 +175,7 @@ def main():
     deep_folder = '/insights'
     for i in [
         f"{training_folder}/model_trained_architecture.hdf5", 
-        ] + glob(training_folder + 'checkpoints_2/*') + glob(training_folder + '/checkpoints/*'):
+        ] + glob(training_folder + 'checkpoints_5/*') + glob(training_folder + 'checkpoints_4/*') + glob(training_folder + 'checkpoints_3/*') + glob(training_folder + '/checkpoints_2/*'):
         print("Loading model in ", i)
         model.load_weights(i)
         # model_history = read_history(model_history_path)

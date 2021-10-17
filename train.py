@@ -325,7 +325,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_16_0_2paths_dice_focal_up'
+    training_folder = 'trainings/version_17_0_2paths_dice_focal_trans'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -351,7 +351,6 @@ def main():
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
     else:
         weights = [float(weight) for weight in weights]
-        weights = [0.0, 2.8323626749280297, 29.806578383194488, 11.538929052148397]
         print("Weights read! ", weights)
 
     # Setting up neural network loss

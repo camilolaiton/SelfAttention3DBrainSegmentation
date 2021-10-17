@@ -159,7 +159,7 @@ def main():
     #     test_filename, 
     #     f"{config.dataset_path}train/masks/*"
     # ), axis=4)
-    msk_patches = np.argmax(f"{config.dataset_path}test/masks/{test_filename}", axis=4)
+    msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
     model = test_model_3(config)
     # print(f"[+] Building model with config {config}")

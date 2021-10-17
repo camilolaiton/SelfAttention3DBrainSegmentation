@@ -165,7 +165,7 @@ def get_config_test():
         # config.transformer.projection_dim, # 64
     ]
     config.transformer.layers = 8
-    config.transformer.num_heads = 8 #8
+    config.transformer.num_heads = 4 #8
     config.transformer.dropout_rate = 0.2
     config.transformer.normalization_rate = 1e-5
 

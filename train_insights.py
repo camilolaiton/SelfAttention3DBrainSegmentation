@@ -175,12 +175,8 @@ def main():
     deep_folder = '/insights'
     model_paths = [
         f"{training_folder}/model_trained_architecture.hdf5",
-        glob(training_folder + '/checkpoints_5/*'),
-        glob(training_folder + '/checkpoints_4/*'),
-        glob(training_folder + '/checkpoints_3/*'),
-        glob(training_folder + '/checkpoints_2/*'),
-    ]
-    
+    ] + glob(training_folder + '/checkpoints_5/*') + glob(training_folder + '/checkpoints_4/*') + glob(training_folder + '/checkpoints_3/*') + glob(training_folder + '/checkpoints_2/*')
+
     for i in model_paths:
         print("Loading model in ", i)
         model.load_weights(i)

@@ -116,7 +116,7 @@ def weighted_categorical_crossentropy(weights):
     return loss
 
 def wce_dice(weights):
-    loss = tf.reduce_sum(weighted_categorical_crossentropy(weights) + sm.losses.DiceLoss(class_weights=np.array(weights)))
+    loss = tf.math.reduce_sum(weighted_categorical_crossentropy(weights) + sm.losses.DiceLoss(class_weights=np.array(weights)))
     return loss
 
 def generalized_dice_loss(weights):

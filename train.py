@@ -325,7 +325,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_14_0_2paths_combo'
+    training_folder = 'trainings/version_14_0_2paths_dice_categorical'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")
@@ -381,8 +381,8 @@ def main():
         loss = generalized_dice_loss(weights)
     elif config.loss_fnc == 'focal_tversky':
         loss = focal_tversky
-    elif config.loss_fnc == 'combo':
-        loss = Combo_loss
+    elif config.loss_fnc == 'dice_categorical':
+        loss = dice_categorical(weights)
     else:
         print("No loss function")
         exit()

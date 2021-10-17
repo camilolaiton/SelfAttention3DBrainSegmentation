@@ -1,6 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import backend as K
 import numpy as np
+from scipy.ndimage import distance_transform_edt as distance
 import segmentation_models as sm
 sm.set_framework('tf.keras')
 
@@ -113,10 +114,6 @@ def weighted_categorical_crossentropy(weights):
         loss = y_true * K.log(y_pred) * weights
         loss = -K.sum(loss, -1)
         return loss
-    return loss
-
-def wce_dice(weights):
-    loss = tf.math.reduce_sum(weighted_categorical_crossentropy(weights) + sm.losses.DiceLoss(class_weights=np.array(weights)))
     return loss
 
 def generalized_dice_loss(weights):

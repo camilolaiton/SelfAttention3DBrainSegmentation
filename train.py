@@ -325,7 +325,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_10_0_2paths_unified_focal'
+    training_folder = 'trainings/version_13_0_2paths_unified_focal'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
 
     utils.create_folder(f"{training_folder}/checkpoints")

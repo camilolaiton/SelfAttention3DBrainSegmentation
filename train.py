@@ -263,13 +263,13 @@ def load_files(img_path, msk_path):
 
 def get_augmentation():
     return Compose([
-        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
+        Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
         # RandomCropFromBorders(crop_value=0.1, p=0.5),
         ElasticTransform((0, 0.25), interpolation=2, p=0.1),
         # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
-        # Flip(0, p=0.5),
-        # Flip(1, p=0.5),
-        # Flip(2, p=0.5),
+        Flip(0, p=0.5),
+        Flip(1, p=0.5),
+        Flip(2, p=0.5),
         # RandomRotate90((1, 2), p=0.5),
         # GaussianNoise(var_limit=(0, 5), p=0.2),
         # RandomGamma(gamma_limit=(0.5, 1.5), p=0.2),
@@ -485,7 +485,7 @@ def main():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE).cache()
+    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)
     # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     if (config.unbatch):
         dataset['train'] = dataset['train'].unbatch()

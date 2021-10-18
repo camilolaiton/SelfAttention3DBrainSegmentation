@@ -59,12 +59,12 @@ class Keras3DAugmentation(layers.Layer):
         
         # Iterate over the the each modality 
         # for j, each_modality in enumerate(splitted_modalities):
-        print("bef: ", inputs.shape)
+        # print("bef: ", inputs.shape)
         inputs = tf.squeeze(inputs, axis=-1)
-        print("aft: ", inputs.shape)
+        # print("aft: ", inputs.shape)
 
         x = self.random_flip(inputs)
-        print("x: ", x.shape)
+        # print("x: ", x.shape)
         x = self.random_rotate(x)
         x = self.random_translation(x)
         # x = self.random_cutout(x)
@@ -87,7 +87,7 @@ class Keras3DAugmentation(layers.Layer):
 
         if self.modeling == '3D':
             # image = tf.stack([flair, t1w, t1wce, t2w], axis=-1)
-            print("end: ", x.shape)
+            # print("end: ", x.shape)
             # image = tf.reshape(x, [-1, self.input_height, self.input_width, 
                                     #    self.input_depth])
             image = tf.expand_dims(x, axis=-1)

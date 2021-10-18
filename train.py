@@ -485,7 +485,7 @@ def main():
     options.experimental_distribute.auto_shard_policy = tf.data.experimental.AutoShardPolicy.DATA
 
     AUTOTUNE = tf.data.experimental.AUTOTUNE
-    dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)
+    dataset['train'] = dataset['train'].map(load_files)#.map(augmentor, num_parallel_calls=AUTOTUNE)
     # dataset['train'] = dataset['train'].shuffle(buffer_size=config.batch_size, seed=SEED)
     if (config.unbatch):
         dataset['train'] = dataset['train'].unbatch()

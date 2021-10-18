@@ -263,7 +263,7 @@ def load_files(img_path, msk_path):
 
 def get_augmentation():
     return Compose([
-        Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
+        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
         # RandomCropFromBorders(crop_value=0.1, p=0.5),
         ElasticTransform((0, 0.25), interpolation=2, p=0.1),
         # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),

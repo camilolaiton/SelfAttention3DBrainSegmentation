@@ -91,7 +91,7 @@ class Keras3DAugmentation(layers.Layer):
             # image = tf.reshape(x, [-1, self.input_height, self.input_width, 
                                     #    self.input_depth])
             image = tf.expand_dims(x, axis=-1)
-            print(image.shape)
+            # print(image.shape)
             return image
 
 # import tensorflow_addons as tfa

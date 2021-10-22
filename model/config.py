@@ -152,8 +152,8 @@ def get_config_test():
     config.skip_connections = True
     config.data_augmentation = False
     config.loss_fnc = 'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
-    config.decoder_conv_localpath = True
-    config.decoder_conv_globalpath = True
+    config.decoder_conv_localpath = False
+    config.decoder_conv_globalpath = False
 
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
@@ -164,10 +164,10 @@ def get_config_test():
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
-    config.transformer.layers = 4
-    config.transformer.num_heads = 4 #8
+    config.transformer.layers = 3
+    config.transformer.num_heads = 5 #8
     config.transformer.dropout_rate = 0.1
-    config.transformer.normalization_rate = 1e-5
+    config.transformer.normalization_rate = 1e-4
 
     config.decoder_filters = [
       config.transformer.projection_dim,

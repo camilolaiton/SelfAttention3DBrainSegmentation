@@ -1204,7 +1204,7 @@ def test_model_3(config):
         )(inputs)
 
 
-    if (data_aug):
+    if (data_aug != None):
         conv_layers = data_aug
 
     # [First path]

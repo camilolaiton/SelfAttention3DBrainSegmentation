@@ -150,7 +150,7 @@ def get_config_test():
     config.image_channels = 1
     config.image_size = (config.image_height, config.image_width, config.image_depth, config.image_channels)
     config.skip_connections = True
-    config.data_augmentation = False
+    config.data_augmentation = True
     config.loss_fnc = 'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
     config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False

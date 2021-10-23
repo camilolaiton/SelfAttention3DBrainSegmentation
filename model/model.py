@@ -1215,12 +1215,14 @@ def test_model_3(config):
             filters=filters,
             kernel_size=kernel,
             strides=1,
+            activation=config.act_func,
             name=f"conv_block_{filters}_stride1_0"
         )(conv_layers)
         conv_layers = ConvolutionalBlock(
             filters=filters,
             kernel_size=3,
             strides=1,
+            activation=config.act_func,
             name=f"conv_block_{filters}_stride1_1"
         )(conv_layers)
 
@@ -1230,6 +1232,7 @@ def test_model_3(config):
             filters=filters,
             kernel_size=3,
             strides=2,
+            activation=config.act_func,
             name=f"down_conv_block_{filters}"
         )(conv_layers)
 
@@ -1275,6 +1278,7 @@ def test_model_3(config):
             filters=filters,
             kernel_size=3,
             strides=1,
+            activation=config.act_func,
             name=f"deconv_block_{filters}_stride1_0"
         )(deconv_layers)
 
@@ -1282,18 +1286,21 @@ def test_model_3(config):
             filters=filters,
             kernel_size=3,
             strides=1,
+            activation=config.act_func,
             name=f"deconv_block_{filters}_stride1_1"
         )(deconv_layers)
 
         if (config.decoder_conv_localpath):
             deconv_layers = DecoderTransposeBlock(
                 filters=filters,
+                activation=config.act_func,
                 name=f"up_transpose_{filters}"
             )(deconv_layers)
         else:
             deconv_layers = DecoderUpsampleBlock(
                 filters=filters, 
                 kernel_size=3,
+                activation=config.act_func,
                 name=f"up_3dblock_{filters}"
             )(deconv_layers)
 
@@ -1303,6 +1310,7 @@ def test_model_3(config):
                 filters=filters,
                 kernel_size=3,
                 upsample=False,
+                activation=config.act_func,
                 name=f"skip_connection_{filters}"
             )(conv_blocks[-1-i])
 
@@ -1351,6 +1359,7 @@ def test_model_3(config):
         ),
         filters=config.transformer.projection_dim,
         normalization_rate=config.transformer.normalization_rate,
+        activation=config.act_func,
         name=f'decoder_cup_path_2_0'
     )(encoded_patches)
 
@@ -1359,12 +1368,14 @@ def test_model_3(config):
     if (config.decoder_conv_globalpath):
         decoder_up_block_0 = DecoderTransposeBlock(
             filters=32,
+            activation=config.act_func,
             name=f"decoder_trans_0"
         )(decoder_block_cup)
     else:
         decoder_up_block_0 = DecoderUpsampleBlock(
             filters=32, 
             kernel_size=3,
+            activation=config.act_func,
             name=f"decoder_upsample_0"
         )(decoder_block_cup)
 
@@ -1379,12 +1390,14 @@ def test_model_3(config):
             ),
             filters=config.transformer.projection_dim,
             normalization_rate=None,
+            activation=config.act_func,
             name='reshaping_trans_skip_0'
         )(transformer_layers_path_2[-2])
 
         skip_conn_0 = EncoderDecoderConnections(
             filters=32,
             kernel_size=3,
+            activation=config.act_func,
             name="skip_connection_0_0"
         )(skip_conn_0)
 
@@ -1395,12 +1408,14 @@ def test_model_3(config):
     if (config.decoder_conv_globalpath):
         decoder_up_block_1 = DecoderTransposeBlock(
             filters=16,
+            activation=config.act_func,
             name=f"decoder_trans_1"
         )(decoder_up_block_0)
     else:
         decoder_up_block_1 = DecoderUpsampleBlock(
             filters=16, 
             kernel_size=3,
+            activation=config.act_func,
             name=f"decoder_upsample_1"
         )(decoder_up_block_0)
 
@@ -1415,18 +1430,21 @@ def test_model_3(config):
             ),
             filters=config.transformer.projection_dim,
             normalization_rate=None,
+            activation=config.act_func,
             name='reshaping_trans_skip_1'
         )(transformer_layers_path_2[-3])
 
         skip_conn_1 = EncoderDecoderConnections(
             filters=32,
             kernel_size=3,
+            activation=config.act_func,
             name="skip_connection_1_0"
         )(skip_conn_1)
 
         skip_conn_1 = EncoderDecoderConnections(
             filters=16,
             kernel_size=3,
+            activation=config.act_func,
             name="skip_connection_1_1"
         )(skip_conn_1)
 
@@ -1437,12 +1455,14 @@ def test_model_3(config):
     if (config.decoder_conv_globalpath):
         decoder_up_block_2 = DecoderTransposeBlock(
             filters=8,
+            activation=config.act_func,
             name=f"decoder_trans_2"
         )(decoder_up_block_1)
     else:
         decoder_up_block_2 = DecoderUpsampleBlock(
             filters=8, 
             kernel_size=3,
+            activation=config.act_func,
             name="decoder_upsample_2"
         )(decoder_up_block_1)
 
@@ -1457,24 +1477,28 @@ def test_model_3(config):
             ),
             filters=config.transformer.projection_dim,
             normalization_rate=None,
+            activation=config.act_func,
             name='reshaping_trans_skip_2'
         )(transformer_layers_path_2[0])
 
         skip_conn_2 = EncoderDecoderConnections(
             filters=32,
             kernel_size=3,
+            activation=config.act_func,
             name="skip_connection_2_0"
         )(skip_conn_2)
 
         skip_conn_2 = EncoderDecoderConnections(
             filters=16,
             kernel_size=3,
+            activation=config.act_func,
             name="skip_connection_2_1"
         )(skip_conn_2)
 
         skip_conn_2 = EncoderDecoderConnections(
             filters=8,
             kernel_size=3,
+            activation=config.act_func,
             name="skip_connection_2_2"
         )(skip_conn_2)
 

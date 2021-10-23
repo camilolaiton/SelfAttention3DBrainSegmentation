@@ -3,14 +3,20 @@ from tensorflow.keras import layers
 
 class ConvolutionalBlock(layers.Layer):
 
-    def __init__(self, filters, kernel_size, strides, **kwargs):
+    def __init__(self, filters, kernel_size, strides, activation='relu', **kwargs):
         super(ConvolutionalBlock, self).__init__(**kwargs)
         self.filters = filters
         self.kernel_size = kernel_size
         self.strides = strides
         # self.padding = padding
         # self.dropout_rate = dropout_rate
-        self.activation = 'relu'
+
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        else:
+            activation = tf.nn.relu
+
+        self.activation = activation
         
         # Layers
         self.conv_a = layers.Conv3D(
@@ -240,7 +246,7 @@ class TransformerBlock(layers.Layer):
 
 class DecoderBlockCup(layers.Layer):
 
-    def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 2, 1), kernel_size=3, activation=None, upsample=True, **kwarks):
+    def __init__(self, target_shape, filters, normalization_rate, pool_size=(2, 2, 1), kernel_size=3, activation='relu', upsample=True, **kwarks):
         super(DecoderBlockCup, self).__init__(**kwarks)
         self.normalization_rate = normalization_rate
         self.target_shape = target_shape
@@ -249,7 +255,9 @@ class DecoderBlockCup(layers.Layer):
         self.pool_size = pool_size
         self.upsample = upsample
 
-        if not activation:
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        else:
             activation = tf.nn.relu
 
         self.activation = activation
@@ -269,7 +277,7 @@ class DecoderBlockCup(layers.Layer):
         )
         # self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
         self.bn_a = layers.BatchNormalization()
-        self.activation_fnc = layers.Activation('relu')
+        self.activation_fnc = layers.Activation(self.activation)
         self.upsample_a = layers.UpSampling3D(
             size=(2, 2, 2)
         )
@@ -304,6 +312,12 @@ class DecoderTransposeBlock(layers.Layer):
         self.filters = filters
         self.kernel_size = kernel_size
         self.strides = strides
+
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        else:
+            activation = tf.nn.relu
+
         self.activation = activation
 
         # Layers
@@ -345,6 +359,12 @@ class DecoderUpsampleBlock(layers.Layer):
         self.kernel_size = kernel_size
         self.strides = strides
         self.pool_size = pool_size
+
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        else:
+            activation = tf.nn.relu
+            
         self.activation = activation
 
         # Layers
@@ -424,11 +444,18 @@ class DecoderSegmentationHead(layers.Layer):
         return config
 
 class ConnectionComponents(layers.Layer):
-    def __init__(self, filters, kernel_size, **kwarks):
+    def __init__(self, filters, kernel_size, activation='relu', **kwarks):
         super(ConnectionComponents, self).__init__(**kwarks)
 
         self.filters = filters
         self.kernel_size = kernel_size
+
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        else:
+            activation = tf.nn.relu
+
+        self.activation = activation
 
         self.conv_1_a = layers.Conv3D(
             filters=self.filters, 
@@ -444,8 +471,8 @@ class ConnectionComponents(layers.Layer):
             padding='same'
         )
 
-        self.activation_layer = layers.Activation('relu')
-        self.activation_layer_2 = layers.Activation('relu')
+        self.activation_layer = layers.Activation(self.activation)
+        self.activation_layer_2 = layers.Activation(self.activation)
 
         self.add_layer = layers.Add()
         self.bn_1_b = layers.BatchNormalization()
@@ -488,11 +515,18 @@ class ConnectionComponents(layers.Layer):
 
 class EncoderDecoderConnections(layers.Layer):
     
-    def __init__(self, filters, kernel_size, upsample=True, **kwarks):
+    def __init__(self, filters, kernel_size, upsample=True, activation='relu', **kwarks):
         super(EncoderDecoderConnections, self).__init__(**kwarks)
         self.filters = filters
         self.kernel_size = kernel_size
         self.upsample = upsample
+
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        else:
+            activation = tf.nn.relu
+
+        self.activation = activation
 
         # self.concatenate = layers.Concatenate()
         self.upsample_lyr = layers.UpSampling3D(
@@ -501,22 +535,26 @@ class EncoderDecoderConnections(layers.Layer):
 
         self.con_comp_1 = ConnectionComponents(
             filters=self.filters, 
-            kernel_size=self.kernel_size
+            kernel_size=self.kernel_size,
+            activation='leaky_relu',
         )
 
         self.con_comp_2 = ConnectionComponents(
             filters=self.filters, 
-            kernel_size=self.kernel_size
+            kernel_size=self.kernel_size,
+            activation='leaky_relu',
         )
 
         self.con_comp_3 = ConnectionComponents(
             filters=self.filters, 
-            kernel_size=self.kernel_size
+            kernel_size=self.kernel_size,
+            activation='leaky_relu',
         )
 
         self.con_comp_4 = ConnectionComponents(
             filters=self.filters, 
-            kernel_size=self.kernel_size
+            kernel_size=self.kernel_size,
+            activation='leaky_relu',
         )
 
 

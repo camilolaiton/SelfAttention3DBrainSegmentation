@@ -325,7 +325,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_26_0_2paths_dice_focal_trans_leaky_nodataaug'
+    training_folder = 'trainings/version_26_0_2paths_dice_focal_up_leaky_nodataaug'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 

@@ -93,6 +93,19 @@ class Keras3DAugmentation(layers.Layer):
             image = tf.expand_dims(x, axis=-1)
             # print(image.shape)
             return image
+    
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'global_seed': self.global_seed,
+            'input_width' : self.input_width,
+            'input_height' : self.input_height,
+            'input_depth' : self.input_depth,
+            'input_channel' : self.input_channel,
+            # layers
+            'modeling' : self.modeling
+        })
+        return config
 
 # import tensorflow_addons as tfa
 def build_model_patchsize_16(config):

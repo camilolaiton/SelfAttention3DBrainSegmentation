@@ -352,7 +352,7 @@ def main():
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
     else:
         weights = [float(weight) for weight in weights]
-        weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
+        # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read! ", weights)
 
     # Setting up neural network loss

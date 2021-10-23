@@ -138,7 +138,7 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_23_0_2paths_dice_focal_up_leaky'
+    training_folder = 'trainings/version_24_0_2paths_dice_focal_up_leaky_nodataaug'
     utils.create_folder(f"{training_folder}/insights")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"

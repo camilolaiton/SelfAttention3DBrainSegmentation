@@ -296,7 +296,7 @@ def main():
 
     # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     # os.environ["CUDA_VISIBLE_DEVICES"]="1"
-    
+    tf.keras.backend.clear_session()
     SEED = 12
     mb_limit = 9500
     gpus = tf.config.experimental.list_physical_devices('GPU')

@@ -152,7 +152,7 @@ def get_config_test():
     config.skip_connections = True
     config.data_augmentation = False
     config.loss_fnc = 'dice_categorical'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
-    config.decoder_conv_localpath = True
+    config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False
     config.act_func = 'leaky_relu'
 

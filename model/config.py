@@ -138,7 +138,7 @@ def get_config_test():
     config.config_name = "testing"
     config.dataset_path = 'dataset_3D_3/'
     config.unbatch = True
-    config.learning_rate = 0.0001
+    config.learning_rate = 0.001
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
@@ -158,14 +158,16 @@ def get_config_test():
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
     config.transformer.num_patches = (config.image_size[0] // config.transformer.patch_size)**3
+    
     config.transformer.projection_dim = 64 #128
     config.transformer.units = [
         config.transformer.projection_dim * 3, # (3) 1536 --  (4) 2048
+        # config.transformer.projection_dim * 2,
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
-    config.transformer.layers = 3
-    config.transformer.num_heads = 5 #8
+    config.transformer.layers = 4
+    config.transformer.num_heads = 4 #8
     config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-4
 

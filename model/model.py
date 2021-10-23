@@ -1191,12 +1191,16 @@ def test_model_3(config):
     # conv_layers = inputs
     conv_layers = data_aug
     conv_blocks = []
-
+    kernel = 7
     for filters in [8, 16, 32, 64]:
-
+        
+        if filters == 8:
+            kernel = 7
+        else:
+            kernel = 3
         conv_layers = ConvolutionalBlock(
             filters=filters,
-            kernel_size=3,
+            kernel_size=kernel,
             strides=1,
             name=f"conv_block_{filters}_stride1_0"
         )(conv_layers)

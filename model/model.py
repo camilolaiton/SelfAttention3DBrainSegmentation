@@ -1192,19 +1192,21 @@ def test_model_3(config):
     # Here I have an input size of 64x64x64x1
     inputs = Input(shape=config.image_size)
 
-    # data_aug = None
-    # if (config.data_augmentation):
-    #     data_aug = Keras3DAugmentation(
-    #         12, 
-    #         config.image_width, 
-    #         config.image_height, 
-    #         config.image_channels, 
-    #         name='data_aug'
-    #     )(inputs)
+    data_aug = None
+    if (config.data_augmentation):
+        data_aug = Keras3DAugmentation(
+            12, 
+            config.image_width, 
+            config.image_height, 
+            config.image_channels, 
+            name='data_aug'
+        )(inputs)
 
 
-    # if (data_aug != None):
-    #     conv_layers = data_aug
+    if (data_aug != None):
+        conv_layers = data_aug
+    else:
+        data_aug = inputs
 
     # [First path]
     conv_layers = inputs

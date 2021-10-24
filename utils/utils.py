@@ -294,7 +294,7 @@ def readMRI(imagePath:str, config:dict, nifti_format:bool=False):
   imageObj = nib.load(imagePath)
   
   if (config['RAS']):
-    imageObj = nib.as_closest_canonical(imageObj, enforce_diag=True)
+    imageObj = nib.as_closest_canonical(imageObj)
     # print(get_vox2ras_tkr, " \n\n ", imageObj, "\nENDENDENDENDEND")
     # print(imageObj)
   imageData = imageObj.get_fdata()

@@ -261,34 +261,37 @@ def load_files(img_path, msk_path):
         Tout=[tf.float32, tf.float32]
     )
 
-def get_augmentation():
+def get_augmentation(patch_size):
     return Compose([
-        # Rotate((-15, 15), (0, 0), (0, 0), p=0.5),
-        # RandomCropFromBorders(crop_value=0.1, p=0.5),
-        ElasticTransform((0, 0.25), interpolation=2, p=0.1),
-        # Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
-        # Flip(0, p=0.5),
-        # Flip(1, p=0.5),
-        # Flip(2, p=0.5),
-        # RandomRotate90((1, 2), p=0.5),
-        # GaussianNoise(var_limit=(0, 5), p=0.2),
-        # RandomGamma(gamma_limit=(0.5, 1.5), p=0.2),
+        Rotate((-5, 5), (0, 0), (0, 0), p=0.5),
+        RandomCropFromBorders(crop_value=0.1, p=0.3),
+        ElasticTransform((0, 0.15), interpolation=2, p=0.5),
+        Resize(patch_size, interpolation=1, always_apply=True, p=1.0),
+        Flip(0, p=0.5),
+        Flip(1, p=0.5),
+        RandomRotate90((0, 1), p=0.6),
+        GaussianNoise(var_limit=(0, 5), p=0.5),
+        RandomGamma(gamma_limit=(0.5, 1.5), p=0.7),
     ], p=1.0)
 
 def augmentor_py(img, msk):
-    aug = get_augmentation()
+    aug = get_augmentation((64,64,64))
     data = {'image': img, 'msk': msk}
     aug_data = aug(**data)
     img = aug_data['image']
     msk = aug_data['msk']
-    return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
+    return tf.cast(img, tf.float32), tf.cast(msk, tf.float32)
+    # return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
 
 def augmentor(img, msk):
-    return tf.numpy_function(
+    aug_img = tf.numpy_function(
         augmentor_py,
         inp=[img, msk],
         Tout=[tf.float32, tf.float32]
     )
+    aug_img.set_shape((64, 64, 64, 1))
+    return 
+
 
 def main():
 

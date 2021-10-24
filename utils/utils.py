@@ -35,6 +35,7 @@ import math
 from glob import glob
 import shutil
 import elasticdeform
+from mne.transforms import apply_trans
 from sklearn.preprocessing import MinMaxScaler
 
 scaler = MinMaxScaler()
@@ -293,8 +294,9 @@ def readMRI(imagePath:str, config:dict, nifti_format:bool=False):
   imageObj = nib.load(imagePath)
   
   if (config['RAS']):
-    imageObj = nib.as_closest_canonical(imageObj)
-  
+    imageObj = nib.as_closest_canonical(imageObj, enforce_diag=True)
+    # print(get_vox2ras_tkr, " \n\n ", imageObj, "\nENDENDENDENDEND")
+    # print(imageObj)
   imageData = imageObj.get_fdata()
 
   if (config['normalize']):

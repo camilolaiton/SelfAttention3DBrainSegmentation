@@ -1,6 +1,188 @@
 import tensorflow as tf
+import tensorflow_addons as tfa
 from tensorflow.keras import layers
+from tensorflow.keras.layers.experimental import preprocessing
 
+class RandomInvert(tf.keras.layers.Layer):
+    def __init__(self, prob=0.5, global_seed=12, **kwargs):
+        super().__init__(**kwargs)
+        self.prob = prob
+        self.global_seed = global_seed
+        
+    def call(self, inputs, training=True):
+        tf.random.set_seed(self.global_seed)
+        if tf.random.uniform([]) < self.prob:
+            return tf.cast(255.0 - inputs, dtype=tf.float32)
+        else: 
+            return tf.cast(inputs, dtype=tf.float32)
+        
+    def get_config(self):
+        config = {
+            'prob': self.prob,
+        }
+        base_config = super(RandomInvert, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+    
+    def compute_output_shape(self, input_shape):
+        return input_shape
+    
+# Custom Layer 2 
+class RandomEqualize(tf.keras.layers.Layer):
+    def __init__(self, prob=0.5, global_seed=12, **kwargs):
+        super().__init__(**kwargs)
+        self.prob = prob
+        self.global_seed = global_seed
+        
+    def call(self, inputs, training=True):
+        tf.random.set_seed(self.global_seed)
+        if tf.random.uniform([]) < self.prob:
+            return tf.cast(tfa.image.equalize(inputs), dtype=tf.float32)
+        else: 
+            return tf.cast(inputs, dtype=tf.float32)
+        
+    def get_config(self):
+        config = {
+            'prob': self.prob,
+        }
+        base_config = super(RandomEqualize, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+    
+    def compute_output_shape(self, input_shape):
+        return input_shape
+        
+# Custom Layer 3
+class RandomCutout(tf.keras.layers.Layer):
+    def __init__(self, prob=0.5, mask_size=(20, 20), replace=0, global_seed=12, **kwargs):
+        super().__init__(**kwargs)
+        self.prob = prob 
+        self.replace = replace
+        self.mask_size = mask_size
+        self.global_seed = global_seed
+        
+    def call(self, inputs, training=True):
+        tf.random.set_seed(self.global_seed)
+        if tf.random.uniform([]) < self.prob:
+            inputs = tfa.image.random_cutout(inputs,
+                                           mask_size=self.mask_size,
+                                           constant_values=self.replace)  
+            return tf.cast(inputs, dtype=tf.float32)
+        else: 
+            return tf.cast(inputs, dtype=tf.float32)
+        
+    def get_config(self):
+        config = {
+            'prob': self.prob,
+            'replace': self.replace,
+            'mask_size': self.mask_size
+        }
+        base_config = super(RandomCutout, self).get_config()
+        return dict(list(base_config.items()) + list(config.items()))
+    
+    def compute_output_shape(self, input_shape):
+        return input_shape
+
+class Keras3DAugmentation(layers.Layer):
+    def __init__(self, global_seed, input_width, input_height, input_depth, input_channel=1, modeling='3D', **kwargs):
+        super(Keras3DAugmentation, self).__init__(**kwargs)
+        # Built-in Layers
+        # **IMPORTANT**: Same seed to get same augmented output on each modality's slices. 
+        self.global_seed = global_seed
+        # rng = tf.random.Generator.from_seed(self.global_seed)
+        # set_seed = rng.make_seeds()[0]
+
+        self.input_width = input_width
+        self.input_height = input_height
+        self.input_depth = input_depth
+        self.input_channel = input_channel
+        self.modeling = modeling
+
+        self.random_flip = preprocessing.RandomFlip("horizontal", seed=self.global_seed)
+        self.random_rotate = preprocessing.RandomRotation(factor=0.01, seed=self.global_seed)
+        self.random_translation = preprocessing.RandomTranslation(height_factor=0.0, 
+                                                                  width_factor=0.1, 
+                                                                  seed=self.global_seed)
+        self.random_contrast = preprocessing.RandomContrast(factor=0.6, seed=self.global_seed)
+        self.random_crop = preprocessing.RandomCrop(int(input_height*0.90), int(input_width*0.90), 
+                                                    seed=self.global_seed)
+        self.resize_crop   = preprocessing.Resizing(input_height, input_width)
+        self.random_height = preprocessing.RandomHeight(factor=(0.1, 0.1), seed=self.global_seed)
+        self.random_width  = preprocessing.RandomWidth(factor=(0.1, 0.1), seed=self.global_seed)
+        self.random_rotate = preprocessing.RandomRotation(factor=(-0.1, 0.1), fill_mode='wrap',
+                                                          seed=self.global_seed)
+
+        # CustomLayers
+        # self.random_equalize = RandomEqualize(prob=0.6)
+        # self.random_invert   = RandomInvert(prob=0.1)
+        # self.random_cutout   = RandomCutout(prob=0.8, replace=0,
+        #                                     mask_size=(int(input_height * 0.1), 
+        #                                                int(input_width * 0.1)))
+        
+    def call(self, inputs):
+        # Split the inputs wrt to input_channel 
+        # For example: 224, 224, 10, 4 will be splitted by 4 (input_channel)
+        # Output: [224, 224, 10, 1] * 4
+        # splitted_modalities = tf.split(tf.cast(inputs, tf.float32), self.input_channel, axis=-1)
+        
+        # if self.modeling == '3D':
+        #     # Removing the last axis, no needed for now. 
+        #     splitted_modalities = [tf.squeeze(i, axis=-1) for i in splitted_modalities] 
+       
+        # Will contain the augmented outputs
+        # flair = []
+        # t1w = []
+        # t1wce = []
+        # t2w = []
+        
+        # Iterate over the the each modality 
+        # for j, each_modality in enumerate(splitted_modalities):
+        # print("bef: ", inputs.shape)
+        inputs = tf.squeeze(inputs, axis=-1)
+        # print("aft: ", inputs.shape)
+
+        x = self.random_flip(inputs)
+        # print("x: ", x.shape)
+        x = self.random_rotate(x)
+        x = self.random_translation(x)
+        # x = self.random_cutout(x)
+        x = self.random_contrast(x)
+        x = self.random_height(x)
+        x = self.random_width(x)
+        x = self.random_rotate(x)
+        # x = self.random_invert(x)
+        x = self.random_crop(x)
+        x = self.resize_crop(x)
+            
+            # if j == 0:
+            #     flair.append(tf.expand_dims(x, axis=-1))
+            # elif j == 1:
+            #     t1w.append(tf.expand_dims(x, axis=-1))
+            # elif j == 2:
+            #     t1wce.append(tf.expand_dims(x, axis=-1))
+            # elif j == 3:
+            #     t2w.append(tf.expand_dims(x, axis=-1))
+
+        if self.modeling == '3D':
+            # image = tf.stack([flair, t1w, t1wce, t2w], axis=-1)
+            # print("end: ", x.shape)
+            # image = tf.reshape(x, [-1, self.input_height, self.input_width, 
+                                    #    self.input_depth])
+            image = tf.expand_dims(x, axis=-1)
+            # print(image.shape)
+            return image
+    
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'global_seed': self.global_seed,
+            'input_width' : self.input_width,
+            'input_height' : self.input_height,
+            'input_depth' : self.input_depth,
+            'input_channel' : self.input_channel,
+            # layers
+            'modeling' : self.modeling
+        })
+        return config
+        
 class ConvolutionalBlock(layers.Layer):
 
     def __init__(self, filters, kernel_size, strides, activation='relu', **kwargs):

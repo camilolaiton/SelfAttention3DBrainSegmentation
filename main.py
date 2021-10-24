@@ -409,20 +409,22 @@ def main():
                 # [255, 255, 255]])  # white    
     
     patch_size = 85
-    for path in glob.glob('dataset_3D/test/images/*'):
+    for path in glob.glob('dataset_3D_p85/test/images/*'):
         file = np.load(path)
-        np_file_patches = patchify(file, (patch_size, patch_size, patch_size), step=patch_size)
-        np_file_patches = np.reshape(np_file_patches, (-1, np_file_patches.shape[3], np_file_patches.shape[4], np_file_patches.shape[5]))
-        print(np_file_patches.shape)
+        # np_file_patches = patchify(file, (patch_size, patch_size, patch_size), step=patch_size)
+        # np_file_patches = np.reshape(np_file_patches, (-1, np_file_patches.shape[3], np_file_patches.shape[4], np_file_patches.shape[5]))
+        # print(np_file_patches.shape)
 
-        file_msk = np.argmax(np.load(path.replace('images', 'masks')), axis=3)
-        print("Before msk: ", np.unique(file_msk))
-        np_file_msk_patches = patchify(file_msk, (patch_size, patch_size, patch_size), step=patch_size)
-        np_file_msk_patches = np.reshape(np_file_msk_patches, (-1, np_file_msk_patches.shape[3], np_file_msk_patches.shape[4], np_file_msk_patches.shape[5]))
-        print("After msk: ", np.unique(np_file_msk_patches))
-        np_file_msk_patches = palette[np_file_msk_patches]
-        plt.imshow(np_file_patches[2, :, :, 68], cmap='gray')
-        plt.imshow(np_file_msk_patches[2, :, :, 68], alpha=0.5)
+        file_msk = np.argmax(np.load(path.replace('images', 'masks')), axis=4)
+        # print("Before msk: ", np.unique(file_msk))
+        # np_file_msk_patches = patchify(file_msk, (patch_size, patch_size, patch_size), step=patch_size)
+        # np_file_msk_patches = np.reshape(np_file_msk_patches, (-1, np_file_msk_patches.shape[3], np_file_msk_patches.shape[4], np_file_msk_patches.shape[5]))
+        # print("After msk: ", np.unique(np_file_msk_patches))
+        # np_file_msk_patches = palette[np_file_msk_patches]
+        print(np.unique(file_msk))
+        file_msk = palette[file_msk]
+        plt.imshow(file[2, :, :, 35, :], cmap='gray')
+        plt.imshow(file_msk[2, :, :, 35], alpha=0.5)
         plt.axis("off")
         plt.show()
     #     name = path.split('/')[-1]

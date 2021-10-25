@@ -185,8 +185,8 @@ def main():
     scaler = MinMaxScaler()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     lut_file = utils.load_lut(LUT_PATH)
-    DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_3D/'
-    DATASET_PATH_MASKS = '/home/camilo/Programacion/master_thesis/dataset_3D_p64/train/masks'
+    DATASET_PATH = 'dataset_3D/'
+    DATASET_PATH_MASKS = 'dataset_3D_p64/train/masks'
     class_info = utils.get_classes_same_id()
     config_orig = {
         'RAS': True, 

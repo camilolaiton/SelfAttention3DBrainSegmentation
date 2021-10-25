@@ -466,7 +466,7 @@ def main():
     # test_msks = utils.read_files_from_directory(mask_list_test)
 
     train_datagen = tf.data.Dataset.from_tensor_slices(
-        (image_list_train, mask_list_train, np.asarray(weights))
+        (image_list_train, mask_list_train)
     )
 
     # val_datagen = utils.mri_generator(
@@ -572,7 +572,7 @@ def main():
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
         callbacks=[early_stop, model_check, model_check_2, tb, pltau],
-        # sample_weight=
+        sample_weight=weights,
         # sample_weight_mode='temporal'
     )
 

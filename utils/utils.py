@@ -1228,13 +1228,13 @@ def median_frequency_balancing(image_files, num_classes=4):
     class_weights[0] = 0.0
     
     dict_2 = {'calc': label_to_frequency_dict}
-    
-    label_to_frequency_dict[0] = sum(label_to_frequency_dict[0])
-    label_to_frequency_dict[1] = sum(label_to_frequency_dict[1])
-    label_to_frequency_dict[2] = sum(label_to_frequency_dict[2])
-    label_to_frequency_dict[3] = sum(label_to_frequency_dict[3]) 
-    label_to_frequency_dict['total_pixels'] = total_pixels
+    label_2 = {}
+    label_2[0] = sum(label_to_frequency_dict[0])
+    label_2[1] = sum(label_to_frequency_dict[1])
+    label_2[2] = sum(label_to_frequency_dict[2])
+    label_2[3] = sum(label_to_frequency_dict[3]) 
+    label_2['total_pixels'] = total_pixels
 
-    dict_2['total'] = label_to_frequency_dict
+    dict_2['total'] = label_2
 
     return class_weights, dict_2 # class_weights, 

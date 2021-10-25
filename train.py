@@ -466,7 +466,7 @@ def main():
     # test_msks = utils.read_files_from_directory(mask_list_test)
 
     train_datagen = tf.data.Dataset.from_tensor_slices(
-        (image_list_train, mask_list_train)
+        (image_list_train, mask_list_train, np.asarray(weights))
     )
 
     # val_datagen = utils.mri_generator(
@@ -479,7 +479,7 @@ def main():
     weights = [0, 0.2, 0.4, 0.4]
     val_datagen = tf.data.Dataset.from_tensor_slices(
         # (test_imgs, test_msks)
-        (image_list_test, mask_list_test, np.asarray(weights))
+        (image_list_test, mask_list_test)
     )
 
     dataset = {

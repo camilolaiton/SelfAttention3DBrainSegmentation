@@ -345,8 +345,6 @@ class ConvProjection(layers.Layer):
             ),
         )
 
-        print(self.reshape_lyr)
-
         # conv layer encoder
         self.conv_layer_encoded = PatchEncoder(
             num_patches=self.num_patches,

@@ -154,7 +154,7 @@ def get_config_test():
     config.loss_fnc = 'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
     config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False
-    config.act_func = 'leaky_relu'
+    config.act_func = 'relu'#'leaky_relu'
 
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16

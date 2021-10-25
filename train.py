@@ -328,7 +328,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_26_0_2paths_dice_focal_up_datasetp64'
+    training_folder = 'trainings/version_27_0_2paths_dice_focal_up_datasetp64_rlu'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -353,6 +353,7 @@ def main():
             print("Please check the path")
             exit()
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
+        print("Weights calculated: ", weights)
     else:
         weights = [float(weight) for weight in weights]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]

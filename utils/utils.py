@@ -1211,7 +1211,6 @@ def median_frequency_balancing(image_files, num_classes=4):
     for frequencies in label_to_frequency_dict.values():
         total_pixels += sum(frequencies)
 
-    label_to_frequency_dict['total_pixels'] = total_pixels
     print("keys: ", label_to_frequency_dict.keys())
     # print("labels sorted: ", sorted(label_to_frequency_dict[0]))
 
@@ -1227,5 +1226,6 @@ def median_frequency_balancing(image_files, num_classes=4):
     #Set the last class_weight to 0.0 as it's the background class
     # class_weights[0] = 0.0
     class_weights[0] = 0.0
+    label_to_frequency_dict['total_pixels'] = total_pixels
 
     return class_weights, label_to_frequency_dict # class_weights, 

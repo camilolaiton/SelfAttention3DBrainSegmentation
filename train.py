@@ -563,7 +563,13 @@ def main():
         config, 
         f"{training_folder}/trained_architecture_config.txt"
     )
-    
+    class_weights = {
+        0: weights[0],
+        1: weights[1],
+        2: weights[2],
+        3: weights[3],
+    }
+
     history = model.fit(dataset['train'],
         steps_per_epoch=steps_per_epoch,
         epochs=config.num_epochs,
@@ -572,7 +578,7 @@ def main():
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
         callbacks=[early_stop, model_check, model_check_2, tb, pltau],
-        class_weight=weights
+        class_weight=class_weights
     )
 
     with open(f"{training_folder}/history.obj", 'wb') as file_pi:

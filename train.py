@@ -572,8 +572,7 @@ def main():
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
         callbacks=[early_stop, model_check, model_check_2, tb, pltau],
-        sample_weight=weights,
-        # sample_weight_mode='temporal'
+        class_weights=weights
     )
 
     with open(f"{training_folder}/history.obj", 'wb') as file_pi:

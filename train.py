@@ -327,8 +327,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = False
-    training_folder = 'trainings/version_28_0_2paths_dice_focal_up_datasetp64'
+    retrain = True
+    training_folder = 'trainings/version_25_0_2paths_dice_focal_up_leaky_nodataaug'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -356,7 +356,7 @@ def main():
         print("Weights calculated: ", weights)
     else:
         weights = [float(weight) for weight in weights]
-        weights = [0.0, 1, 2.7, 3]
+        # weights = [0.0, 1, 2.7, 3]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read! ", weights)
 

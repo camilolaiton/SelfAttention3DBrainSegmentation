@@ -78,18 +78,18 @@ def main():
         'MMRR-21-10',
         'MMRR-21-15',
         'MMRR-21-20',
-        'NKI-RS-1',
-        'NKI-RS-5',
-        'NKI-RS-10',
-        'NKI-RS-15',
-        'NKI-RS-20',
-        'NKI-TRT-1',
-        'NKI-TRT-10',
-        'NKI-TRT-20',
-        'OASIS-TRT-5',
-        'OASIS-TRT-10',
-        'OASIS-TRT-15',
-        'OASIS-TRT-20',
+        'NKI-RS-22-1',
+        'NKI-RS-22-5',
+        'NKI-RS-22-10',
+        'NKI-RS-22-15',
+        'NKI-RS-22-20',
+        'NKI-TRT-20-1',
+        'NKI-TRT-20-10',
+        'NKI-TRT-20-20',
+        'OASIS-TRT-20-5',
+        'OASIS-TRT-20-10',
+        'OASIS-TRT-20-15',
+        'OASIS-TRT-20-20',
     ]
 
     # mri_paths = [
@@ -133,10 +133,10 @@ def main():
         msk = np.expand_dims(msk, axis=4)
         msk = to_categorical(msk, num_classes=num_classes)
         # print("msk shape: ", msk.shape)
-        np.save(f'{dataset_name_folder}/{end_folder}/images/{name}.npy', data)
+        np.save(f'{dataset_name_folder}/{end_folder}/images/{name}_patched.npy', data)
 
         # Saving msk
-        np.save(f'{dataset_name_folder}/{end_folder}/masks/{name}.npy', msk)
+        np.save(f'{dataset_name_folder}/{end_folder}/masks/{name}_patched.npy', msk)
 
     # train_dir_imgs = 'dataset_3D/train/images/*'
     # train_dir_msks = 'dataset_3D/train/masks/*'

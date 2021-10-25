@@ -356,7 +356,7 @@ def main():
         print("Weights calculated: ", weights)
     else:
         weights = [float(weight) for weight in weights]
-        weights = [0.0, 1.0, 4.0, 14.0]
+        weights = [0.0, 0.1, 0.7, 0.8]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read! ", weights)
 

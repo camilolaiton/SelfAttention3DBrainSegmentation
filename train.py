@@ -348,7 +348,7 @@ def main():
     if (weights == False):
         end_path = '/train/masks'
         image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
-        weights = utils.median_frequency_balancing(image_files=image_files, num_classes=4)
+        weights, label_to_frequency_dict = utils.median_frequency_balancing(image_files=image_files, num_classes=4)
         if (weights == False):
             print("Please check the path")
             exit()
@@ -475,10 +475,10 @@ def main():
     #     test_msks_lst,
     #     config.batch_size
     # )
-
+    weights = [0, 0.2, 0.4, 0.4]
     val_datagen = tf.data.Dataset.from_tensor_slices(
         # (test_imgs, test_msks)
-        (image_list_test, mask_list_test)
+        (image_list_test, mask_list_test, np.asarray(weights))
     )
 
     dataset = {
@@ -570,7 +570,9 @@ def main():
         verbose=1,
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
-        callbacks=[early_stop, model_check, model_check_2, tb, pltau]
+        callbacks=[early_stop, model_check, model_check_2, tb, pltau],
+        # sample_weight=
+        # sample_weight_mode='temporal'
     )
 
     with open(f"{training_folder}/history.obj", 'wb') as file_pi:

@@ -186,7 +186,7 @@ def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     lut_file = utils.load_lut(LUT_PATH)
     DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_3D/'
-    DATASET_PATH_MASKS = '/home/camilo/Programacion/master_thesis/dataset_3D/train/masks'
+    DATASET_PATH_MASKS = '/home/camilo/Programacion/master_thesis/dataset_3D_p64/train/masks'
     class_info = utils.get_classes_same_id()
     config_orig = {
         'RAS': True, 
@@ -199,14 +199,21 @@ def main():
 
     # config = get_config_patchified()
     # model = build_model_patchified_patchsize8(config)
-    # image_files = [os.path.join(DATASET_PATH_MASKS, file) for file in os.listdir(DATASET_PATH_MASKS) if file.endswith('.npy')]
+    image_files = [os.path.join(DATASET_PATH_MASKS, file) for file in os.listdir(DATASET_PATH_MASKS) if file.endswith('.npy')]
     # print("Executing median frequency balancing in with ", len(image_files), " files")
-    # results_list = utils.median_frequency_balancing(image_files, num_classes=4)
-
+    results_list, label_to_frequency_dict = utils.median_frequency_balancing(image_files, num_classes=4)
+    print(results_list)
+    print(label_to_frequency_dict)
+    exit()
     # print("List: ", results_list)
     
     config = get_config_test()
     model = test_model_3(config)
+
+    sample_weight = np.ones(4)
+    sample_weight[0] = 2.0
+
+    print(sample_weight)
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 

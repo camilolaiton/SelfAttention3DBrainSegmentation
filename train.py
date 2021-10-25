@@ -356,7 +356,7 @@ def main():
         print("Weights calculated: ", weights)
     else:
         weights = [float(weight) for weight in weights]
-        weights = [0.0, 0.1, 0.7, 0.8]
+        weights = [0.0, 1, 2.7, 3]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read! ", weights)
 
@@ -532,7 +532,7 @@ def main():
     )
 
     model_check_2 = ModelCheckpoint(
-        training_folder + "/checkpoints/model_trained_{epoch:02d}_{val_iou_score:.2f}.hdf5", 
+        training_folder + "/checkpoints/model_trained_{epoch:02d}_{val_iou_score:.2f}_{val_f1_score:.2f}.hdf5", 
         save_best_only=False,
         save_weights_only=True, 
         monitor=monitor, 

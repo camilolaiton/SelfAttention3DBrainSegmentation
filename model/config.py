@@ -136,7 +136,7 @@ def get_config_test():
 
     config = ml_collections.ConfigDict()
     config.config_name = "testing"
-    config.dataset_path = 'dataset_3D_3/'
+    config.dataset_path = 'dataset_3D_p64/'
     config.unbatch = True
     config.learning_rate = 0.001
     config.weight_decay = 1e-4

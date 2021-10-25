@@ -204,9 +204,9 @@ def main():
     # results_list = utils.median_frequency_balancing(image_files, num_classes=4)
 
     # print("List: ", results_list)
-    """
-    config = get_config_test_4()
-    model = test_model_4(config)
+    
+    config = get_config_test()
+    model = test_model_3(config)
 
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
@@ -236,7 +236,7 @@ def main():
         dpi=96,
     )
     exit()
-    """
+    
     # image_list_train = sorted(glob.glob(
     #     config.dataset_path + 'train/images/*'))
     # mask_list_train = sorted(glob.glob(

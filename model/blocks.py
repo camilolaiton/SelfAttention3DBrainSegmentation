@@ -185,7 +185,7 @@ class Keras3DAugmentation(layers.Layer):
         
 class ConvolutionalBlock(layers.Layer):
 
-    def __init__(self, filters, kernel_size, strides, activation='relu', **kwargs):
+    def __init__(self, filters, kernel_size, strides, activation='relu', padding='same', **kwargs):
         super(ConvolutionalBlock, self).__init__(**kwargs)
         self.filters = filters
         self.kernel_size = kernel_size
@@ -205,7 +205,7 @@ class ConvolutionalBlock(layers.Layer):
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=self.strides, 
-            padding='same'
+            padding=padding
         )
 
         self.bn_a = layers.BatchNormalization()
@@ -344,6 +344,8 @@ class ConvProjection(layers.Layer):
                 self.projection_dim
             ),
         )
+
+        print(self.reshape_lyr)
 
         # conv layer encoder
         self.conv_layer_encoded = PatchEncoder(

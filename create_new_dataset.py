@@ -55,10 +55,10 @@ def main():
     class_info = utils.get_classes_same_id()
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
-    patch_size = 85
+    patch_size = 64
     num_classes = 4
 
-    dataset_name_folder = 'dataset_3D_p85'
+    dataset_name_folder = 'dataset_3D_p64'
 
     for idx in range(len(mri_paths)):
         tmp = mri_paths[idx].split('-')
@@ -92,10 +92,10 @@ def main():
         'OASIS-TRT-20',
     ]
 
-    # mri_paths = [
-    #     # mri_paths[mri_paths.index('data/HLN-12/HLN-12-1')],
-    #     mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]
-    # ]
+    mri_paths = [
+        # mri_paths[mri_paths.index('data/HLN-12/HLN-12-1')],
+        mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]
+    ]
     
     for mri_path in mri_paths:
 
@@ -113,8 +113,8 @@ def main():
         for structure in STRUCTURES:
             msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
 
-        data = data[45:215, 40:210, 30:200]
-        msk = msk[45:215, 40:210, 30:200]
+        data = data[45:237, 38:230, 30:222]
+        msk = msk[45:237, 38:230, 30:222]
         # print(data.shape)
         # Saving normalized mri
         end_folder = 'train'

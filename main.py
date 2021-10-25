@@ -204,39 +204,39 @@ def main():
     # results_list = utils.median_frequency_balancing(image_files, num_classes=4)
 
     # print("List: ", results_list)
+    """
+    config = get_config_test_4()
+    model = test_model_4(config)
 
-    # config = get_config_test()
-    # model = test_model_3(config)
+    optimizer = tf.optimizers.SGD(
+        learning_rate=config.learning_rate, 
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
+    )
 
-    # optimizer = tf.optimizers.SGD(
-    #     learning_rate=config.learning_rate, 
-    #     momentum=config.momentum,
-    #     name='optimizer_SGD_0'
-    # )
-
-    # model.compile(
-    #     optimizer=optimizer,
-    #     loss="categorical_crossentropy",#loss,#tversky_loss,
-    #     metrics=[
-    #         # 'accuracy',
-    #         sm.metrics.IOUScore(threshold=0.5),
-    #         sm.metrics.FScore(threshold=0.5),
-    #     ],
-    # )
-    # print(f"[+] Building model with config {config}")
-    # model.summary()
-    # tf.keras.utils.plot_model(
-    #     model,
-    #     to_file="test_model.png",
-    #     show_shapes=True,
-    #     show_dtype=True,
-    #     show_layer_names=True,
-    #     rankdir="TB",
-    #     expand_nested=False,
-    #     dpi=96,
-    # )
-    # exit()
-
+    model.compile(
+        optimizer=optimizer,
+        loss="categorical_crossentropy",#loss,#tversky_loss,
+        metrics=[
+            # 'accuracy',
+            sm.metrics.IOUScore(threshold=0.5),
+            sm.metrics.FScore(threshold=0.5),
+        ],
+    )
+    print(f"[+] Building model with config {config}")
+    model.summary()
+    tf.keras.utils.plot_model(
+        model,
+        to_file="test_model.png",
+        show_shapes=True,
+        show_dtype=True,
+        show_layer_names=True,
+        rankdir="TB",
+        expand_nested=False,
+        dpi=96,
+    )
+    exit()
+    """
     # image_list_train = sorted(glob.glob(
     #     config.dataset_path + 'train/images/*'))
     # mask_list_train = sorted(glob.glob(
@@ -382,21 +382,21 @@ def main():
     def plot_np_file(np_file, np_msk, view, name):
         shapes = np_file.shape        
         
-        for xj in range(0, 150, 15):
+        for xj in range(0, 64, 16):
             plt.figure(figsize=(30, 20))
             plt.suptitle(f"{name} - {view}")
             for x in range(0, 16):
                 # print(start, " ", x, " ", xj-start)
                 plt.subplot(4, 4, x + 1)
                 if (view == 'saggital' ):
-                    plt.imshow(np_file[x+xj, :, :], cmap='gray')
-                    plt.imshow(np_msk[x+xj, :, :], alpha=0.5)
+                    plt.imshow(np_file[0, x+xj, :, :, :], cmap='gray')
+                    plt.imshow(np_msk[0, x+xj, :, :], alpha=0.5)
                 elif (view == 'coronal' ):
-                    plt.imshow(np_file[:, x+xj, :], cmap='gray')
-                    plt.imshow(np_msk[:, x+xj, :], alpha=0.5)
+                    plt.imshow(np_file[0, :, x+xj, :, :], cmap='gray')
+                    plt.imshow(np_msk[0, :, x+xj, :], alpha=0.5)
                 else:
-                    plt.imshow(np_file[:, :, x+xj], cmap='gray')
-                    plt.imshow(np_msk[:, :, x+xj], alpha=0.5)
+                    plt.imshow(np_file[0, :, :, x+xj, :], cmap='gray')
+                    plt.imshow(np_msk[0, :, :, x+xj], alpha=0.5)
 
                 plt.axis("off")
                 plt.title(x+xj)
@@ -408,9 +408,10 @@ def main():
                 [  0,   0, 255]])   # blue
                 # [255, 255, 255]])  # white    
     
-    patch_size = 85
-    for path in glob.glob('dataset_3D_p85/test/images/*'):
+    patch_size = 64
+    for path in glob.glob('dataset_3D_p64/test/images/*'):
         file = np.load(path)
+        print(file.shape)
         # np_file_patches = patchify(file, (patch_size, patch_size, patch_size), step=patch_size)
         # np_file_patches = np.reshape(np_file_patches, (-1, np_file_patches.shape[3], np_file_patches.shape[4], np_file_patches.shape[5]))
         # print(np_file_patches.shape)
@@ -427,13 +428,13 @@ def main():
         plt.imshow(file_msk[2, :, :, 35], alpha=0.5)
         plt.axis("off")
         plt.show()
-    #     name = path.split('/')[-1]
+        name = path.split('/')[-1]
         
     #     # Adding colors
     #     file_msk = palette[file_msk]
 
-    #     for view in ['saggital', 'coronal', 'axial']:
-    #         plot_np_file(file, file_msk, view, name)
+        for view in ['saggital', 'coronal', 'axial']:
+            plot_np_file(file, file_msk, view, name)
     exit()
     # # seconds = (time.time() - start_time)
     # # print("Processing time: ", seconds)

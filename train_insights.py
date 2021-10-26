@@ -139,7 +139,7 @@ def main():
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
     training_folder = 'trainings/version_25_0_2paths_dice_focal_up_leaky_nodataaug'
-    utils.create_folder(f"{training_folder}/insights")
+    utils.create_folder(f"{training_folder}/insights_2")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"

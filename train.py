@@ -23,6 +23,7 @@ from utils import utils
 # from matplotlib import pyplot
 from model.config import *
 from model.model import *
+from model.model_2 import build_model
 from model.losses import *
 from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from volumentations import *
@@ -328,7 +329,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_30'
+    training_folder = 'trainings/version_31'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -336,7 +337,7 @@ def main():
 
     # creating model
     # config = get_config_patchified()
-    config = get_config_test()
+    config = get_config_local_path()#get_config_test()
     model = None
 
     # Mirrored strategy for parallel training
@@ -366,7 +367,7 @@ def main():
     with mirrored_strategy.scope():
     # model = build_model_patchified_patchsize16(config)
     # model = build_model_patchified_patchsize16(config)
-        model = test_model_3(config)
+        model = build_model(config)#test_model_3(config)
     
     if (retrain):
         model.load_weights(model_path)

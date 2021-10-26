@@ -344,7 +344,7 @@ class ConvProjection(layers.Layer):
                 self.projection_dim
             ),
         )
-
+        
         # conv layer encoder
         self.conv_layer_encoded = PatchEncoder(
             num_patches=self.num_patches,

@@ -138,7 +138,7 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_26_0_2paths_dice_focal_up_datasetp64'
+    training_folder = 'trainings/version_25_0_2paths_dice_focal_up_leaky_nodataaug'
     utils.create_folder(f"{training_folder}/insights")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
@@ -172,7 +172,7 @@ def main():
     #     '/checkpoints_2/model_trained_10_0.73.hdf5',
     #     '/checkpoints_3/model_trained_20_0.74.hdf5',
     # ]:
-    deep_folder = '/insights'
+    deep_folder = '/insights_2'
     model_paths = [
         f"{training_folder}/model_trained_architecture.hdf5",
     ] + glob(training_folder + '/checkpoints/*')

@@ -138,7 +138,7 @@ def get_config_test():
     config.config_name = "testing"
     config.dataset_path = 'dataset_3D_p64/'
     config.unbatch = True
-    config.learning_rate = 0.001
+    config.learning_rate = 0.0001
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
@@ -150,7 +150,7 @@ def get_config_test():
     config.image_channels = 1
     config.image_size = (config.image_height, config.image_width, config.image_depth, config.image_channels)
     config.skip_connections = True
-    config.data_augmentation = True
+    config.data_augmentation = False
     config.loss_fnc = 'dice_categorical' #'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
     config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False

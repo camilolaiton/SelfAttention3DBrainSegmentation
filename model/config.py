@@ -138,11 +138,11 @@ def get_config_test():
     config.config_name = "testing"
     config.dataset_path = 'dataset_3D_p64/'
     config.unbatch = True
-    config.learning_rate = 0.001
+    config.learning_rate = 0.01
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
-    config.batch_size = 16
+    config.batch_size = 4
     config.num_epochs = 100
     config.image_height = 64
     config.image_width = 64
@@ -150,8 +150,8 @@ def get_config_test():
     config.image_channels = 1
     config.image_size = (config.image_height, config.image_width, config.image_depth, config.image_channels)
     config.skip_connections = True
-    config.data_augmentation = False
-    config.loss_fnc = 'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
+    config.data_augmentation = True
+    config.loss_fnc = 'dice_categorical' #'dice_focal_loss'#'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
     config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False
     config.act_func = 'leaky_relu'

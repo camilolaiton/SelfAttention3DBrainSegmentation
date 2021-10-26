@@ -408,7 +408,7 @@ def main():
     )
 
     optimizer = tf.optimizers.SGD(
-        learning_rate=config.learning_rate, 
+        learning_rate=lr_schedule#config.learning_rate, 
         momentum=config.momentum,
         name='optimizer_SGD_0'
     )

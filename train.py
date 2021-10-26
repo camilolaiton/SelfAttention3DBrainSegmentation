@@ -394,31 +394,31 @@ def main():
         print("No loss function")
         exit()
     
-    def get_lr_metric(optimizer):
-        def lr(y_true, y_pred):
-            return optimizer._decayed_lr(tf.float32) # I use ._decayed_lr method instead of .lr
-        return lr
+    # def get_lr_metric(optimizer):
+    #     def lr(y_true, y_pred):
+    #         return optimizer._decayed_lr(tf.float32) # I use ._decayed_lr method instead of .lr
+    #     return lr
     
 
-    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-        config.learning_rate,
-        decay_steps=5,
-        decay_rate=0.01,
-        staircase=True
-    )
-
-    optimizer = tf.optimizers.SGD(
-        learning_rate=lr_schedule,#config.learning_rate, 
-        momentum=config.momentum,
-        name='optimizer_SGD_0'
-    )
-
-    # optimizer = tf.optimizers.Adam(
-    #     learning_rate=lr_schedule,#config.learning_rate, 
-    #     name='optimizer_Adam'
+    # lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+    #     config.learning_rate,
+    #     decay_steps=5,
+    #     decay_rate=0.01,
+    #     staircase=True
     # )
 
-    lr_metric = get_lr_metric(optimizer)
+    # optimizer = tf.optimizers.SGD(
+    #     learning_rate=config.learning_rate, 
+    #     momentum=config.momentum,
+    #     name='optimizer_SGD_0'
+    # )
+
+    optimizer = tf.optimizers.Adam(
+        learning_rate=config.learning_rate, 
+        name='optimizer_Adam'
+    )
+
+    # lr_metric = get_lr_metric(optimizer)
 
     model.compile(
         optimizer=optimizer,
@@ -427,7 +427,6 @@ def main():
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),
             sm.metrics.FScore(threshold=0.5),
-            lr_metric
         ],
     )
     

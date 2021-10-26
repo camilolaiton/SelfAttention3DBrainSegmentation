@@ -393,11 +393,23 @@ def main():
     else:
         print("No loss function")
         exit()
+    
+    lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
+        config.learning_rate,
+        decay_steps=3,
+        decay_rate=0.01,
+        staircase=True
+    )
 
-    optimizer = tf.optimizers.SGD(
-        learning_rate=config.learning_rate, 
-        momentum=config.momentum,
-        name='optimizer_SGD_0'
+    # optimizer = tf.optimizers.SGD(
+    #     learning_rate=config.learning_rate, 
+    #     momentum=config.momentum,
+    #     name='optimizer_SGD_0'
+    # )
+
+    optimizer = tf.optimizers.Adam(
+        learning_rate=lr_schedule,#config.learning_rate, 
+        name='optimizer_Adam'
     )
 
     model.compile(

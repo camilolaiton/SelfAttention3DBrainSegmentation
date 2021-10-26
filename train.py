@@ -407,16 +407,16 @@ def main():
     #     staircase=True
     # )
 
-    # optimizer = tf.optimizers.SGD(
-    #     learning_rate=config.learning_rate, 
-    #     momentum=config.momentum,
-    #     name='optimizer_SGD_0'
-    # )
-
-    optimizer = tf.optimizers.Adam(
+    optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
-        name='optimizer_Adam'
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
     )
+
+    # optimizer = tf.optimizers.Adam(
+    #     learning_rate=config.learning_rate, 
+    #     name='optimizer_Adam'
+    # )
 
     # lr_metric = get_lr_metric(optimizer)
 

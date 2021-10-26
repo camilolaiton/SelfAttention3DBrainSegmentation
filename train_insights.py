@@ -138,13 +138,13 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_30'
+    training_folder = 'trainings/version_31'
     utils.create_folder(f"{training_folder}/insights")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_test()
-    config.dataset_path = 'dataset_3D_2/'
+    config.dataset_path = 'dataset_3D_p64/'
     # Getting images
     test_filename = 'HLN-12-12'
     # Use 5 and 6 for idx

@@ -142,7 +142,7 @@ def get_config_test():
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
-    config.batch_size = 4
+    config.batch_size = 32
     config.num_epochs = 100
     config.image_height = 64
     config.image_width = 64

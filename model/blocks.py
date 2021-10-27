@@ -145,12 +145,12 @@ class Keras3DAugmentation(layers.Layer):
         x = self.random_translation(x)
         # x = self.random_cutout(x)
         x = self.random_contrast(x)
-        x = self.random_height(x)
-        x = self.random_width(x)
+        # x = self.random_height(x)
+        # x = self.random_width(x)
         x = self.random_rotate(x)
         # x = self.random_invert(x)
-        x = self.random_crop(x)
-        x = self.resize_crop(x)
+        # x = self.random_crop(x)
+        # x = self.resize_crop(x)
             
             # if j == 0:
             #     flair.append(tf.expand_dims(x, axis=-1))

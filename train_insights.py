@@ -145,7 +145,7 @@ def main():
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_local_path()#get_config_test()
-    config.dataset_path = 'dataset_3D_p64/'
+    config.dataset_path = 'dataset_3D_3/'
     # Getting images
     test_filename = 'HLN-12-12'
     # Use 5 and 6 for idx

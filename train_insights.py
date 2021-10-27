@@ -75,6 +75,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                     [  0, 255,   0],   # green
                     [  0,   0, 255]])   # blue
                     # [255, 255, 255]])  # white
+    print(msk_patches.shape, " ", prediction.shape)
     RGB_ground = palette[msk_patches[0, idx, :, 45, :]]
     RGB_prediction = palette[prediction[0, idx, :, 45, :]]
 

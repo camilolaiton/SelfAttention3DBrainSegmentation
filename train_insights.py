@@ -75,7 +75,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                     [  0, 255,   0],   # green
                     [  0,   0, 255]])   # blue
                     # [255, 255, 255]])  # white
-    print(msk_patches.shape, " ", prediction.shape)
+    # print(msk_patches.shape, " ", prediction.shape)
     RGB_ground = palette[msk_patches[0, idx, :, :]]
     RGB_prediction = palette[prediction[0, idx, :, :]]
 
@@ -85,7 +85,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
     ax1.set_title(f"msk_patch[{idx}, :, 45, :]")
     ax2.imshow(RGB_prediction)
     ax2.set_title(f"prediction[{idx}, :, 45, :]")
-    print(dest_path)
+    # print(dest_path)
     plt.savefig(f"{dest_path}/example_prediction_{idx}_{name}.png")
     # plt.show()
 
@@ -148,10 +148,10 @@ def main():
     config = get_config_local_path()#get_config_test()
     config.dataset_path = 'dataset_3D_p64/'
     # Getting images
-    test_filename = 'HLN-12-12'
+    test_filename = 'MMRR-21-20'
     # Use 5 and 6 for idx
     
-    img_patches = np.load(config.dataset_path + 'test/images/HLN-12-12_patched.npy')
+    img_patches = np.load(config.dataset_path + 'test/images/{test_filename}_patched.npy')
     
     """read_patches_filename(
         test_filename, 
@@ -159,7 +159,7 @@ def main():
     )[0, :, :, :, :]"""
     # img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
-    msk_patches = np.argmax(np.load(config.dataset_path + 'test/masks/HLN-12-12_patched.npy'), axis=4)
+    msk_patches = np.argmax(np.load(config.dataset_path + 'test/masks/{test_filename}_patched.npy'), axis=4)
     
     """np.argmax(read_patches_filename(
         test_filename, 
@@ -200,7 +200,7 @@ def main():
         print("Saving prediction ", name)
         np.save(name, prediction)
         
-        for id in [31, 19, 15, 14, 5]:
+        for id in [20, 50, 30]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         
         x += 1

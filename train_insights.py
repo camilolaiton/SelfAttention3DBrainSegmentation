@@ -145,7 +145,7 @@ def main():
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
     config = get_config_local_path()#get_config_test()
-    config.dataset_path = 'dataset_3D_3/'
+    config.dataset_path = 'dataset_3D_p64/'
     # Getting images
     test_filename = 'HLN-12-12'
     # Use 5 and 6 for idx
@@ -187,7 +187,7 @@ def main():
         # if (x != 0):
         #     deep_folder = '/' + i.split('/')[1]
         print(img_patches.shape)
-        prediction = model.predict(img_patches)
+        prediction = model.predict(img_patches[3])
         prediction = np.argmax(prediction, axis=4)
         
         name = training_folder + deep_folder + f"/prediction_{x}.npy"

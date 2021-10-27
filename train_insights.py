@@ -159,7 +159,7 @@ def main():
     )[0, :, :, :, :]"""
     # img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
-    msk_patches = np.load(config.dataset_path + 'test/masks/HLN-12-12_patched.npy')
+    msk_patches = np.argmax(np.load(config.dataset_path + 'test/masks/HLN-12-12_patched.npy'), axis=4)
     
     """np.argmax(read_patches_filename(
         test_filename, 

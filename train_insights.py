@@ -109,8 +109,8 @@ def plot_predicted(msk_patches, prediction, idx, idx2, dest_path, name):
                     [  0, 255,   0],   # green
                     [  0,   0, 255]])   # blue
                     # [255, 255, 255]])  # white
-    RGB_ground = palette[msk_patches[idx, :, idx2, :]]
-    RGB_prediction = palette[prediction[idx, :, idx2, :]]
+    RGB_ground = palette[msk_patches[0, idx, :, idx2, :]]
+    RGB_prediction = palette[prediction[0, idx, :, idx2, :]]
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Original mask VS Predicted")

@@ -77,7 +77,7 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                     # [255, 255, 255]])  # white
     print(msk_patches.shape, " ", prediction.shape)
     RGB_ground = palette[msk_patches[0, idx, :, 45, :]]
-    RGB_prediction = palette[prediction[0, idx, :, 45, :]]
+    RGB_prediction = palette[prediction[0, idx, :, 45]]
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Original mask VS Predicted")

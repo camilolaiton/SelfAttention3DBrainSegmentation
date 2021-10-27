@@ -153,13 +153,13 @@ def main():
     img_patches = read_patches_filename(
         test_filename, 
         f"{config.dataset_path}test/images/*"
-    )
+    )[0, :, :, :, :]
     # img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
     msk_patches = np.argmax(read_patches_filename(
         test_filename, 
         f"{config.dataset_path}test/masks/*"
-    ), axis=4)
+    ), axis=4)[0, :, :, :, :]
     # msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
     model = build_model(config)#test_model_3(config)
@@ -187,7 +187,7 @@ def main():
         # if (x != 0):
         #     deep_folder = '/' + i.split('/')[1]
         print(img_patches.shape)
-        prediction = model.predict(img_patches[0, :, :, :, :])
+        prediction = model.predict(img_patches)
         prediction = np.argmax(prediction, axis=4)
         
         name = training_folder + deep_folder + f"/prediction_{x}.npy"

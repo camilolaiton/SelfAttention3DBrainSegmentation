@@ -160,6 +160,7 @@ def main():
         test_filename, 
         f"{config.dataset_path}test/masks/*"
     ), axis=4)[0, :, :, :, :]
+    print(msk_patches.shape)
     # msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
     model = build_model(config)#test_model_3(config)

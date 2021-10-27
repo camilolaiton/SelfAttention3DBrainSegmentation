@@ -1,5 +1,6 @@
 from model.config import *
 from model.model import *
+from model.model_2 import build_model
 # import segmentation_models as sm
 # sm.set_framework('tf.keras')
 import pickle
@@ -143,7 +144,7 @@ def main():
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model_history_path = f"{training_folder}/history.obj"
-    config = get_config_test()
+    config = get_config_local_path()#get_config_test()
     config.dataset_path = 'dataset_3D_p64/'
     # Getting images
     test_filename = 'HLN-12-12'
@@ -161,7 +162,7 @@ def main():
     ), axis=4)
     # msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
-    model = test_model_3(config)
+    model = build_model(config)#test_model_3(config)
     # print(f"[+] Building model with config {config}")
     np.save(training_folder+"/ground_truth.npy", msk_patches)
 

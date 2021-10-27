@@ -191,10 +191,11 @@ def main():
 
         # if (x != 0):
         #     deep_folder = '/' + i.split('/')[1]
-        print(img_patches.shape)
+        print("BEFORE: ", img_patches.shape)
         prediction = model.predict(img_patches)
+        print("AFTER: ", prediction.shape)
         prediction = np.argmax(prediction, axis=4)
-        
+        print("AFTER AFTER: ", prediction.shape)
         name = training_folder + deep_folder + f"/prediction_{x}.npy"
         print("Saving prediction ", name)
         np.save(name, prediction)

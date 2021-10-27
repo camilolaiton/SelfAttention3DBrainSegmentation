@@ -76,17 +76,18 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                     [  0,   0, 255]])   # blue
                     # [255, 255, 255]])  # white
     # print(msk_patches.shape, " ", prediction.shape)
-    RGB_ground = palette[msk_patches[0, idx, :, :]]
-    RGB_prediction = palette[prediction[0, idx, :, :]]
+    for w in [0, 1]:
+        RGB_ground = palette[msk_patches[w, idx, :, :]]
+        RGB_prediction = palette[prediction[w, idx, :, :]]
 
-    fig, (ax1, ax2) = plt.subplots(1, 2)
-    fig.suptitle("Original mask VS Predicted")
-    ax1.imshow(RGB_ground)
-    ax1.set_title(f"msk_patch[{idx}, :, 45, :]")
-    ax2.imshow(RGB_prediction)
-    ax2.set_title(f"prediction[{idx}, :, 45, :]")
-    # print(dest_path)
-    plt.savefig(f"{dest_path}/example_prediction_{idx}_{name}.png")
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig.suptitle("Original mask VS Predicted")
+        ax1.imshow(RGB_ground)
+        ax1.set_title(f"msk_patch[{idx}, :, :]")
+        ax2.imshow(RGB_prediction)
+        ax2.set_title(f"prediction[{idx}, :, :]")
+        # print(dest_path)
+        plt.savefig(f"{dest_path}/example_prediction_{w}_{idx}_{name}.png")
     # plt.show()
 
 def test_models(training_folder):
@@ -200,7 +201,7 @@ def main():
         print("Saving prediction ", name)
         np.save(name, prediction)
         
-        for id in [20, 50, 30]:
+        for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         
         x += 1

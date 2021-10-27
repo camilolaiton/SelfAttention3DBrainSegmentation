@@ -392,21 +392,22 @@ def main():
         for xj in range(0, 64, 16):
             plt.figure(figsize=(30, 20))
             plt.suptitle(f"{name} - {view}")
-            for x in range(0, 16):
-                # print(start, " ", x, " ", xj-start)
-                plt.subplot(4, 4, x + 1)
-                if (view == 'saggital' ):
-                    plt.imshow(np_file[0, x+xj, :, :, :], cmap='gray')
-                    plt.imshow(np_msk[0, x+xj, :, :], alpha=0.5)
-                elif (view == 'coronal' ):
-                    plt.imshow(np_file[0, :, x+xj, :, :], cmap='gray')
-                    plt.imshow(np_msk[0, :, x+xj, :], alpha=0.5)
-                else:
-                    plt.imshow(np_file[0, :, :, x+xj, :], cmap='gray')
-                    plt.imshow(np_msk[0, :, :, x+xj], alpha=0.5)
+            for w in [0, 1]:
+                for x in range(0, 16):
+                    # print(start, " ", x, " ", xj-start)
+                    plt.subplot(4, 4, x + 1)
+                    if (view == 'saggital' ):
+                        plt.imshow(np_file[w, x+xj, :, :, :], cmap='gray')
+                        plt.imshow(np_msk[w, x+xj, :, :], alpha=0.5)
+                    elif (view == 'coronal' ):
+                        plt.imshow(np_file[w, :, x+xj, :, :], cmap='gray')
+                        plt.imshow(np_msk[w, :, x+xj, :], alpha=0.5)
+                    else:
+                        plt.imshow(np_file[w, :, :, x+xj, :], cmap='gray')
+                        plt.imshow(np_msk[w, :, :, x+xj], alpha=0.5)
 
-                plt.axis("off")
-                plt.title(x+xj)
+                    plt.axis("off")
+                    plt.title(x+xj)
             plt.show()
 
     palette = np.array([[  0,   0,   0],   # black
@@ -431,8 +432,8 @@ def main():
         # np_file_msk_patches = palette[np_file_msk_patches]
         print(np.unique(file_msk))
         file_msk = palette[file_msk]
-        plt.imshow(file[2, :, :, 35, :], cmap='gray')
-        plt.imshow(file_msk[2, :, :, 35], alpha=0.5)
+        # plt.imshow(file[2, :, :, 35, :], cmap='gray')
+        # plt.imshow(file_msk[2, :, :, 35], alpha=0.5)
         plt.axis("off")
         plt.show()
         name = path.split('/')[-1]

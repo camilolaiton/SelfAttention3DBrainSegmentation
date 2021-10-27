@@ -187,7 +187,7 @@ def main():
         # if (x != 0):
         #     deep_folder = '/' + i.split('/')[1]
         print(img_patches.shape)
-        prediction = model.predict(img_patches[3])
+        prediction = model.predict(img_patches[0, :, :, :, :])
         prediction = np.argmax(prediction, axis=4)
         
         name = training_folder + deep_folder + f"/prediction_{x}.npy"

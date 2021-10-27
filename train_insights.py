@@ -76,8 +76,8 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                     [  0,   0, 255]])   # blue
                     # [255, 255, 255]])  # white
     print(msk_patches.shape, " ", prediction.shape)
-    RGB_ground = palette[msk_patches[0, idx, :, 45]]
-    RGB_prediction = palette[prediction[0, idx, :, 45]]
+    RGB_ground = palette[msk_patches[0, idx, :, :]]
+    RGB_prediction = palette[prediction[0, idx, :, :]]
 
     fig, (ax1, ax2) = plt.subplots(1, 2)
     fig.suptitle("Original mask VS Predicted")
@@ -191,11 +191,11 @@ def main():
 
         # if (x != 0):
         #     deep_folder = '/' + i.split('/')[1]
-        print("BEFORE: ", img_patches.shape)
+        # print("BEFORE: ", img_patches.shape)
         prediction = model.predict(img_patches)
-        print("AFTER: ", prediction.shape)
+        # print("AFTER: ", prediction.shape)
         prediction = np.argmax(prediction, axis=4)
-        print("AFTER AFTER: ", prediction.shape)
+        # print("AFTER AFTER: ", prediction.shape)
         name = training_folder + deep_folder + f"/prediction_{x}.npy"
         print("Saving prediction ", name)
         np.save(name, prediction)

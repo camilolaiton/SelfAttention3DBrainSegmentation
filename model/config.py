@@ -205,7 +205,7 @@ def get_config_local_path():
     config.image_channels = 1
     config.image_size = (config.image_height, config.image_width, config.image_depth, config.image_channels)
     config.skip_connections = True
-    config.data_augmentation = True
+    config.data_augmentation = False
     config.loss_fnc = 'dice_focal_loss' #'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
     config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False
@@ -223,7 +223,7 @@ def get_config_local_path():
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
-    config.transformer.layers = 4
+    config.transformer.layers = 8#4
     config.transformer.num_heads = 4 #8
     config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-6

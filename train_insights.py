@@ -151,7 +151,7 @@ def main():
     test_filename = 'MMRR-21-20'
     # Use 5 and 6 for idx
     
-    img_patches = np.load(config.dataset_path + 'test/images/{test_filename}_patched.npy')
+    img_patches = np.load(config.dataset_path + f"test/images/{test_filename}_patched.npy")
     
     """read_patches_filename(
         test_filename, 
@@ -159,7 +159,7 @@ def main():
     )[0, :, :, :, :]"""
     # img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
-    msk_patches = np.argmax(np.load(config.dataset_path + 'test/masks/{test_filename}_patched.npy'), axis=4)
+    msk_patches = np.argmax(np.load(config.dataset_path + f"test/masks/{test_filename}_patched.npy"), axis=4)
     
     """np.argmax(read_patches_filename(
         test_filename, 

@@ -5,8 +5,8 @@ from .config import *
 
 def model_local_path(config, inputs):
     # [First path]
-    enc_filters = [16, 32, 64]
-    dec_filters = [64, 32, 16]
+    enc_filters = [8, 16, 32, 64]
+    dec_filters = [64, 32, 16, 8]
 
     conv_layers = inputs
     conv_blocks = []
@@ -41,7 +41,7 @@ def model_local_path(config, inputs):
     conv_proj = ConvProjection(
         config.conv_projection,#config.transformer.projection_dim,
         config.transformer.projection_dim,
-        num_patches=512,#config.transformer.num_patches,
+        num_patches=config.transformer.num_patches, #512
         name='conv_projection'
     )(conv_layers)
 
@@ -58,7 +58,7 @@ def model_local_path(config, inputs):
         )(conv_proj)
         transformer_layers_path_1.append(conv_proj)
 
-    dec = 8#config.transformer.patch_size
+    dec = config.transformer.patch_size
     decoder_block_cup = DecoderBlockCup(
         target_shape=(
             config.image_height//dec, 

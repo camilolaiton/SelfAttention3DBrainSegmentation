@@ -214,7 +214,7 @@ def get_config_local_path():
     config.transformer = ml_collections.ConfigDict()
     config.transformer.patch_size = 16
     config.transformer.num_patches = (config.image_size[0] // config.transformer.patch_size)**3
-    config.conv_projection = 512
+    config.conv_projection = 64
     
     config.transformer.projection_dim = 64# 64 #128
     config.transformer.units = [

@@ -150,17 +150,20 @@ def main():
     test_filename = 'HLN-12-12'
     # Use 5 and 6 for idx
     
-    img_patches = read_patches_filename(
+    img_patches = np.load(config.dataset_path + 'test/images/HLN-12-12_patched.npy')
+    
+    """read_patches_filename(
         test_filename, 
         f"{config.dataset_path}test/images/*"
-    )[0, :, :, :, :]
+    )[0, :, :, :, :]"""
     # img_patches = np.load(f"{config.dataset_path}test/images/{test_filename}")
 
-    msk_patches = np.argmax(read_patches_filename(
+    msk_patches = np.load(config.dataset_path + 'test/masks/HLN-12-12_patched.npy')
+    
+    """np.argmax(read_patches_filename(
         test_filename, 
         f"{config.dataset_path}test/masks/*"
-    ), axis=4)[0, :, :, :, :]
-    print(msk_patches.shape)
+    ), axis=4)[0, :, :, :, :]"""
     # msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
     model = build_model(config)#test_model_3(config)
@@ -195,7 +198,7 @@ def main():
         print("Saving prediction ", name)
         np.save(name, prediction)
         
-        for id in [21, 19, 15, 14, 5]:
+        for id in [31, 19, 15, 14, 5]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         
         x += 1

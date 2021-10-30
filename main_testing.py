@@ -27,56 +27,64 @@ from augmend import Augmend, Elastic, FlipRot90, AdditiveNoise, GaussianBlur, In
 
 # find . -type d -name segSlices -exec rm -r {} \;     -> To remove specific folders
 def augmentation(img, msk):
+    total_img = []
+    total_msk = []
     img = np.squeeze(img)
-    msk = np.argmax(msk, axis=3)
+    msk = np.argmax(msk, axis=4)
 
     aug = Augmend()
-    aug.add([
-        FlipRot90(axis=(0, 1, 2)),
-        FlipRot90(axis=(0, 1, 2)),
-    ], probability=1)
-
     aug.add([
         Elastic(axis=(0, 1, 2), amount=5, order=1),
         Elastic(axis=(0, 1, 2), amount=5, order=0),
     ], probability=1)
 
-    # aug.add([
-    #     GaussianBlur(),
-    #     GaussianBlur()
-    # ], probability=0.9)
+    for i in range(img.shape[0]):
+        img_res, msk_res = aug([img[i, :, :, :], msk[i, :, :, :]])
+        print(img_res.shape, " ", msk_res.shape)
+        total_img.append(img_res)
+        total_msk.append(msk_res)
+    return np.expand_dims(total_img, axis=-1), to_categorical(total_msk) 
+        # aug.add([
+        #     FlipRot90(axis=(0, 1, 2)),
+        #     FlipRot90(axis=(0, 1, 2)),
+        # ], probability=1)
 
-    # aug.add([
-    #     IntensityScaleShift(scale = (0.4,2)),
-    #     IntensityScaleShift(scale = (0.4,2))
-    # ], probability=0.9)
+        # aug.add([
+        #     GaussianBlur(),
+        #     GaussianBlur()
+        # ], probability=0.9)
 
-    # aug.add([
-    #     Identity(),
-    #     Identity()
-    # ], probability=0.9)
+        # aug.add([
+        #     IntensityScaleShift(scale = (0.4,2)),
+        #     IntensityScaleShift(scale = (0.4,2))
+        # ], probability=0.9)
 
-    # aug.add([
-    #     AdditiveNoise(sigma=.2),
-    #     AdditiveNoise(sigma=.2)
-    # ], probability=0.9)
+        # aug.add([
+        #     Identity(),
+        #     Identity()
+        # ], probability=0.9)
 
-    # aug.add([
-    #     CutOut(width = (40,41)),
-    #     CutOut(width = (40,41))
-    # ], probability=1)
+        # aug.add([
+        #     AdditiveNoise(sigma=.2),
+        #     AdditiveNoise(sigma=.2)
+        # ], probability=0.9)
 
-    # aug.add([
-    #     IsotropicScale(),
-    #     IsotropicScale()
-    # ], probability=1)
+        # aug.add([
+        #     CutOut(width = (40,41)),
+        #     CutOut(width = (40,41))
+        # ], probability=1)
 
-    # aug.add([
-    #     Rotate(),
-    #     Rotate()
-    # ], probability=1)
+        # aug.add([
+        #     IsotropicScale(),
+        #     IsotropicScale()
+        # ], probability=1)
 
-    return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
+        # aug.add([
+        #     Rotate(),
+        #     Rotate()
+        # ], probability=1)
+
+    # return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
 
 def helper_anat(msk, orig_msk, lut_file, structure):
     
@@ -167,8 +175,7 @@ def main():
 
     print(msk.shape)
 
-    img_d, msk_d = augmentation(img[0, :, :, :], msk[0, :, :, :,])
-    img_d2, msk_d2 = augmentation(img[1, :, :, :], msk[1, :, :, :])
+    img_d, msk_d = augmentation(img, msk)
     
     palette = np.array([[  0,   0,   0],   # black
                     [255,   0,   0],   # red
@@ -179,9 +186,11 @@ def main():
     print(img.shape, "  ", msk.shape)
     print(img_d.shape, "  ", msk_d.shape)
     print(np.unique(img_d))
-    exit()
+    # exit()
+    
+    
+    msk_d = np.argmax(msk_d, axis=-1)
     msk_d = palette[msk_d]
-    msk_d2 = palette[msk_d2]
     msk = palette[np.argmax(msk, axis=4)]
     
     fig, axs = plt.subplots(2, 2, figsize=(20, 20))
@@ -190,10 +199,10 @@ def main():
     idx2=58
 
     axs[0][0].imshow(img[idx, idx2, :, :], cmap='bone')
-    axs[0][1].imshow(img_d[idx2, :, :], cmap='bone')
+    axs[0][1].imshow(img_d[idx, idx2, :, :], cmap='bone')
 
     axs[1][0].imshow(msk[idx, idx2, :, :])#, cmap='bone')
-    axs[1][1].imshow(msk_d[idx2, :, :])#, cmap='bone')
+    axs[1][1].imshow(msk_d[idx, idx2, :, :])#, cmap='bone')
 
     plt.show()
 
@@ -203,10 +212,11 @@ def main():
     idx2=58
 
     axs[0][0].imshow(img[idx, idx2, :, :], cmap='bone')
-    axs[0][1].imshow(img_d2[idx2, :, :], cmap='bone')
+    axs[0][1].imshow(img_d[idx, idx2, :, :], cmap='bone')
 
     axs[1][0].imshow(msk[idx, idx2, :, :])#, cmap='bone')
-    axs[1][1].imshow(msk_d2[idx2, :, :])#, cmap='bone')
+    axs[1][1].imshow(msk_d[idx, idx2, :, :])#, cmap='bone')
+
     plt.show()
     # elastic_deform_3D(img, msk, 0, 50)
     exit()

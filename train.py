@@ -287,25 +287,25 @@ def augmentor_py(img, msk):
     # return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
 
 def augmentation(img, msk):
+    total_img = []
+    total_msk = []
     img = np.squeeze(img)
     msk = np.argmax(msk, axis=4)
-    print("INSIDE: ", msk.shape)
-    aug = Augmend()
-    # aug.add([
-    #     FlipRot90(axis=(0, 1, 2)),
-    #     FlipRot90(axis=(0, 1, 2)),
-    # ], probability=1)
 
+    aug = Augmend()
     aug.add([
-        Elastic(axis=(1, 2, 3), amount=5, order=1, use_gpu=False),
-        Elastic(axis=(1, 2, 3), amount=5, order=0, use_gpu=False),
+        Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=False),
+        Elastic(axis=(0, 1, 2), amount=5, order=0, use_gpu=False),
     ], probability=1)
 
-    return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
+    for i in range(img.shape[0]):
+        img_res, msk_res = aug([img[i, :, :, :], msk[i, :, :, :]])
+        print(img_res.shape, " ", msk_res.shape)
+        total_img.append(img_res)
+        total_msk.append(msk_res)
+    return np.expand_dims(total_img, axis=-1), to_categorical(total_msk) 
 
 def augmentor(img, msk):
-    print("before: ", img.shape)
-    print("before: ", msk.shape)
     aug_img = tf.numpy_function(
         augmentation,#augmentor_py,
         inp=[img, msk],

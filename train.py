@@ -288,7 +288,7 @@ def augmentor_py(img, msk):
 
 def augmentation(img, msk):
     img = np.squeeze(img)
-    msk = np.argmax(msk, axis=3)
+    msk = np.argmax(msk, axis=4)
     print("INSIDE: ", msk.shape)
     aug = Augmend()
     # aug.add([
@@ -297,8 +297,8 @@ def augmentation(img, msk):
     # ], probability=1)
 
     aug.add([
-        Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=True),
-        Elastic(axis=(0, 1, 2), amount=5, order=0, use_gpu=True),
+        Elastic(axis=(1, 2, 3), amount=5, order=1, use_gpu=False),
+        Elastic(axis=(1, 2, 3), amount=5, order=0, use_gpu=False),
     ], probability=1)
 
     return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])

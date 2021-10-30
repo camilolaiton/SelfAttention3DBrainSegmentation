@@ -16,6 +16,7 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers
+from tensorflow.keras.utils import to_categorical
 import matplotlib.pyplot as plt
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import elasticdeform
@@ -30,6 +31,7 @@ from volumentations import *
 import pickle
 import glob
 import segmentation_models as sm
+from augmend import Augmend, Elastic
 sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
@@ -284,9 +286,26 @@ def augmentor_py(img, msk):
     return tf.cast(img, tf.float32), tf.cast(msk, tf.float32)
     # return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
 
+def augmentation(img, msk):
+    img = np.squeeze(img)
+    msk = np.argmax(msk, axis=3)
+    print("INSIDE: ", msk.shape)
+    aug = Augmend()
+    # aug.add([
+    #     FlipRot90(axis=(0, 1, 2)),
+    #     FlipRot90(axis=(0, 1, 2)),
+    # ], probability=1)
+
+    aug.add([
+        Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=True),
+        Elastic(axis=(0, 1, 2), amount=5, order=0, use_gpu=True),
+    ], probability=1)
+
+    return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
+
 def augmentor(img, msk):
     aug_img = tf.numpy_function(
-        augmentor_py,
+        augmentation,#augmentor_py,
         inp=[img, msk],
         Tout=[tf.float32, tf.float32]
     )

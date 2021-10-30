@@ -22,8 +22,61 @@ from sklearn.preprocessing import MinMaxScaler
 import nilearn
 import time
 import multiprocessing
+import elasticdeform
+from augmend import Augmend, Elastic, FlipRot90, AdditiveNoise, GaussianBlur, IntensityScaleShift, Identity, CutOut, IsotropicScale, Rotate
 
 # find . -type d -name segSlices -exec rm -r {} \;     -> To remove specific folders
+def augmentation(img, msk):
+    img = np.squeeze(img)
+    msk = np.argmax(msk, axis=3)
+
+    aug = Augmend()
+    aug.add([
+        FlipRot90(axis=(0, 1, 2)),
+        FlipRot90(axis=(0, 1, 2)),
+    ], probability=1)
+
+    aug.add([
+        Elastic(axis=(0, 1, 2), amount=5, order=1),
+        Elastic(axis=(0, 1, 2), amount=5, order=0),
+    ], probability=1)
+
+    # aug.add([
+    #     GaussianBlur(),
+    #     GaussianBlur()
+    # ], probability=0.9)
+
+    # aug.add([
+    #     IntensityScaleShift(scale = (0.4,2)),
+    #     IntensityScaleShift(scale = (0.4,2))
+    # ], probability=0.9)
+
+    # aug.add([
+    #     Identity(),
+    #     Identity()
+    # ], probability=0.9)
+
+    # aug.add([
+    #     AdditiveNoise(sigma=.2),
+    #     AdditiveNoise(sigma=.2)
+    # ], probability=0.9)
+
+    # aug.add([
+    #     CutOut(width = (40,41)),
+    #     CutOut(width = (40,41))
+    # ], probability=1)
+
+    # aug.add([
+    #     IsotropicScale(),
+    #     IsotropicScale()
+    # ], probability=1)
+
+    # aug.add([
+    #     Rotate(),
+    #     Rotate()
+    # ], probability=1)
+
+    return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
 
 def helper_anat(msk, orig_msk, lut_file, structure):
     
@@ -105,6 +158,58 @@ def show_anat_slide(ns, lut_file, canonical_data, STRUCTURES, dest, filename, vi
         # np.save(name, msk)
 
 def main():
+    dataset_path = 'dataset_3D_p64/'
+    # Getting images
+    test_filename = 'MMRR-21-20'
+
+    img = np.load(dataset_path + f"test/images/{test_filename}.npy")
+    msk = np.load(dataset_path + f"test/masks/{test_filename}.npy")
+
+    print(msk.shape)
+
+    img_d, msk_d = augmentation(img[0, :, :, :], msk[0, :, :, :,])
+    img_d2, msk_d2 = augmentation(img[1, :, :, :], msk[1, :, :, :])
+    
+    palette = np.array([[  0,   0,   0],   # black
+                    [255,   0,   0],   # red
+                    [  0, 255,   0],   # green
+                    [  0,   0, 255]])   # blue
+
+    print(img_d.shape, " ", msk_d.shape)
+    print(img.shape, "  ", msk.shape)
+    print(img_d.shape, "  ", msk_d.shape)
+    print(np.unique(img_d))
+    exit()
+    msk_d = palette[msk_d]
+    msk_d2 = palette[msk_d2]
+    msk = palette[np.argmax(msk, axis=4)]
+    
+    fig, axs = plt.subplots(2, 2, figsize=(20, 20))
+
+    idx=0
+    idx2=58
+
+    axs[0][0].imshow(img[idx, idx2, :, :], cmap='bone')
+    axs[0][1].imshow(img_d[idx2, :, :], cmap='bone')
+
+    axs[1][0].imshow(msk[idx, idx2, :, :])#, cmap='bone')
+    axs[1][1].imshow(msk_d[idx2, :, :])#, cmap='bone')
+
+    plt.show()
+
+    fig, axs = plt.subplots(2, 2, figsize=(20, 20))
+
+    idx=1
+    idx2=58
+
+    axs[0][0].imshow(img[idx, idx2, :, :], cmap='bone')
+    axs[0][1].imshow(img_d2[idx2, :, :], cmap='bone')
+
+    axs[1][0].imshow(msk[idx, idx2, :, :])#, cmap='bone')
+    axs[1][1].imshow(msk_d2[idx2, :, :])#, cmap='bone')
+    plt.show()
+    # elastic_deform_3D(img, msk, 0, 50)
+    exit()
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     brainPath = './data/NKI-TRT-20/NKI-TRT-20-1/001.mgz'#'./data/sub01/001.mgz' #brain.mgz'
     image_path = "./data/NKI-TRT-20/NKI-TRT-20-1/aparcNMMjt+aseg.mgz"#"./data/sub01/aparcNMMjt+aseg.mgz"

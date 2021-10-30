@@ -304,6 +304,8 @@ def augmentation(img, msk):
     return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
 
 def augmentor(img, msk):
+    print("before: ", img.shape)
+    print("before: ", msk.shape)
     aug_img = tf.numpy_function(
         augmentation,#augmentor_py,
         inp=[img, msk],

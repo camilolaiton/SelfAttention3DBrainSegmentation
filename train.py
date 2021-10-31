@@ -300,7 +300,7 @@ def augmentation(img, msk):
 
     for i in range(img.shape[0]):
         img_res, msk_res = aug([img[i, :, :, :], msk[i, :, :, :]])
-        print(img_res.shape, " ", msk_res.shape)
+        # print(img_res.shape, " ", msk_res.shape)
         total_img.append(img_res)
         total_msk.append(msk_res)
     return np.expand_dims(total_img, axis=-1), to_categorical(total_msk) 

@@ -537,7 +537,7 @@ def main():
     dataset['train'] = dataset['train'].map(load_files).map(augmentor, num_parallel_calls=AUTOTUNE)
     if (config.unbatch):
         dataset['train'] = dataset['train'].unbatch()
-    dataset['train'] = dataset['train'].repeat(2)
+    dataset['train'] = dataset['train'].repeat()
     # dataset['train'] = dataset['train'].shuffle(config.batch_size, reshuffle_each_iteration=True)
     dataset['train'] = dataset['train'].batch(config.batch_size)
     dataset['train'] = dataset['train'].prefetch(buffer_size=AUTOTUNE)

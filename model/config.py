@@ -197,7 +197,7 @@ def get_config_local_path():
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
-    config.batch_size = 32
+    config.batch_size = 8
     config.num_epochs = 100
     config.image_height = 64
     config.image_width = 64

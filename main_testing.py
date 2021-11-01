@@ -23,66 +23,78 @@ import nilearn
 import time
 import multiprocessing
 import elasticdeform
-from augmend import Augmend, Elastic, FlipRot90, AdditiveNoise, GaussianBlur, IntensityScaleShift, Identity, CutOut, IsotropicScale, Rotate
+from augmend import Augmend, Elastic, FlipRot90, Scale, AdditiveNoise, GaussianBlur, IntensityScaleShift, Identity, CutOut, IsotropicScale, Rotate
 
 # find . -type d -name segSlices -exec rm -r {} \;     -> To remove specific folders
-def augmentation(img, msk):
+def augmentation(img, msk, scaler):
     total_img = []
     total_msk = []
     img = np.squeeze(img)
     msk = np.argmax(msk, axis=4)
 
     aug = Augmend()
+
+    aug.add([
+        Identity(),
+        Identity()
+    ], probability=0.9)
+
+    # aug.add([ 
+    #     AdditiveNoise(sigma=0.1),
+    #     AdditiveNoise(sigma=0.1)
+    # ], probability=0.9)
+
+    # aug.add([
+    #     CutOut(width = (2,3)),
+    #     CutOut(width = (2, 3))
+    # ], probability=0.80)
+
+    # aug.add([
+    #     IntensityScaleShift(scale = (0.4,1)),
+    #     IntensityScaleShift(scale = (0.4,1))
+    # ], probability=0.9)
+
+    # aug.add([
+    #     Scale(),
+    #     Scale()
+    # ], probability=0.9)
+
+    aug.add([
+        FlipRot90(axis=(0, 1, 2)),
+        FlipRot90(axis=(0, 1, 2)),
+    ], probability=0.8)
+
     aug.add([
         Elastic(axis=(0, 1, 2), amount=5, order=1),
         Elastic(axis=(0, 1, 2), amount=5, order=0),
     ], probability=1)
+
+    # aug.add([
+    #     Rotate(order=1),
+    #     Rotate(order=0)
+    # ], probability=1)
+
+    # aug.add([
+    #     GaussianBlur(amount=(3,3)),
+    #     GaussianBlur(amount=(3,3))
+    # ], probability=0.9)
 
     for i in range(img.shape[0]):
         img_res, msk_res = aug([img[i, :, :, :], msk[i, :, :, :]])
         print(img_res.shape, " ", msk_res.shape)
         total_img.append(img_res)
         total_msk.append(msk_res)
+    
     return np.expand_dims(total_img, axis=-1), to_categorical(total_msk) 
-        # aug.add([
-        #     FlipRot90(axis=(0, 1, 2)),
-        #     FlipRot90(axis=(0, 1, 2)),
-        # ], probability=1)
 
-        # aug.add([
-        #     GaussianBlur(),
-        #     GaussianBlur()
-        # ], probability=0.9)
-
-        # aug.add([
-        #     IntensityScaleShift(scale = (0.4,2)),
-        #     IntensityScaleShift(scale = (0.4,2))
-        # ], probability=0.9)
-
-        # aug.add([
-        #     Identity(),
-        #     Identity()
-        # ], probability=0.9)
-
-        # aug.add([
-        #     AdditiveNoise(sigma=.2),
-        #     AdditiveNoise(sigma=.2)
-        # ], probability=0.9)
-
-        # aug.add([
-        #     CutOut(width = (40,41)),
-        #     CutOut(width = (40,41))
-        # ], probability=1)
+        
 
         # aug.add([
         #     IsotropicScale(),
         #     IsotropicScale()
         # ], probability=1)
 
-        # aug.add([
-        #     Rotate(),
-        #     Rotate()
-        # ], probability=1)
+        
 
     # return aug([np.expand_dims(img, axis=-1), to_categorical(msk)])
 
@@ -170,12 +182,14 @@ def main():
     # Getting images
     test_filename = 'MMRR-21-20'
 
+    scaler = MinMaxScaler()
+
     img = np.load(dataset_path + f"test/images/{test_filename}.npy")
     msk = np.load(dataset_path + f"test/masks/{test_filename}.npy")
 
     print(msk.shape)
 
-    img_d, msk_d = augmentation(img, msk)
+    img_d, msk_d = augmentation(img, msk, scaler)
     
     palette = np.array([[  0,   0,   0],   # black
                     [255,   0,   0],   # red
@@ -185,6 +199,7 @@ def main():
     print(img_d.shape, " ", msk_d.shape)
     print(img.shape, "  ", msk.shape)
     print(img_d.shape, "  ", msk_d.shape)
+    print(np.unique(img))
     print(np.unique(img_d))
     # exit()
     
@@ -226,7 +241,6 @@ def main():
     DATASET_PATH = '/home/camilo/Programacion/master_thesis/dataset_test/' 
     PREFIX_PATH = '/home/camilo/Programacion/master_thesis/data/'
 
-    scaler = MinMaxScaler()
 
     mri_slides = {
         'HLN-12-1': {

@@ -31,7 +31,7 @@ from volumentations import *
 import pickle
 import glob
 import segmentation_models as sm
-from augmend import Augmend, Elastic
+from augmend import Augmend, Elastic, FlipRot90
 sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
@@ -293,10 +293,16 @@ def augmentation(img, msk):
     msk = np.argmax(msk, axis=4)
 
     aug = Augmend()
+    
+    aug.add([
+        FlipRot90(axis=(0, 1, 2)),
+        FlipRot90(axis=(0, 1, 2)),
+    ], probability=0.9)
+
     aug.add([
         Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=False),
         Elastic(axis=(0, 1, 2), amount=5, order=0, use_gpu=False),
-    ], probability=1)
+    ], probability=0.9)
 
     for i in range(img.shape[0]):
         img_res, msk_res = aug([img[i, :, :, :], msk[i, :, :, :]])
@@ -348,8 +354,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_33'
+    retrain = False
+    training_folder = 'trainings/version_34'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 

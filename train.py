@@ -294,10 +294,10 @@ def augmentation(img, msk):
 
     aug = Augmend()
     
-    aug.add([
-        FlipRot90(axis=(0, 1, 2)),
-        FlipRot90(axis=(0, 1, 2)),
-    ], probability=0.9)
+    # aug.add([
+    #     FlipRot90(axis=(0, 1, 2)),
+    #     FlipRot90(axis=(0, 1, 2)),
+    # ], probability=0.9)
 
     aug.add([
         Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=False),

@@ -223,7 +223,7 @@ def get_config_local_path():
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
-    config.transformer.layers = 8#4
+    config.transformer.layers = 4#4
     config.transformer.num_heads = 4 #8
     config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-6

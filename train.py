@@ -355,7 +355,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_34'
+    training_folder = 'trainings/version_35'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 

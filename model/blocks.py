@@ -743,9 +743,9 @@ class EncoderDecoderConnections(layers.Layer):
     def call(self, encoder_input):
         # coding res path
         out = self.con_comp_1(encoder_input)
-        # out = self.con_comp_2(out)
-        # out = self.con_comp_3(out)
-        # out = self.con_comp_4(out)
+        out = self.con_comp_2(out)
+        out = self.con_comp_3(out)
+        out = self.con_comp_4(out)
         
         if (self.upsample):
             out = self.upsample_lyr(out)

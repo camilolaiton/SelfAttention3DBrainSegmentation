@@ -392,8 +392,20 @@ class TransformerBlock(layers.Layer):
             dropout_rate=self.dropout_rate
         )
 
-        self.softmax_b = layers.Activation(activation='softmax')
+        self.conv_1_a = layers.Conv1D(
+            filters=64,
+            kernel_size=1,
+            strides=1,
+            padding='same'
+        )
 
+        self.conv_1_b = layers.Conv1D(
+            filters=64,
+            kernel_size=1,
+            strides=1,
+            padding='same'
+        )
+        self.add_conv = layers.Add()
 
         self.add_b = layers.Add()
 
@@ -406,7 +418,11 @@ class TransformerBlock(layers.Layer):
         x2 = self.add_a([attention_layer, encoded_patches])
         x3 = self.ln_b(x2)
         x3 = self.mlp_block_b(x3)
-        return self.add_b([x3, x2])
+        x3 = self.add_b([x3, x2])
+        # return x3
+        x4 = self.conv_1_a(x3)
+        x5 = self.conv_1_b(x3)
+        return self.add_conv([x4, x5])
 
     def get_config(self):
         config = super().get_config().copy()
@@ -743,9 +759,9 @@ class EncoderDecoderConnections(layers.Layer):
     def call(self, encoder_input):
         # coding res path
         out = self.con_comp_1(encoder_input)
-        # out = self.con_comp_2(out)
-        # out = self.con_comp_3(out)
-        # out = self.con_comp_4(out)
+        out = self.con_comp_2(out)
+        out = self.con_comp_3(out)
+        out = self.con_comp_4(out)
         
         if (self.upsample):
             out = self.upsample_lyr(out)

@@ -18,6 +18,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tensorflow.keras.utils import to_categorical
 from model.model import *
+from model.model_2 import *
 from model.config import *
 import segmentation_models as sm
 sm.set_framework('tf.keras')
@@ -207,42 +208,42 @@ def main():
     # exit()
     # print("List: ", results_list)
     
-    # config = get_config_test()
-    # model = test_model_3(config)
+    config = get_config_local_path()
+    model = build_model(config)
 
     # sample_weight = np.ones(4)
     # sample_weight[0] = 2.0
 
     # print(sample_weight)
 
-    # optimizer = tf.optimizers.SGD(
-    #     learning_rate=config.learning_rate, 
-    #     momentum=config.momentum,
-    #     name='optimizer_SGD_0'
-    # )
+    optimizer = tf.optimizers.SGD(
+        learning_rate=config.learning_rate, 
+        momentum=config.momentum,
+        name='optimizer_SGD_0'
+    )
 
-    # model.compile(
-    #     optimizer=optimizer,
-    #     loss="categorical_crossentropy",#loss,#tversky_loss,
-    #     metrics=[
-    #         # 'accuracy',
-    #         sm.metrics.IOUScore(threshold=0.5),
-    #         sm.metrics.FScore(threshold=0.5),
-    #     ],
-    # )
-    # print(f"[+] Building model with config {config}")
-    # model.summary()
-    # tf.keras.utils.plot_model(
-    #     model,
-    #     to_file="test_model.png",
-    #     show_shapes=True,
-    #     show_dtype=True,
-    #     show_layer_names=True,
-    #     rankdir="TB",
-    #     expand_nested=False,
-    #     dpi=96,
-    # )
-    # exit()
+    model.compile(
+        optimizer=optimizer,
+        loss="categorical_crossentropy",#loss,#tversky_loss,
+        metrics=[
+            # 'accuracy',
+            sm.metrics.IOUScore(threshold=0.5),
+            sm.metrics.FScore(threshold=0.5),
+        ],
+    )
+    print(f"[+] Building model with config {config}")
+    model.summary()
+    tf.keras.utils.plot_model(
+        model,
+        to_file="test_model.png",
+        show_shapes=True,
+        show_dtype=True,
+        show_layer_names=True,
+        rankdir="TB",
+        expand_nested=False,
+        dpi=96,
+    )
+    exit()
     
     # image_list_train = sorted(glob.glob(
     #     config.dataset_path + 'train/images/*'))

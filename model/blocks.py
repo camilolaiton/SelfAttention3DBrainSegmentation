@@ -420,9 +420,10 @@ class TransformerBlock(layers.Layer):
         x3 = self.mlp_block_b(x3)
         x3 = self.add_b([x3, x2])
         # return x3
+        # print(encoded_patches)
         x4 = self.conv_1_a(x3)
         x5 = self.conv_1_b(x3)
-        return self.add_conv([x4, x5])
+        return self.add_conv([x4, x5])#, encoded_patches])
 
     def get_config(self):
         config = super().get_config().copy()

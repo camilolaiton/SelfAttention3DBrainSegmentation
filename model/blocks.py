@@ -399,15 +399,11 @@ class TransformerBlock(layers.Layer):
             padding='same'
         )
 
-        self.conv_1_b = layers.Conv1D(
-            filters=64,
-            kernel_size=1,
-            strides=1,
-            padding='same'
-        )
-        self.add_conv = layers.Add()
-
         self.add_b = layers.Add()
+
+        self.bn_1_a = layers.BatchNormalization()
+        self.activation_fnc_1a = layers.Activation(tf.nn.leaky_relu)
+        # self.add_conv = layers.Add()
 
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
@@ -422,8 +418,10 @@ class TransformerBlock(layers.Layer):
         # return x3
         # print(encoded_patches)
         x4 = self.conv_1_a(x3)
-        x5 = self.conv_1_b(x3)
-        return self.add_conv([x4, x5])#, encoded_patches])
+        x4 = self.bn_1_a(x4)
+        x4 = self.activation_fnc_1a(x4)
+
+        return x4#self.add_conv([x4, encoded_patches])
 
     def get_config(self):
         config = super().get_config().copy()

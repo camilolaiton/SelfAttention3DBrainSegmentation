@@ -300,8 +300,8 @@ def augmentation(img, msk):
     # ], probability=0.9)
 
     aug.add([
-        Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=True),
-        Elastic(axis=(0, 1, 2), amount=5, order=0, use_gpu=True),
+        Elastic(axis=(0, 1, 2), amount=5, order=1, use_gpu=False),
+        Elastic(axis=(0, 1, 2), amount=5, order=0, use_gpu=False),
     ], probability=0.9)
 
     for i in range(img.shape[0]):

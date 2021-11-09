@@ -397,13 +397,18 @@ class TransformerBlock(layers.Layer):
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
         attention_layer = self.attention_layer_a(x1, x1)
-        # print(attention_layer.shape)
-        # attention_layer = self.softmax_b(attention_layer)
-        
         x2 = self.add_a([attention_layer, encoded_patches])
         x3 = self.ln_b(x2)
         x3 = self.mlp_block_b(x3)
         x3 = self.add_b([x3, x2])
+
+        # attention_layer = self.attention_layer_a(encoded_patches, encoded_patches)
+        # x1 = self.add_a([attention_layer, encoded_patches])
+        # x2 = self.ln_a(x1)
+
+        # x3 = self.mlp_block_b(x2)
+        # x3 = self.add_b([x3, x2])
+        # x3 = self.ln_b(x3)
         return x3
 
     def get_config(self):
@@ -451,7 +456,7 @@ class DecoderBlockCup(layers.Layer):
         # self.conv_a = layers.Conv2D(filters=self.filters, kernel_size=self.kernel_size*2, strides=1, padding='same')
         self.conv_a = layers.Conv3D(
             filters=self.filters, 
-            kernel_size=self.kernel_size*2, 
+            kernel_size=self.kernel_size,#*2, 
             strides=1, 
             padding='same'
         )
@@ -463,7 +468,7 @@ class DecoderBlockCup(layers.Layer):
         )
 
     def call(self, encoder_output):
-        # x = self.ln_a(encoder_output)
+        encoder_output = self.ln_a(encoder_output)
         x = self.reshape_a(encoder_output)
         x = self.conv_a(x)
         x = self.bn_a(x)

@@ -120,7 +120,6 @@ def model_local_path(config, inputs):
 
     i = 1
 
-
     for filters in dec_filters[1:]:
         shape = deconv_layers.shape[-1]
 

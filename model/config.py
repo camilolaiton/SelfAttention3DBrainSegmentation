@@ -197,7 +197,7 @@ def get_config_local_path():
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
-    config.batch_size = 8
+    config.batch_size = 16
     config.num_epochs = 100
     config.image_height = 64
     config.image_width = 64
@@ -218,15 +218,15 @@ def get_config_local_path():
     
     config.transformer.projection_dim = 64# 64 #128
     config.transformer.units = [
-        config.transformer.projection_dim * 2, # (3) 1536 --  (4) 2048
+        config.transformer.projection_dim * 3, # (3) 1536 --  (4) 2048
         # config.transformer.projection_dim * 2,
         config.transformer.projection_dim, # 512
         # config.transformer.projection_dim, # 64
     ]
     config.transformer.layers = 4#4
-    config.transformer.num_heads = 3 #8
+    config.transformer.num_heads = 4 #8
     config.transformer.dropout_rate = 0.1
-    config.transformer.normalization_rate = 1e-6
+    config.transformer.normalization_rate = 1e-4
 
     config.decoder_filters = [
       config.transformer.projection_dim,

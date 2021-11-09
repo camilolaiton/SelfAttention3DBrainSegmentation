@@ -392,18 +392,7 @@ class TransformerBlock(layers.Layer):
             dropout_rate=self.dropout_rate
         )
 
-        self.conv_1_a = layers.Conv1D(
-            filters=64,
-            kernel_size=1,
-            strides=1,
-            padding='same'
-        )
-
         self.add_b = layers.Add()
-
-        self.bn_1_a = layers.BatchNormalization()
-        self.activation_fnc_1a = layers.Activation(tf.nn.leaky_relu)
-        self.add_conv = layers.Add()
 
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
@@ -415,13 +404,7 @@ class TransformerBlock(layers.Layer):
         x3 = self.ln_b(x2)
         x3 = self.mlp_block_b(x3)
         x3 = self.add_b([x3, x2])
-        # return x3
-        # print(encoded_patches)
-        x4 = self.conv_1_a(x3)
-        x4 = self.bn_1_a(x4)
-        x4 = self.activation_fnc_1a(x4)
-
-        return self.add_conv([x4, encoded_patches])
+        return x3
 
     def get_config(self):
         config = super().get_config().copy()

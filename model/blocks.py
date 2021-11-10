@@ -468,7 +468,7 @@ class DecoderBlockCup(layers.Layer):
         )
 
     def call(self, encoder_output):
-        encoder_output = self.ln_a(encoder_output)
+        # encoder_output = self.ln_a(encoder_output)
         x = self.reshape_a(encoder_output)
         x = self.conv_a(x)
         x = self.bn_a(x)

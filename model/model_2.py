@@ -67,7 +67,7 @@ def model_local_path(config, inputs):
             config.transformer.projection_dim
         ),
         filters=config.transformer.projection_dim,
-        kernel_size=5,
+        kernel_size=7,
         normalization_rate=config.transformer.normalization_rate,
         upsample=False,
         name=f'decoder_cup_{0}'

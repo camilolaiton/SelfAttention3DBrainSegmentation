@@ -15,7 +15,7 @@ def model_local_path(config, inputs):
         
         conv_layers = ConvolutionalBlock(
             filters=filters,
-            kernel_size=5,
+            kernel_size=3,
             strides=1,
             activation=config.act_func,
             name=f"conv_block_{filters}_stride1_0"

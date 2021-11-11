@@ -523,7 +523,7 @@ def main():
     #     test_msks_lst,
     #     config.batch_size
     # )
-    weights = [0, 0.2, 0.4, 0.4]
+    # weights = [0, 0.2, 0.4, 0.4]
     val_datagen = tf.data.Dataset.from_tensor_slices(
         # (test_imgs, test_msks)
         (image_list_test, mask_list_test)

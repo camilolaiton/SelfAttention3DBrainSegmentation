@@ -204,7 +204,8 @@ class ConvolutionalBlock(layers.Layer):
         self.conv_a = layers.Conv3D(
             filters=self.filters, 
             kernel_size=self.kernel_size, 
-            strides=self.strides, 
+            strides=self.strides,
+            kernel_initializer='he_normal',
             padding=padding
         )
 
@@ -244,7 +245,7 @@ class MLPBlock(layers.Layer):
         self.layers = []
 
         for units in self.hidden_units:
-            self.layers.append(layers.Dense(units, activation=self.activation))
+            self.layers.append(layers.Dense(units, activation=self.activation, kernel_initializer='he_normal'))
             self.layers.append(layers.Dropout(self.dropout_rate))
 
     def call(self, inputs):
@@ -458,6 +459,7 @@ class DecoderBlockCup(layers.Layer):
             filters=self.filters, 
             kernel_size=self.kernel_size,#*2, 
             strides=1, 
+            kernel_initializer='he_normal',
             padding='same'
         )
         # self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
@@ -561,6 +563,7 @@ class DecoderUpsampleBlock(layers.Layer):
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=self.strides, 
+            kernel_initializer='he_normal',
             padding='same'
         )
 
@@ -605,6 +608,7 @@ class DecoderSegmentationHead(layers.Layer):
             filters=self.filters, 
             kernel_size=self.kernel_size, 
             strides=self.strides, 
+            kernel_initializer='he_normal',
             padding='same'
         )
 
@@ -646,6 +650,7 @@ class ConnectionComponents(layers.Layer):
             filters=self.filters, 
             kernel_size=(self.kernel_size, self.kernel_size, self.kernel_size), 
             strides=1, 
+            kernel_initializer='he_normal',
             padding='same'
         )
 
@@ -653,6 +658,7 @@ class ConnectionComponents(layers.Layer):
             filters=1,
             kernel_size=(1, 1, 1),
             strides=1,
+            kernel_initializer='he_normal',
             padding='same'
         )
 

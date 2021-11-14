@@ -434,10 +434,18 @@ def main():
     #     staircase=True
     # )
 
-    optimizer = tf.optimizers.SGD(
+    # optimizer = tf.optimizers.SGD(
+    #     learning_rate=config.learning_rate, 
+    #     momentum=config.momentum,
+    #     name='optimizer_SGD_0'
+    # )
+
+    optimizer = tf.keras.optimizers.Adamax(
         learning_rate=config.learning_rate, 
-        momentum=config.momentum,
-        name='optimizer_SGD_0'
+        beta_1=0.9, 
+        beta_2=0.999, 
+        epsilon=1e-07, 
+        name="Adamax",
     )
 
     # optimizer = tf.optimizers.Adam(

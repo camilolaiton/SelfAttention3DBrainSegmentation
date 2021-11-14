@@ -5,8 +5,8 @@ from .config import *
 
 def model_local_path(config, inputs):
     # [First path]
-    enc_filters = [8, 16, 32, 64]
-    dec_filters = [64, 32, 16, 8]
+    enc_filters = [16, 32, 64]
+    dec_filters = [64, 32, 16]
 
     conv_layers = inputs
     conv_blocks = []

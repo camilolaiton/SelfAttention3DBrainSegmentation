@@ -236,7 +236,7 @@ class MLPBlock(layers.Layer):
         self.dropout_rate = dropout_rate
 
         if not activation:
-            activation = tf.nn.leaky_relu#tf.nn.gelu
+            activation = tf.nn.relu#tf.nn.gelu
 
         self.activation = activation
 

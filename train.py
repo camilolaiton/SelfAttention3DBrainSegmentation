@@ -588,7 +588,7 @@ def main():
     )
 
     tb = TensorBoard(
-        log_dir=f"{training_folder}/logs_tr", 
+        log_dir=f"{training_folder}/logs_tr_2", 
         write_graph=True, 
         update_freq='epoch'
     )

@@ -399,7 +399,7 @@ class TransformerBlock(layers.Layer):
         self.mlp_block_b = MLPBlock(
             hidden_units=self.transformer_units, 
             dropout_rate=self.dropout_rate,
-            activation=activation
+            activation='elu'
         )
 
         self.add_b = layers.Add()

@@ -437,6 +437,7 @@ def main():
     optimizer = tf.optimizers.SGD(
         learning_rate=config.learning_rate, 
         momentum=config.momentum,
+        nesterov=True,
         name='optimizer_SGD_0'
     )
 
@@ -444,7 +445,8 @@ def main():
     #     learning_rate=config.learning_rate, 
     #     beta_1=0.9, 
     #     beta_2=0.999, 
-    #     epsilon=1e-07, 
+    #     epsilon=1e-07,
+    # amsgrad=True,
     #     name="Adamax",
     # )
 

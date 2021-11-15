@@ -195,6 +195,8 @@ class ConvolutionalBlock(layers.Layer):
 
         if (activation == 'leaky_relu'):
             activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
         else:
             activation = tf.nn.relu
 
@@ -231,13 +233,18 @@ class ConvolutionalBlock(layers.Layer):
         return config
 
 class MLPBlock(layers.Layer):
-    def __init__(self, hidden_units, dropout_rate, activation=None, **kwarks):
+    def __init__(self, hidden_units, dropout_rate, activation='relu', **kwarks):
         super(MLPBlock, self).__init__(**kwarks)
         self.hidden_units = hidden_units
         self.dropout_rate = dropout_rate
 
-        if not activation:
-            activation = tf.nn.relu#tf.nn.gelu
+        if (activation == 'leaky_relu'):
+            activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
+        else:
+            activation = tf.nn.relu
+        
 
         self.activation = activation
 
@@ -246,7 +253,7 @@ class MLPBlock(layers.Layer):
 
         for units in self.hidden_units:
             self.layers.append(layers.Dense(units, activation=self.activation, kernel_initializer='he_normal'))
-            self.layers.append(layers.Dropout(self.dropout_rate))
+            self.layers.append(layers.SpatialDropout1D(self.dropout_rate))#layers.Dropout(self.dropout_rate))
 
     def call(self, inputs):
 
@@ -384,13 +391,15 @@ class TransformerBlock(layers.Layer):
             num_heads = self.num_heads,
             key_dim = self.projection_dim,
             dropout = self.dropout_rate,
+            kernel_initializer='he_normal',
         )
         self.add_a = layers.Add()
 
         self.ln_b = layers.LayerNormalization(epsilon=self.normalization_rate)
         self.mlp_block_b = MLPBlock(
             hidden_units=self.transformer_units, 
-            dropout_rate=self.dropout_rate
+            dropout_rate=self.dropout_rate,
+            activation='elu'
         )
 
         self.add_b = layers.Add()
@@ -443,6 +452,8 @@ class DecoderBlockCup(layers.Layer):
 
         if (activation == 'leaky_relu'):
             activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
         else:
             activation = tf.nn.relu
 
@@ -502,6 +513,8 @@ class DecoderTransposeBlock(layers.Layer):
 
         if (activation == 'leaky_relu'):
             activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
         else:
             activation = tf.nn.relu
 
@@ -549,6 +562,8 @@ class DecoderUpsampleBlock(layers.Layer):
 
         if (activation == 'leaky_relu'):
             activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
         else:
             activation = tf.nn.relu
             
@@ -641,6 +656,8 @@ class ConnectionComponents(layers.Layer):
 
         if (activation == 'leaky_relu'):
             activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
         else:
             activation = tf.nn.relu
 
@@ -714,6 +731,8 @@ class EncoderDecoderConnections(layers.Layer):
 
         if (activation == 'leaky_relu'):
             activation = tf.nn.leaky_relu
+        elif (activation == 'elu'):
+            activation = tf.nn.elu
         else:
             activation = tf.nn.relu
 
@@ -727,25 +746,25 @@ class EncoderDecoderConnections(layers.Layer):
         self.con_comp_1 = ConnectionComponents(
             filters=self.filters, 
             kernel_size=self.kernel_size,
-            activation='leaky_relu',
+            activation=activation,
         )
 
         self.con_comp_2 = ConnectionComponents(
             filters=self.filters, 
             kernel_size=self.kernel_size,
-            activation='leaky_relu',
+            activation=activation,
         )
 
         self.con_comp_3 = ConnectionComponents(
             filters=self.filters, 
             kernel_size=self.kernel_size,
-            activation='leaky_relu',
+            activation=activation,
         )
 
         self.con_comp_4 = ConnectionComponents(
             filters=self.filters, 
             kernel_size=self.kernel_size,
-            activation='leaky_relu',
+            activation=activation,
         )
 
 

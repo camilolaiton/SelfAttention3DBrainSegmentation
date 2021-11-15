@@ -133,7 +133,7 @@ def main():
     parser.add_argument('--folder_name', metavar='folder', type=str,
                         help='Insert the folder for insights')
     args = vars(parser.parse_args())
-    
+
     # path_prediction = 'trainings/version_8_0_2paths/insights/prediction_0.npy'
     # truth_path = 'trainings/version_8_0_2paths/ground_truth.npy'
     # dest_path = 'trainings/version_8_0_2paths'
@@ -204,7 +204,7 @@ def main():
         # print("AFTER AFTER: ", prediction.shape)
         name = training_folder + deep_folder + f"/prediction_{x}.npy"
         print("Saving prediction ", name)
-        np.save(name, prediction)
+        # np.save(name, prediction)
         
         for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)

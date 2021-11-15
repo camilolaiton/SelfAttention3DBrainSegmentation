@@ -361,11 +361,14 @@ def main():
 
     parser.add_argument('--folder_name', metavar='folder', type=str,
                         help='Insert the folder for insights')
+
+    parser.add_argument('--lr_epoch_start', metavar='lr_decrease', type=int,
+                        help='Start epoch lr decrease', default=10)
     args = vars(parser.parse_args())
 
     retrain = args['retrain']
     training_folder = 'trainings/' + args['folder_name']
-    
+
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -625,7 +628,7 @@ def main():
     )
 
     def scheduler(epoch, lr):
-        if epoch < 10:
+        if epoch < args['lr_epoch_start']:
             return lr
         else:
             return lr * tf.math.exp(-0.1)

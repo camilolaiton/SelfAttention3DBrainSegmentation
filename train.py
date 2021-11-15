@@ -434,26 +434,29 @@ def main():
     #     staircase=True
     # )
 
-    optimizer = tf.optimizers.SGD(
-        learning_rate=config.learning_rate, 
-        momentum=config.momentum,
-        nesterov=True,
-        name='optimizer_SGD_0'
-    )
+    # optimizer = tf.optimizers.SGD(
+    #     learning_rate=config.learning_rate, 
+    #     momentum=config.momentum,
+    #     nesterov=True,
+    #     name='optimizer_SGD_0'
+    # )
 
     # optimizer = tf.keras.optimizers.Adamax(
     #     learning_rate=config.learning_rate, 
     #     beta_1=0.9, 
     #     beta_2=0.999, 
     #     epsilon=1e-07,
-    # amsgrad=True,
     #     name="Adamax",
     # )
 
-    # optimizer = tf.optimizers.Adam(
-    #     learning_rate=config.learning_rate, 
-    #     name='optimizer_Adam'
-    # )
+    optimizer = tf.optimizers.Adam(
+        learning_rate=config.learning_rate,
+        beta_1=0.9, 
+        beta_2=0.999, 
+        epsilon=1e-07,
+        amsgrad=True, 
+        name='optimizer_Adam'
+    )
 
     # lr_metric = get_lr_metric(optimizer)
 

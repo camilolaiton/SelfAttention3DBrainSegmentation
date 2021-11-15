@@ -54,7 +54,7 @@ def model_local_path(config, inputs):
             dropout_rate=config.transformer.dropout_rate, 
             normalization_rate=config.transformer.normalization_rate, 
             transformer_units=config.transformer.units,
-            activation='elu',
+            activation='relu',
             name=f"transformer_block_{idx}"
         )(conv_proj)
         transformer_layers_path_1.append(conv_proj)

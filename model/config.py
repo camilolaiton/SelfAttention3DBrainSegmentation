@@ -193,7 +193,7 @@ def get_config_local_path():
     config.config_name = "testing"
     config.dataset_path = 'dataset_3D_p64/'
     config.unbatch = True
-    config.learning_rate = 0.0001
+    config.learning_rate = 0.001
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2

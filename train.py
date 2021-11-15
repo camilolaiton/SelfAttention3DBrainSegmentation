@@ -355,7 +355,7 @@ def main():
             print(e)
 
     retrain = False
-    training_folder = 'trainings/version_42'
+    training_folder = 'trainings/version_43'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -441,22 +441,22 @@ def main():
     #     name='optimizer_SGD_0'
     # )
 
-    # optimizer = tf.keras.optimizers.Adamax(
-    #     learning_rate=config.learning_rate, 
-    #     beta_1=0.9, 
-    #     beta_2=0.999, 
-    #     epsilon=1e-07,
-    #     name="Adamax",
-    # )
-
-    optimizer = tf.optimizers.Adam(
-        learning_rate=config.learning_rate,
+    optimizer = tf.keras.optimizers.Adamax(
+        learning_rate=config.learning_rate, 
         beta_1=0.9, 
         beta_2=0.999, 
         epsilon=1e-07,
-        amsgrad=False, 
-        name='optimizer_Adam'
+        name="Adamax",
     )
+
+    # optimizer = tf.optimizers.Adam(
+    #     learning_rate=config.learning_rate,
+    #     beta_1=0.9, 
+    #     beta_2=0.999, 
+    #     epsilon=1e-07,
+    #     amsgrad=False, 
+    #     name='optimizer_Adam'
+    # )
 
     # lr_metric = get_lr_metric(optimizer)
 

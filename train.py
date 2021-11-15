@@ -354,8 +354,8 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_41'
+    retrain = False
+    training_folder = 'trainings/version_42'
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -454,7 +454,7 @@ def main():
         beta_1=0.9, 
         beta_2=0.999, 
         epsilon=1e-07,
-        amsgrad=True, 
+        amsgrad=False, 
         name='optimizer_Adam'
     )
 

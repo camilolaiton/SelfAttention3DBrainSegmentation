@@ -194,6 +194,7 @@ def get_config_local_path():
     config.dataset_path = 'dataset_3D_p64/'
     config.unbatch = True
     config.learning_rate = 0.001
+    config.optimizer = 'adamax' #SGD, adam
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
@@ -228,12 +229,8 @@ def get_config_local_path():
     config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-4
 
-    config.decoder_filters = [
-      config.transformer.projection_dim,
-      64,
-      32,
-      16,
-    ]
+    config.enc_filters = [16, 32, 64]
+    config.dec_filters = [64, 32, 16]
 
     config.n_classes = 4
     config.activation = 'softmax'

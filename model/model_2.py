@@ -5,13 +5,11 @@ from .config import *
 
 def model_local_path(config, inputs):
     # [First path]
-    enc_filters = [16, 32, 64]
-    dec_filters = [64, 32, 16]
 
     conv_layers = inputs
     conv_blocks = []
 
-    for filters in enc_filters:
+    for filters in config.enc_filters:
         
         conv_layers = ConvolutionalBlock(
             filters=filters,
@@ -77,43 +75,43 @@ def model_local_path(config, inputs):
     deconv_layers = decoder_block_cup
 
     deconv_layers = ConvolutionalBlock(
-        filters=dec_filters[0],
+        filters=config.dec_filters[0],
         kernel_size=3,
         strides=1,
         activation=config.act_func,
-        name=f"deconv_block_{dec_filters[0]}_stride1_0"
+        name=f"deconv_block_{config.dec_filters[0]}_stride1_0"
     )(deconv_layers)
 
     deconv_layers = ConvolutionalBlock(
-        filters=dec_filters[0],
+        filters=config.dec_filters[0],
         kernel_size=3,
         strides=1,
         activation=config.act_func,
-        name=f"deconv_block_{dec_filters[0]}_stride1_1"
+        name=f"deconv_block_{config.dec_filters[0]}_stride1_1"
     )(deconv_layers)
 
     if (config.decoder_conv_localpath):
         deconv_layers = DecoderTransposeBlock(
-            filters=dec_filters[0],
+            filters=config.dec_filters[0],
             activation=config.act_func,
-            name=f"transpose_{dec_filters[0]}"
+            name=f"transpose_{config.dec_filters[0]}"
         )(deconv_layers)
     else:
         deconv_layers = DecoderUpsampleBlock(
-            filters=dec_filters[0], 
+            filters=config.dec_filters[0], 
             kernel_size=3,
             activation=config.act_func,
-            name=f"upsample_{dec_filters[0]}"
+            name=f"upsample_{config.dec_filters[0]}"
         )(deconv_layers)
 
     if (config.skip_connections):
 
         skip_conn_1 = EncoderDecoderConnections(
-            filters=dec_filters[0],
+            filters=config.dec_filters[0],
             kernel_size=3,
             upsample=False,
             activation=config.act_func,
-            name=f"skip_connection_{dec_filters[0]}"
+            name=f"skip_connection_{config.dec_filters[0]}"
         )(conv_blocks[-1])
 
         # print("conv block: ", conv_blocks[-1-i].shape, " ", skip_conn_1.shape)
@@ -122,7 +120,7 @@ def model_local_path(config, inputs):
 
     i = 1
 
-    for filters in dec_filters[1:]:
+    for filters in config.dec_filters[1:]:
         shape = deconv_layers.shape[-1]
 
         deconv_layers = ConvolutionalBlock(

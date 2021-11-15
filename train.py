@@ -32,6 +32,7 @@ import pickle
 import glob
 import segmentation_models as sm
 from augmend import Augmend, Elastic, FlipRot90
+import argparse
 sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
@@ -354,8 +355,17 @@ def main():
             # Virtual devices must be set before GPUs have been initialized
             print(e)
 
-    retrain = True
-    training_folder = 'trainings/version_43'
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--retrain', metavar='retr', type=int,
+                        help='Retrain architecture', default=0)
+
+    parser.add_argument('--folder_name', metavar='folder', type=str,
+                        help='Insert the folder for insights')
+    args = vars(parser.parse_args())
+
+    retrain = args['retrain']
+    training_folder = 'trainings/' + args['folder_name']
+    
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     # model_path = f"{training_folder}/checkpoints_4/model_trained_09_0.68.hdf5"
 
@@ -434,29 +444,32 @@ def main():
     #     staircase=True
     # )
 
-    # optimizer = tf.optimizers.SGD(
-    #     learning_rate=config.learning_rate, 
-    #     momentum=config.momentum,
-    #     nesterov=True,
-    #     name='optimizer_SGD_0'
-    # )
+    optimizer = None
 
-    optimizer = tf.keras.optimizers.Adamax(
-        learning_rate=config.learning_rate, 
-        beta_1=0.9, 
-        beta_2=0.999, 
-        epsilon=1e-07,
-        name="Adamax",
-    )
-
-    # optimizer = tf.optimizers.Adam(
-    #     learning_rate=config.learning_rate,
-    #     beta_1=0.9, 
-    #     beta_2=0.999, 
-    #     epsilon=1e-07,
-    #     amsgrad=False, 
-    #     name='optimizer_Adam'
-    # )
+    if (config.optimizer == 'SGD'):
+        optimizer = tf.optimizers.SGD(
+            learning_rate=config.learning_rate, 
+            momentum=config.momentum,
+            nesterov=True,
+            name='optimizer_SGD_0'
+        )
+    elif (config.optimizer == 'adamax'):
+        optimizer = tf.keras.optimizers.Adamax(
+            learning_rate=config.learning_rate, 
+            beta_1=0.9, 
+            beta_2=0.999, 
+            epsilon=1e-07,
+            name="Adamax",
+        )
+    elif (config.optimizer == 'adam'):
+        optimizer = tf.optimizers.Adam(
+            learning_rate=config.learning_rate,
+            beta_1=0.9, 
+            beta_2=0.999, 
+            epsilon=1e-07,
+            amsgrad=False, 
+            name='optimizer_Adam'
+        )
 
     # lr_metric = get_lr_metric(optimizer)
 

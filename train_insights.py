@@ -10,7 +10,7 @@ from glob import glob
 from utils import utils
 import os
 import numpy as np
-from matplotlib.colors import ListedColormap
+import argparse
 
 def plot_model_training_info(model_history, dest_path):
     loss = model_history['loss']
@@ -129,6 +129,11 @@ def plot_predicted(msk_patches, prediction, idx, idx2, dest_path, name):
 
 def main():
 
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--folder_name', metavar='folder', type=str,
+                        help='Insert the folder for insights')
+    args = vars(parser.parse_args())
+    
     # path_prediction = 'trainings/version_8_0_2paths/insights/prediction_0.npy'
     # truth_path = 'trainings/version_8_0_2paths/ground_truth.npy'
     # dest_path = 'trainings/version_8_0_2paths'
@@ -141,7 +146,7 @@ def main():
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
-    training_folder = 'trainings/version_41'
+    training_folder = 'trainings/' + args['folder_name']
     utils.create_folder(f"{training_folder}/insights")
     
     model_path = f"{training_folder}/model_trained_architecture.hdf5"

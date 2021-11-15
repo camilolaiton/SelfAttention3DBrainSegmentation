@@ -377,7 +377,7 @@ class ConvProjection(layers.Layer):
         return config
 
 class TransformerBlock(layers.Layer):
-    def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, **kwarks):
+    def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, activation='relu', **kwarks):
         super(TransformerBlock, self).__init__(**kwarks)
         self.num_heads = num_heads
         self.projection_dim = projection_dim
@@ -399,7 +399,7 @@ class TransformerBlock(layers.Layer):
         self.mlp_block_b = MLPBlock(
             hidden_units=self.transformer_units, 
             dropout_rate=self.dropout_rate,
-            activation='elu'
+            activation=activation
         )
 
         self.add_b = layers.Add()

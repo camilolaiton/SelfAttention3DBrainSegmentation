@@ -135,15 +135,16 @@ def main():
         msk = patchify(msk, (patch_size, patch_size, patch_size), step=patch_size)
         msk = np.reshape(msk, (-1, msk.shape[3], msk.shape[4], msk.shape[5]))
         msk = np.expand_dims(msk, axis=4)
-        # print(np.unique(msk))
+        # print(np.unique(msk), " ", msk.shape)
         msk = to_categorical(msk, num_classes=num_classes)
+        # print(np.unique(msk), " ", msk.shape)
         msk = msk.astype(np.uint8)
         # print("msk shape: ", msk.shape)
         np.save(f'{dataset_name_folder}/{end_folder}/images/{name}_patched.npy', data)
 
         # Saving msk
         np.save(f'{dataset_name_folder}/{end_folder}/masks/{name}_patched.npy', msk)
-        # exit()
+        exit()
 
     # train_dir_imgs = 'dataset_3D/train/images/*'
     # train_dir_msks = 'dataset_3D/train/masks/*'

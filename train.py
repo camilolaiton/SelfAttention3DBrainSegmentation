@@ -397,7 +397,7 @@ def main():
     if (weights == False):
         end_path = '/train/masks'
         image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
-        weights, label_to_frequency_dict = utils.median_frequency_balancing(image_files=image_files, num_classes=config.num_classes)
+        weights, label_to_frequency_dict = utils.median_frequency_balancing(image_files=image_files, num_classes=config.n_classes)
         if (weights == False):
             print("Please check the path")
             exit()

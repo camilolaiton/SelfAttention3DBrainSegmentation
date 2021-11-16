@@ -98,7 +98,6 @@ def main():
     #     # mri_paths[mri_paths.index('data/HLN-12/HLN-12-1')],
     #     mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]
     # ]
-    mri_paths = [mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]]
     
     for mri_path in mri_paths:
 

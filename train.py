@@ -317,7 +317,7 @@ def augmentor(img, msk):
     aug_img = tf.numpy_function(
         augmentation,#augmentor_py,
         inp=[img, msk],
-        Tout=[tf.float32, tf.float32]
+        Tout=[tf.float16, tf.float16]
     )
     #aug_img.set_shape((64, 64, 64, 1))
     return aug_img

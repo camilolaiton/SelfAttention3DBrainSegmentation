@@ -313,13 +313,13 @@ def augmentation(img, msk):
         # print(img_res.shape, " ", msk_res.shape)
         total_img.append(img_res)#.astype(np.float32))
         total_msk.append(msk_res)#.astype(np.float32))
-    return np.expand_dims(total_img, axis=-1), to_categorical(total_msk)#.astype(np.float16) 
+    return np.expand_dims(total_img, axis=-1).astype(np.float16), to_categorical(total_msk).astype(np.float16) 
 
 def augmentor(img, msk):
     aug_img = tf.numpy_function(
         augmentation,#augmentor_py,
         inp=[img, msk],
-        Tout=[tf.float32, tf.float32]
+        Tout=[tf.float16, tf.float16]
     )
     #aug_img.set_shape((64, 64, 64, 1))
     return aug_img
@@ -333,11 +333,11 @@ def main():
 
     tf.keras.backend.clear_session()
 
-    # policy = mixed_precision.Policy('mixed_float16')
-    # mixed_precision.set_global_policy(policy)
+    policy = mixed_precision.Policy('mixed_float16')
+    mixed_precision.set_global_policy(policy)
     
-    # print('Compute dtype: %s' % policy.compute_dtype)
-    # print('Variable dtype: %s' % policy.variable_dtype)
+    print('Compute dtype: %s' % policy.compute_dtype)
+    print('Variable dtype: %s' % policy.variable_dtype)
     
     SEED = 12
     mb_limit = 9500
@@ -631,7 +631,7 @@ def main():
 
     tb = TensorBoard(
         log_dir=f"{training_folder}/logs_tr_2", 
-        # profile_batch=(4, 8),
+        profile_batch=(4, 8),
         write_graph=True, 
         update_freq='epoch'
     )

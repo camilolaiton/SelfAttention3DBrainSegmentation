@@ -54,7 +54,7 @@ def get_classes_same_id():
     'left-lateral-ventricle': {'old_id': 4, 'new_id': 4},
     'right-lateral-ventricle': {'old_id': 43, 'new_id': 4},
     'left-inf-lat-vent': {'old_id': 5, 'new_id': 5},	
-    'right-inf-lat-vent': {'old_id': 44, 'new_id': 5},
+    'right-inf-lat-vent': {'old_id': 44, 'new_id': 5}, 
     
     'left-thalamus': {'old_id': 10, 'new_id': 6},	
     'right-thalamus': {'old_id': 49, 'new_id': 6},
@@ -157,20 +157,26 @@ def get_classes_different_id():
     'background': {'old_id': None, 'new_id': 0},
     'left-cerebral-white-matter' : {'old_id': 2, 'new_id': 1},
     'right-cerebral-white-matter' : {'old_id': 41, 'new_id': 2},
-    'left-lateral-ventricle': {'old_id': 4, 'new_id': 3},
-    'right-lateral-ventricle': {'old_id': 43, 'new_id': 4},
-    'left-inf-lat-vent': {'old_id': 5, 'new_id': 5},	
-    'right-inf-lat-vent': {'old_id': 44, 'new_id': 6},
-    'left-cerebellum-white-matter': {'old_id': 7, 'new_id': 7},
-    'right-cerebellum-white-matter': {'old_id': 46, 'new_id': 8},
-    'left-cerebellum-cortex': {'old_id': 8, 'new_id': 9},
-    'right-cerebellum-cortex': {'old_id': 47, 'new_id': 10},
+    
+    'left-cerebellum-white-matter': {'old_id': 7, 'new_id': 3},
+    'right-cerebellum-white-matter': {'old_id': 46, 'new_id': 4},
+    
+    'left-cerebellum-cortex': {'old_id': 8, 'new_id': 5},
+    'right-cerebellum-cortex': {'old_id': 47, 'new_id': 6},
+
+    'left-lateral-ventricle': {'old_id': 4, 'new_id': 7},
+    'right-lateral-ventricle': {'old_id': 43, 'new_id': 8},
+    'left-inf-lat-vent': {'old_id': 5, 'new_id': 9},	
+    'right-inf-lat-vent': {'old_id': 44, 'new_id': 10},
+    
     'left-thalamus': {'old_id': 10, 'new_id': 11},	
     'right-thalamus': {'old_id': 49, 'new_id': 12},
+
     'left-caudate': {'old_id': 11, 'new_id': 13},	
     'right-caudate': {'old_id': 50, 'new_id': 14},
     'left-putamen': {'old_id': 12, 'new_id': 15},	
     'right-putamen': {'old_id': 51, 'new_id': 16},
+    
     'left-pallidum': {'old_id': 13, 'new_id': 17},	
     'right-pallidum': {'old_id': 52, 'new_id': 18},
     '3rd-ventricle': {'old_id': 14, 'new_id': 19},	

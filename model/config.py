@@ -232,7 +232,7 @@ def get_config_local_path():
     config.enc_filters = [16, 32, 64]
     config.dec_filters = [64, 32, 16]
 
-    config.n_classes = 4
+    config.n_classes = 13
     config.activation = 'softmax'
 
     return config

@@ -52,11 +52,13 @@ def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     lut_file = utils.load_lut(LUT_PATH)
     scaler = MinMaxScaler()
-    class_info = utils.get_classes_same_id()
+    # class_info = utils.get_classes_same_id()
+    class_info = utils.get_classes_different_id()
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
     patch_size = 64
-    num_classes = 4
+    # num_classes = 4
+    num_classes = len(STRUCTURES) + 1
 
     dataset_name_folder = 'dataset_3D_p64'
 
@@ -96,6 +98,7 @@ def main():
     #     # mri_paths[mri_paths.index('data/HLN-12/HLN-12-1')],
     #     mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]
     # ]
+    mri_paths = [mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]]
     
     for mri_path in mri_paths:
 
@@ -111,8 +114,9 @@ def main():
 
         msk = np.zeros((256, 256, 256), dtype=np.uint8)
         for structure in STRUCTURES:
+            # print("Structure ", structure, ": ", class_info[structure])
             msk = helper_anat_structure(msk, data_msk, lut_file[structure], class_info[structure]['new_id'])
-
+            # print(np.unique(msk))
         data = data[45:237, 38:230, 30:222]
         msk = msk[45:237, 38:230, 30:222]
         # print(data.shape)
@@ -126,17 +130,21 @@ def main():
         data = patchify(data, (patch_size, patch_size, patch_size), step=patch_size)
         data = np.reshape(data, (-1, data.shape[3], data.shape[4], data.shape[5]))
         data = np.expand_dims(data, axis=4)
+        data = data.astype(np.float16)
         # print("Data shape: ", data.shape)
         # Patches for test
         msk = patchify(msk, (patch_size, patch_size, patch_size), step=patch_size)
         msk = np.reshape(msk, (-1, msk.shape[3], msk.shape[4], msk.shape[5]))
         msk = np.expand_dims(msk, axis=4)
+        # print(np.unique(msk))
         msk = to_categorical(msk, num_classes=num_classes)
+        msk = msk.astype(np.uint8)
         # print("msk shape: ", msk.shape)
         np.save(f'{dataset_name_folder}/{end_folder}/images/{name}_patched.npy', data)
 
         # Saving msk
         np.save(f'{dataset_name_folder}/{end_folder}/masks/{name}_patched.npy', msk)
+        # exit()
 
     # train_dir_imgs = 'dataset_3D/train/images/*'
     # train_dir_msks = 'dataset_3D/train/masks/*'

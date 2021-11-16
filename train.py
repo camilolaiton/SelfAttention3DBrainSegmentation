@@ -33,6 +33,7 @@ import glob
 import segmentation_models as sm
 from augmend import Augmend, Elastic, FlipRot90
 import argparse
+from tensorflow.keras import mixed_precision
 sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
@@ -254,15 +255,15 @@ def testing_datagens(config):
     # pyplot.show()
 
 def load_files_py(img_path, msk_path):
-    img = np.load(img_path).astype(np.float32)
-    msk = np.load(msk_path).astype(np.float32)
+    img = np.load(img_path).astype(np.float16)
+    msk = np.load(msk_path).astype(np.float16)
     return img, msk
 
 def load_files(img_path, msk_path):
     return tf.numpy_function(
         load_files_py,
         inp=[img_path, msk_path],
-        Tout=[tf.float32, tf.float32]
+        Tout=[tf.float16, tf.float16]
     )
 
 def get_augmentation():
@@ -327,7 +328,15 @@ def main():
 
     # os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
     # os.environ["CUDA_VISIBLE_DEVICES"]="1"
+
     tf.keras.backend.clear_session()
+
+    policy = mixed_precision.Policy('mixed_float16')
+    mixed_precision.set_global_policy(policy)
+    
+    print('Compute dtype: %s' % policy.compute_dtype)
+    print('Variable dtype: %s' % policy.variable_dtype)
+    
     SEED = 12
     mb_limit = 9500
     gpus = tf.config.experimental.list_physical_devices('GPU')
@@ -618,6 +627,7 @@ def main():
 
     tb = TensorBoard(
         log_dir=f"{training_folder}/logs_tr_2", 
+        profile_batch=(4, 8),
         write_graph=True, 
         update_freq='epoch'
     )

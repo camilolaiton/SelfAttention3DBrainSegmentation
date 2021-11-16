@@ -294,6 +294,7 @@ class Patches(layers.Layer):
         #     padding="VALID",
         # )
 
+        # batch, 64,64,64
         patches = tf.extract_volume_patches(
             input=images,
             ksizes=[1, self.patch_size, self.patch_size, self.patch_size, 1],
@@ -627,7 +628,7 @@ class DecoderSegmentationHead(layers.Layer):
             padding='same'
         )
 
-        self.activation_layer = layers.Activation(self.activation)
+        self.activation_layer = layers.Activation(self.activation, dtype='float32')
     
     def call(self, decoder_upsample_block):
         x = self.conv_a(decoder_upsample_block)

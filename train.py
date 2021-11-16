@@ -289,8 +289,8 @@ def augmentor_py(img, msk):
     # return np.ndarray.astype(img, np.float32), np.ndarray.astype(msk, np.float32)
 
 def augmentation(img, msk):
-    img = img.astype(np.float32)
-    msk = msk.astype(np.float32)
+    # img = img.astype(np.float32)
+    # msk = msk.astype(np.float32)
     total_img = []
     total_msk = []
     img = np.squeeze(img)
@@ -313,13 +313,13 @@ def augmentation(img, msk):
         # print(img_res.shape, " ", msk_res.shape)
         total_img.append(img_res)#.astype(np.float32))
         total_msk.append(msk_res)#.astype(np.float32))
-    return np.expand_dims(total_img, axis=-1).astype(np.float16), to_categorical(total_msk).astype(np.float16) 
+    return np.expand_dims(total_img, axis=-1), to_categorical(total_msk) 
 
 def augmentor(img, msk):
     aug_img = tf.numpy_function(
         augmentation,#augmentor_py,
         inp=[img, msk],
-        Tout=[tf.float16, tf.float16]
+        Tout=[tf.float32, tf.float32]
     )
     #aug_img.set_shape((64, 64, 64, 1))
     return aug_img

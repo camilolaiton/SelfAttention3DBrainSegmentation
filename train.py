@@ -333,11 +333,11 @@ def main():
 
     tf.keras.backend.clear_session()
 
-    policy = mixed_precision.Policy('mixed_float16')
-    mixed_precision.set_global_policy(policy)
+    # policy = mixed_precision.Policy('mixed_float16')
+    # mixed_precision.set_global_policy(policy)
     
-    print('Compute dtype: %s' % policy.compute_dtype)
-    print('Variable dtype: %s' % policy.variable_dtype)
+    # print('Compute dtype: %s' % policy.compute_dtype)
+    # print('Variable dtype: %s' % policy.variable_dtype)
     
     SEED = 12
     mb_limit = 9500
@@ -629,7 +629,7 @@ def main():
 
     tb = TensorBoard(
         log_dir=f"{training_folder}/logs_tr_2", 
-        # profile_batch=(4, 8),
+        profile_batch=(4, 8),
         write_graph=True, 
         update_freq='epoch'
     )

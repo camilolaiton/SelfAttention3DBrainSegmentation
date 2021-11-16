@@ -255,15 +255,15 @@ def testing_datagens(config):
     # pyplot.show()
 
 def load_files_py(img_path, msk_path):
-    img = np.load(img_path).astype(np.float16)
-    msk = np.load(msk_path).astype(np.float16)
+    img = np.load(img_path).astype(np.float32)
+    msk = np.load(msk_path).astype(np.float32)
     return img, msk
 
 def load_files(img_path, msk_path):
     return tf.numpy_function(
         load_files_py,
         inp=[img_path, msk_path],
-        Tout=[tf.float16, tf.float16]
+        Tout=[tf.float32, tf.float32]
     )
 
 def get_augmentation():
@@ -311,15 +311,15 @@ def augmentation(img, msk):
     for i in range(img.shape[0]):
         img_res, msk_res = aug([img[i, :, :, :], msk[i, :, :, :]])
         # print(img_res.shape, " ", msk_res.shape)
-        total_img.append(img_res.astype(np.float16))
-        total_msk.append(msk_res.astype(np.float16))
+        total_img.append(img_res)#.astype(np.float32))
+        total_msk.append(msk_res)#.astype(np.float32))
     return np.expand_dims(total_img, axis=-1), to_categorical(total_msk) 
 
 def augmentor(img, msk):
     aug_img = tf.numpy_function(
         augmentation,#augmentor_py,
         inp=[img, msk],
-        Tout=[tf.float16, tf.float16]
+        Tout=[tf.float32, tf.float32]
     )
     #aug_img.set_shape((64, 64, 64, 1))
     return aug_img

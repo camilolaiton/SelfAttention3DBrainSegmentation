@@ -70,11 +70,25 @@ def read_patches_filename(filename, path):
     return patches
 
 def plot_examples(msk_patches, prediction, idx, dest_path, name):
-    palette = np.array([[  0,   0,   0],   # black
-                    [255,   0,   0],   # red
-                    [  0, 255,   0],   # green
-                    [  0,   0, 255]])   # blue
-                    # [255, 255, 255]])  # white
+    palette = np.array([
+                        [  0,   0,   0],   # black
+                        [245,   245,   245],   # cerebral-white-matter
+                        [245,   245,   245],
+                        [220, 248,   164],   # cerebellum-white-matter
+                        [220, 248,   164],   # cerebellum-white-matter
+                        [230, 148, 34],      # Cerebellum-cortex,
+                        [230, 148, 34],      # Cerebellum-cortex,
+                        [120, 18,  134], # lateral-ventricle
+                        [120, 18,  134], # lateral-ventricle
+                        [196, 58,  250], #int-lat-vent
+                        [196, 58,  250], #int-lat-vent
+                        [0,   118, 14], # thalamus
+                        [0,   118, 14], # thalamus
+                        [122, 186, 220], # caudate
+                        [122, 186, 220], # caudate
+                        [236, 13,  176], # putamen
+                        [236, 13,  176], # putamen
+                    ])
     # print(msk_patches.shape, " ", prediction.shape)
     for w in [0, 1]:
         RGB_ground = palette[msk_patches[w, idx, :, :]]
@@ -124,8 +138,7 @@ def plot_predicted(msk_patches, prediction, idx, idx2, dest_path, name):
                         [122, 186, 220], # caudate
                         [236, 13,  176], # putamen
                         [236, 13,  176], # putamen
-                    ])   # blue
-                    # [255, 255, 255]])  # white
+                    ])
     RGB_ground = palette[msk_patches[0, idx, :, idx2, :]]
     RGB_prediction = palette[prediction[0, idx, :, idx2, :]]
 
@@ -220,6 +233,7 @@ def main():
         name = training_folder + deep_folder + f"/prediction_{x}.npy"
         print("Saving prediction ", name)
         # np.save(name, prediction)
+        print(msk_patches.shape, "  ", prediction.shape)
         for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         

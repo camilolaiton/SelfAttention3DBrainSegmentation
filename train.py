@@ -446,7 +446,7 @@ def main():
         loss = dice_categorical(weights)
     elif config.loss_fnc == 'focal':
         # loss = SparseCategoricalFocalLoss(gamma=2, class_weight=weights, from_logits=True)
-        loss = tfa.losses.SigmoidFocalCrossEntropy(from_logits=True)
+        loss = tfa.losses.SigmoidFocalCrossEntropy(alpha=0.25, gamma=2.0, from_logits=True)
     else:
         print("No loss function")
         exit()
@@ -487,7 +487,7 @@ def main():
             beta_1=0.9, 
             beta_2=0.999, 
             epsilon=1e-07,
-            amsgrad=True, 
+            amsgrad=False, 
             name='optimizer_Adam'
         )
 

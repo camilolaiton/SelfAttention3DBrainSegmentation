@@ -85,7 +85,7 @@ def dice_focal_loss(weights):
     dice_loss = sm.losses.DiceLoss(class_weights=np.array(weights)) 
     focal_loss = tfa.losses.SigmoidFocalCrossEntropy(from_logits=True)
     # focal_loss = sm.losses.CategoricalFocalLoss(alpha=0.25, gamma=2.0)
-    loss = dice_loss + (1 * focal_loss)
+    loss = dice_loss + focal_loss
     return loss
 
 def dice_categorical(weights):

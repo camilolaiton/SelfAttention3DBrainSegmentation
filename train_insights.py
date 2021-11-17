@@ -77,8 +77,6 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                     # [255, 255, 255]])  # white
     # print(msk_patches.shape, " ", prediction.shape)
     for w in [0, 1]:
-        print(msk_patches.shape)
-        print(prediction.shape)
         RGB_ground = palette[msk_patches[w, idx, :, :]]
         RGB_prediction = palette[prediction[w, idx, :, :]]
 
@@ -207,7 +205,7 @@ def main():
         name = training_folder + deep_folder + f"/prediction_{x}.npy"
         print("Saving prediction ", name)
         # np.save(name, prediction)
-        
+        print(msk_patches.shape, " ", prediction.shape)
         for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         

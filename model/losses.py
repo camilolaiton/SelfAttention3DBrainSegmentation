@@ -3,6 +3,7 @@ from tensorflow.keras import backend as K
 import numpy as np
 from scipy.ndimage import distance_transform_edt as distance
 import segmentation_models as sm
+import tensorflow_addons as tfa
 sm.set_framework('tf.keras')
 
 
@@ -82,7 +83,8 @@ def categorical_focal_loss(gamma=2.0, alpha=0.25):
 
 def dice_focal_loss(weights):
     dice_loss = sm.losses.DiceLoss(class_weights=np.array(weights)) 
-    focal_loss = sm.losses.CategoricalFocalLoss()
+    focal_loss = tfa.losses.SigmoidFocalCrossEntropy(from_logits=True)
+    # focal_loss = sm.losses.CategoricalFocalLoss(alpha=0.25, gamma=2.0)
     loss = dice_loss + (1 * focal_loss)
     return loss
 
@@ -99,7 +101,7 @@ def tversky(y_true, y_pred):
     true_pos = K.sum(y_true_pos * y_pred_pos)
     false_neg = K.sum(y_true_pos * (1-y_pred_pos))
     false_pos = K.sum((1-y_true_pos)*y_pred_pos)
-    alpha = 0.7
+    alpha = 0.5
     return (true_pos + smooth)/(true_pos + alpha*false_neg + (1-alpha)*false_pos + smooth)
 
 def tversky_loss(y_true, y_pred):

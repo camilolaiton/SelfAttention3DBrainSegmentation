@@ -487,7 +487,7 @@ def main():
             beta_1=0.9, 
             beta_2=0.999, 
             epsilon=1e-07,
-            amsgrad=False, 
+            amsgrad=True, 
             name='optimizer_Adam'
         )
 

@@ -34,6 +34,7 @@ import segmentation_models as sm
 from augmend import Augmend, Elastic, FlipRot90
 import argparse
 from tensorflow.keras import mixed_precision
+from focal_loss import SparseCategoricalFocalLoss
 sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
@@ -443,6 +444,8 @@ def main():
         loss = focal_tversky
     elif config.loss_fnc == 'dice_categorical':
         loss = dice_categorical(weights)
+    elif config.loss_fnc == 'focal':
+        loss = SparseCategoricalFocalLoss(gamma=2, class_weight=weights)
     else:
         print("No loss function")
         exit()

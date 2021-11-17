@@ -445,7 +445,7 @@ def main():
     elif config.loss_fnc == 'dice_categorical':
         loss = dice_categorical(weights)
     elif config.loss_fnc == 'focal':
-        loss = SparseCategoricalFocalLoss(gamma=2, class_weight=weights)
+        loss = SparseCategoricalFocalLoss(gamma=2, class_weight=weights, from_logits=True)
     else:
         print("No loss function")
         exit()

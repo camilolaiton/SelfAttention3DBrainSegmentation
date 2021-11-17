@@ -603,6 +603,15 @@ def main():
     monitor = 'val_iou_score'
     mode = 'max'
 
+    class stopCallback(tf.keras.callbacks.Callback):
+        def on_epoch_end(self, epoch, logs={}):
+            if(logs.get('loss') <= 0.05):
+                print("\n\n\nReached 0.05 loss value so cancelling training!\n\n\n")
+                self.model.stop_training = True
+
+
+    trainingStopCallback = stopCallback()
+
     # Early stopping
     early_stop = EarlyStopping(
         monitor=monitor, 
@@ -675,7 +684,15 @@ def main():
         verbose=1,
         validation_data=dataset['val'],
         validation_steps=val_steps_per_epoch,
-        callbacks=[early_stop, model_check, model_check_2, tb, pltau, lr_callback],
+        callbacks=[
+            early_stop, 
+            model_check, 
+            model_check_2, 
+            tb, 
+            pltau, 
+            lr_callback,
+            trainingStopCallback
+        ],
         # class_weight=class_weights
     )
 

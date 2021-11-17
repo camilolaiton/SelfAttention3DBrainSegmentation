@@ -229,6 +229,7 @@ def main():
         prediction = model.predict(img_patches)
         # print("AFTER: ", prediction.shape)
         prediction = np.argmax(prediction, axis=4)
+        print("Unique: ", np.unique(prediction))
         # print("AFTER AFTER: ", prediction.shape)
         name = training_folder + deep_folder + f"/prediction_{x}.npy"
         print("Saving prediction ", name)

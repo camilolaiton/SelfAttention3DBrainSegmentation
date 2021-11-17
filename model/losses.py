@@ -89,7 +89,7 @@ def dice_focal_loss(weights):
 def dice_categorical(weights):
     dice_loss = sm.losses.DiceLoss(class_weights=np.array(weights)) 
     celoss = sm.losses.CategoricalCELoss(class_weights=np.array(weights))
-    loss = dice_loss + (1*celoss)
+    loss = -celoss - dice_loss
     return loss
 
 # https://github.com/nabsabraham/focal-tversky-unet/blob/master/losses.pys

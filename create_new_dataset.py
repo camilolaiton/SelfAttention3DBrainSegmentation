@@ -6,6 +6,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import MinMaxScaler
 import nilearn
 import nibabel as nib
+import argparse
 
 def generating_images(patch_size, ori_path, dest_path):
     for filename in glob.glob(ori_path):
@@ -41,6 +42,15 @@ def helper_anat_structure(msk, data_seg, lut_structure, new_id):
     return np.where(roi_data == lut_structure['id'], new_id, msk)
 
 def main():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--folder_name', metavar='folder', type=str,
+                        help='Insert the folder for the new dataset')
+    parser.add_argument('--same_id', metavar='same_structs', type=int,
+                        help='boolean to say if we use the same ids for structs', default=1)
+    args = vars(parser.parse_args())
+
+    dataset_name_folder = args['folder_name']#'dataset_3D_p64'
+    
     config_orig = {
         'RAS': True, 
         'normalize': False
@@ -52,15 +62,19 @@ def main():
     LUT_PATH = './data/FreeSurferColorLUT.txt'
     lut_file = utils.load_lut(LUT_PATH)
     scaler = MinMaxScaler()
-    # class_info = utils.get_classes_same_id()
-    class_info = utils.get_classes_different_id()
+    
+    class_info = None
+    
+    if args['same_id']:
+        class_info = utils.get_classes_same_id()
+    else:
+        class_info = utils.get_classes_different_id()
+    
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     mri_paths = utils.read_test_to_list('data/common_mri_images.txt')
     patch_size = 64
     # num_classes = 4
     num_classes = len(STRUCTURES) + 1
-
-    dataset_name_folder = 'dataset_3D_p64'
 
     for idx in range(len(mri_paths)):
         tmp = mri_paths[idx].split('-')

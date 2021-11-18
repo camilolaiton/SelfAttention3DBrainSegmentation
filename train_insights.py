@@ -88,6 +88,16 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                         [122, 186, 220], # caudate
                         [236, 13,  176], # putamen
                         [236, 13,  176], # putamen
+                        [12,  48,  255], # pallidum
+                        [12,  48,  255], # pallidum
+                        [204, 182, 142], # 3rd-ventricle
+                        [42,  204, 164], # 4th-ventricle
+                        [119, 159, 176], # brain-stem
+                        [220, 216, 20], # hippocampus
+                        [220, 216, 20], # hippocampus
+                        [103, 255, 255], # amygdala
+                        [103, 255, 255], # amygdala
+                        [60,  60,  60], # csf
                     ])
     # print(msk_patches.shape, " ", prediction.shape)
     for w in [0, 1]:

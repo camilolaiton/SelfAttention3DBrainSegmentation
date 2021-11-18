@@ -194,7 +194,7 @@ def get_config_local_path():
     config.dataset_path = 'dataset_3D_p64/'
     config.unbatch = True
     config.learning_rate = 0.001
-    config.optimizer = 'adam' #SGD, adam
+    config.optimizer = 'adamax' #SGD, adam
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
@@ -208,7 +208,7 @@ def get_config_local_path():
     config.skip_connections = True
     config.data_augmentation = False
     config.loss_fnc = 'focal' #'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
-    config.decoder_conv_localpath = True
+    config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False
     config.act_func = 'leaky_relu'
 

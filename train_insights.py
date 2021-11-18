@@ -202,8 +202,8 @@ def main():
     config = get_config_local_path()#get_config_test()
     config.dataset_path = 'dataset_3D_p64/'
     # Getting images
-    # test_filename = 'MMRR-21-20'
-    test_filename = 'NKI-RS-22-10'
+    test_filename = 'MMRR-21-20'
+    # test_filename = 'NKI-RS-22-10'
     # Use 5 and 6 for idx
     
     img_patches = np.load(config.dataset_path + f"test/images/{test_filename}_patched.npy")

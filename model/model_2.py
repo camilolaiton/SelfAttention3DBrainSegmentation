@@ -290,21 +290,21 @@ def model_local_path_2(config, inputs):
     for filters in config.dec_filters[1:]:
         shape = deconv_layers.shape[-1]
 
-        # deconv_layers = ConvolutionalBlock(
-        #     filters=shape/2,
-        #     kernel_size=3,
-        #     strides=1,
-        #     activation=config.act_func,
-        #     name=f"deconv_block_{filters}_stride1_0"
-        # )(deconv_layers)
+        deconv_layers = ConvolutionalBlock(
+            filters=shape/2,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"deconv_block_{filters}_stride1_0"
+        )(deconv_layers)
 
-        # deconv_layers = ConvolutionalBlock(
-        #     filters=shape/4,
-        #     kernel_size=3,
-        #     strides=1,
-        #     activation=config.act_func,
-        #     name=f"deconv_block_{filters}_stride1_1"
-        # )(deconv_layers)
+        deconv_layers = ConvolutionalBlock(
+            filters=shape/4,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"deconv_block_{filters}_stride1_1"
+        )(deconv_layers)
 
         if (config.decoder_conv_localpath):
             deconv_layers = DecoderTransposeBlock(

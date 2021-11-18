@@ -11,6 +11,173 @@ def model_local_path(config, inputs):
 
     for filters in config.enc_filters:
         
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"conv_block_{filters}_stride1_0"
+        )(conv_layers)
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"conv_block_{filters}_stride1_1"
+        )(conv_layers)
+
+        conv_blocks.append(conv_layers)
+
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=2,
+            activation=config.act_func,
+            name=f"down_conv_block_{filters}"
+        )(conv_layers)
+
+    conv_proj = ConvProjection(
+        config.conv_projection,#config.transformer.projection_dim,
+        config.transformer.projection_dim,
+        num_patches=config.transformer.num_patches, #512
+        name='conv_projection'
+    )(conv_layers)
+
+    transformer_layers_path_1 = []
+    # Successive transformer layers
+    for idx in range(config.transformer.layers):
+        conv_proj = TransformerBlock(
+            num_heads=config.transformer.num_heads,
+            projection_dim=config.transformer.projection_dim, 
+            dropout_rate=config.transformer.dropout_rate, 
+            normalization_rate=config.transformer.normalization_rate, 
+            transformer_units=config.transformer.units,
+            activation='relu',
+            name=f"transformer_block_{idx}"
+        )(conv_proj)
+        transformer_layers_path_1.append(conv_proj)
+
+    dec = config.transformer.patch_size
+    decoder_block_cup = DecoderBlockCup(
+        target_shape=(
+            config.image_height//dec, 
+            config.image_width//dec, 
+            config.image_depth//dec, 
+            config.transformer.projection_dim
+        ),
+        filters=config.transformer.projection_dim,
+        kernel_size=7,
+        normalization_rate=config.transformer.normalization_rate,
+        upsample=False,
+        name=f'decoder_cup_{0}'
+    )(conv_proj)
+
+    deconv_layers = decoder_block_cup
+
+    deconv_layers = ConvolutionalBlock(
+        filters=config.dec_filters[0],
+        kernel_size=3,
+        strides=1,
+        activation=config.act_func,
+        name=f"deconv_block_{config.dec_filters[0]}_stride1_0"
+    )(deconv_layers)
+
+    deconv_layers = ConvolutionalBlock(
+        filters=config.dec_filters[0],
+        kernel_size=3,
+        strides=1,
+        activation=config.act_func,
+        name=f"deconv_block_{config.dec_filters[0]}_stride1_1"
+    )(deconv_layers)
+
+    if (config.decoder_conv_localpath):
+        deconv_layers = DecoderTransposeBlock(
+            filters=config.dec_filters[0],
+            activation=config.act_func,
+            name=f"transpose_{config.dec_filters[0]}"
+        )(deconv_layers)
+    else:
+        deconv_layers = DecoderUpsampleBlock(
+            filters=config.dec_filters[0], 
+            kernel_size=3,
+            activation=config.act_func,
+            name=f"upsample_{config.dec_filters[0]}"
+        )(deconv_layers)
+
+    if (config.skip_connections):
+
+        skip_conn_1 = EncoderDecoderConnections(
+            filters=config.dec_filters[0],
+            kernel_size=3,
+            upsample=False,
+            activation=config.act_func,
+            name=f"skip_connection_{config.dec_filters[0]}"
+        )(conv_blocks[-1])
+
+        # print("conv block: ", conv_blocks[-1-i].shape, " ", skip_conn_1.shape)
+        # print("deconv block: ", deconv_layers.shape)
+        deconv_layers = layers.Concatenate()([skip_conn_1, deconv_layers])
+
+    i = 1
+
+    for filters in config.dec_filters[1:]:
+        shape = deconv_layers.shape[-1]
+
+        deconv_layers = ConvolutionalBlock(
+            filters=shape/2,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"deconv_block_{filters}_stride1_0"
+        )(deconv_layers)
+
+        deconv_layers = ConvolutionalBlock(
+            filters=shape/4,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"deconv_block_{filters}_stride1_1"
+        )(deconv_layers)
+
+        if (config.decoder_conv_localpath):
+            deconv_layers = DecoderTransposeBlock(
+                filters=filters,
+                activation=config.act_func,
+                name=f"transpose_{filters}"
+            )(deconv_layers)
+        else:
+            deconv_layers = DecoderUpsampleBlock(
+                filters=filters, 
+                kernel_size=3,
+                activation=config.act_func,
+                name=f"upsample_{filters}"
+            )(deconv_layers)
+
+        if (config.skip_connections):
+
+            skip_conn_1 = EncoderDecoderConnections(
+                filters=filters,
+                kernel_size=3,
+                upsample=False,
+                activation=config.act_func,
+                name=f"skip_connection_{filters}"
+            )(conv_blocks[-1-i])
+
+            # print("conv block: ", conv_blocks[-1-i].shape, " ", skip_conn_1.shape)
+            # print("deconv block: ", deconv_layers.shape)
+            i += 1
+            deconv_layers = layers.Concatenate()([skip_conn_1, deconv_layers])
+
+    return deconv_layers
+
+def model_local_path_2(config, inputs):
+    # [First path]
+
+    conv_layers = inputs
+    conv_blocks = []
+
+    for filters in config.enc_filters:
+        
         # conv_layers = ConvolutionalBlock(
         #     filters=filters,
         #     kernel_size=3,
@@ -66,7 +233,7 @@ def model_local_path(config, inputs):
             config.transformer.projection_dim
         ),
         filters=config.transformer.projection_dim,
-        kernel_size=3,#7,
+        kernel_size=7,
         normalization_rate=config.transformer.normalization_rate,
         upsample=False,
         name=f'decoder_cup_{0}'
@@ -373,7 +540,7 @@ def build_model(config):
     else:
         data_aug = inputs
 
-    local_path = model_local_path(config, data_aug)
+    local_path = model_local_path_2(config, data_aug)
 
     # global_path = model_global_path(config, inputs)
 

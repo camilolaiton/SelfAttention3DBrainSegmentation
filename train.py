@@ -409,7 +409,7 @@ def main():
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
         print("Weights calculated: ", weights)
     else:
-        weights = [float(weight)/100.0 for weight in weights]
+        weights = [float(weight) for weight in weights]
         # weights = [0.0, 1, 2.7, 3]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read! ", weights)

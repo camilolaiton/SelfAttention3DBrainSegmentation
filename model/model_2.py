@@ -178,20 +178,20 @@ def model_local_path_2(config, inputs):
 
     for filters in config.enc_filters:
         
-        # conv_layers = ConvolutionalBlock(
-        #     filters=filters,
-        #     kernel_size=3,
-        #     strides=1,
-        #     activation=config.act_func,
-        #     name=f"conv_block_{filters}_stride1_0"
-        # )(conv_layers)
-        # conv_layers = ConvolutionalBlock(
-        #     filters=filters,
-        #     kernel_size=3,
-        #     strides=1,
-        #     activation=config.act_func,
-        #     name=f"conv_block_{filters}_stride1_1"
-        # )(conv_layers)
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"conv_block_{filters}_stride1_0"
+        )(conv_layers)
+        conv_layers = ConvolutionalBlock(
+            filters=filters,
+            kernel_size=3,
+            strides=1,
+            activation=config.act_func,
+            name=f"conv_block_{filters}_stride1_1"
+        )(conv_layers)
 
         conv_blocks.append(conv_layers)
 
@@ -233,7 +233,7 @@ def model_local_path_2(config, inputs):
             config.transformer.projection_dim
         ),
         filters=config.transformer.projection_dim,
-        kernel_size=7,
+        kernel_size=3,
         normalization_rate=config.transformer.normalization_rate,
         upsample=False,
         name=f'decoder_cup_{0}'
@@ -241,21 +241,21 @@ def model_local_path_2(config, inputs):
 
     deconv_layers = decoder_block_cup
 
-    # deconv_layers = ConvolutionalBlock(
-    #     filters=config.dec_filters[0],
-    #     kernel_size=3,
-    #     strides=1,
-    #     activation=config.act_func,
-    #     name=f"deconv_block_{config.dec_filters[0]}_stride1_0"
-    # )(deconv_layers)
+    deconv_layers = ConvolutionalBlock(
+        filters=config.dec_filters[0],
+        kernel_size=3,
+        strides=1,
+        activation=config.act_func,
+        name=f"deconv_block_{config.dec_filters[0]}_stride1_0"
+    )(deconv_layers)
 
-    # deconv_layers = ConvolutionalBlock(
-    #     filters=config.dec_filters[0],
-    #     kernel_size=3,
-    #     strides=1,
-    #     activation=config.act_func,
-    #     name=f"deconv_block_{config.dec_filters[0]}_stride1_1"
-    # )(deconv_layers)
+    deconv_layers = ConvolutionalBlock(
+        filters=config.dec_filters[0],
+        kernel_size=3,
+        strides=1,
+        activation=config.act_func,
+        name=f"deconv_block_{config.dec_filters[0]}_stride1_1"
+    )(deconv_layers)
 
     if (config.decoder_conv_localpath):
         deconv_layers = DecoderTransposeBlock(

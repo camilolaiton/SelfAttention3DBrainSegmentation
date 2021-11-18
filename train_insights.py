@@ -237,7 +237,7 @@ def main():
         if x == 0:
             np.save(name, prediction)
         print(msk_patches.shape, "  ", prediction.shape)
-        for id in range(1, 58):#[50, 58, 25, 32, ]:
+        for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         
         x += 1

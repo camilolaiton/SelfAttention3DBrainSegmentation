@@ -235,7 +235,7 @@ def main():
         print("Saving prediction ", name)
         # np.save(name, prediction)
         print(msk_patches.shape, "  ", prediction.shape)
-        for id in [50, 58]:
+        for id in [50, 58, 25, 32]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)
         
         x += 1

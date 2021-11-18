@@ -158,7 +158,7 @@ def main():
 
         # Saving msk
         np.save(f'{dataset_name_folder}/{end_folder}/masks/{name}_patched.npy', msk)
-        exit()
+        # exit()
 
     # train_dir_imgs = 'dataset_3D/train/images/*'
     # train_dir_msks = 'dataset_3D/train/masks/*'

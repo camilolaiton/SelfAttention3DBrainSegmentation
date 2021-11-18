@@ -14,3 +14,13 @@ left-caudate
 right-caudate
 left-putamen
 right-putamen
+left-pallidum
+right-pallidum
+3rd-ventricle
+4th-ventricle
+brain-stem
+left-hippocampus
+right-hippocampus
+left-amygdala
+right-amygdala
+csf

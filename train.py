@@ -397,7 +397,7 @@ def main():
     # Setting up weights 
     weights = utils.read_test_to_list(config.dataset_path + 'weights.txt')
     
-    div_factor = 10
+    div_factor = 100
 
     if (weights == False):
         end_path = '/train/masks'
@@ -494,6 +494,12 @@ def main():
             amsgrad=False, 
             name='optimizer_Adam'
         )
+    elif (config.optimizer == 'radam'):
+        optimizer = tfa.optimizers.RectifiedAdam(
+            lr=config.learning_rate,
+            name='RectifiedAdam'
+        )
+
 
     # lr_metric = get_lr_metric(optimizer)
 

@@ -219,6 +219,7 @@ def main():
 
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     STRUCTURES.insert(0, 'background')
+    print(STRUCTURES)
 
     training_folder = 'trainings/' + args['folder_name']
     utils.create_folder(f"{training_folder}/insights")
@@ -283,7 +284,7 @@ def main():
         if x == 0:
             np.save(name, prediction)
             report = classification_report(msk_patches.flatten(), prediction.flatten(), target_names=STRUCTURES)
-            utils.classification_report_csv(report, training_folder + deep_folder + f"/{len(STRUCTURES)}_structures")
+            utils.classification_report_csv(report, training_folder + deep_folder, f"/{len(STRUCTURES)}_structures")
         print(msk_patches.shape, "  ", prediction.shape)
         for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)

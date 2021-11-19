@@ -415,9 +415,9 @@ def main():
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read!")
 
-    weights = [float("{:.2f}".format(w/div_factor)) for w in weights]
+    weights = [float("{:.2f}".format(float(w)/div_factor)) for w in weights]
     print(weights)
-    
+
     # Setting up neural network loss
     #loss = tversky_loss()#
     

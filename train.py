@@ -397,7 +397,7 @@ def main():
     # Setting up weights 
     weights = utils.read_test_to_list(config.dataset_path + 'weights.txt')
     
-    div_factor = 100
+    div_factor = 10
 
     if (weights == False):
         end_path = '/train/masks'
@@ -482,7 +482,7 @@ def main():
             learning_rate=config.learning_rate, 
             beta_1=0.9, 
             beta_2=0.999, 
-            epsilon=1e-07,
+            epsilon=1e-04,
             name="Adamax",
         )
     elif (config.optimizer == 'adam'):

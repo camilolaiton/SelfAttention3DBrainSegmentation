@@ -98,6 +98,17 @@ def plot_examples(msk_patches, prediction, idx, dest_path, name):
                         [103, 255, 255], # amygdala
                         [103, 255, 255], # amygdala
                         [60,  60,  60], # csf
+                        [255, 165, 0], # accumbens-area
+                        [255, 165, 0], # accumbens-area
+                        [165, 42,  42], # ventraldc
+                        [165, 42,  42], # ventraldc
+                        [0,   200, 200], # choroid plexus
+                        [0,   200, 200], # choroid plexus
+                        [0,   0,   64], # cc_posterior
+                        [0,   0,   112], # cc_mid_posterior
+                        [0,   0,  160], # cc_central,
+                        [0,  0,   208], # cc_mid_anterior
+                        [0,   0,   255], # cc_anterior
                     ])
     # print(msk_patches.shape, " ", prediction.shape)
     for w in [0, 1]:
@@ -158,6 +169,17 @@ def plot_predicted(msk_patches, prediction, idx, idx2, dest_path, name):
                         [103, 255, 255], # amygdala
                         [103, 255, 255], # amygdala
                         [60,  60,  60], # csf
+                        [255, 165, 0], # accumbens-area
+                        [255, 165, 0], # accumbens-area
+                        [165, 42,  42], # ventraldc
+                        [165, 42,  42], # ventraldc
+                        [0,   200, 200], # choroid plexus
+                        [0,   200, 200], # choroid plexus
+                        [0,   0,   64], # cc_posterior
+                        [0,   0,   112], # cc_mid_posterior
+                        [0,   0,  160], # cc_central,
+                        [0,  0,   208], # cc_mid_anterior
+                        [0,   0,   255], # cc_anterior
                     ])
     RGB_ground = palette[msk_patches[0, idx, :, idx2, :]]
     RGB_prediction = palette[prediction[0, idx, :, idx2, :]]

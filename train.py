@@ -408,6 +408,7 @@ def main():
             exit()
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
         print("Weights calculated: ", weights)
+        weights = weights / 100
     else:
         weights = [float(weight)/100 for weight in weights]
         # weights = [0.0, 1, 2.7, 3]

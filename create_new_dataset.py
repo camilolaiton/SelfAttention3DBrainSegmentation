@@ -75,6 +75,7 @@ def main():
     patch_size = 64
     # num_classes = 4
     num_classes = len(STRUCTURES) + 1
+    print("Classes: ", num_classes)
 
     for idx in range(len(mri_paths)):
         tmp = mri_paths[idx].split('-')
@@ -112,6 +113,8 @@ def main():
     #     # mri_paths[mri_paths.index('data/HLN-12/HLN-12-1')],
     #     mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]
     # ]
+
+    # mri_paths = [mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]]
     
     for mri_path in mri_paths:
 

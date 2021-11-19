@@ -191,18 +191,24 @@ def get_classes_different_id():
     'right-accumbens-area': {'old_id': 58, 'new_id': 28},
     'left-ventraldc': {'old_id': 28, 'new_id': 29},	
     'right-ventraldc': {'old_id': 60, 'new_id': 30},
-    'left-vessel': {'old_id': 30, 'new_id': 31},	
-    'right-vessel': {'old_id': 62, 'new_id': 32},
-    'left-choroid-plexus': {'old_id': 31, 'new_id': 33},
-    'right-choroid-plexus': {'old_id': 63, 'new_id': 34},
-    'wm-hypointensities': {'old_id': 77, 'new_id': 35},	
-    'non-wm-hypointensities': {'old_id': 80, 'new_id': 36},	
-    'optic-chiasm': {'old_id': 85, 'new_id': 37},	
-    'cc_posterior': {'old_id': 251, 'new_id': 38},	
-    'cc_mid_posterior': {'old_id': 252, 'new_id': 39},	
-    'cc_central': {'old_id': 253, 'new_id': 40},	
-    'cc_mid_anterior': {'old_id': 254, 'new_id': 41},	
-    'cc_anterior': {'old_id': 255, 'new_id': 42},	
+    'left-choroid-plexus': {'old_id': 31, 'new_id': 31},
+    'right-choroid-plexus': {'old_id': 63, 'new_id': 32},
+
+    'cc_posterior': {'old_id': 251, 'new_id': 33},	
+    'cc_mid_posterior': {'old_id': 252, 'new_id': 34},	
+    'cc_central': {'old_id': 253, 'new_id': 35},	
+    'cc_mid_anterior': {'old_id': 254, 'new_id': 36},	
+    'cc_anterior': {'old_id': 255, 'new_id': 37},
+
+    'left-vessel': {'old_id': 30, 'new_id': 38},	
+    'right-vessel': {'old_id': 62, 'new_id': 39},
+    
+    
+
+    'wm-hypointensities': {'old_id': 77, 'new_id': 40},	
+    'non-wm-hypointensities': {'old_id': 80, 'new_id': 41},	
+    'optic-chiasm': {'old_id': 85, 'new_id': 42},	
+    	
     'ctx-lh-caudalanteriorcingulate': {'old_id': 1002, 'new_id': 43},	
     'ctx-rh-caudalanteriorcingulate': {'old_id': 2002, 'new_id': 44},
     'ctx-lh-caudalmiddlefrontal': {'old_id': 1003, 'new_id': 45},	

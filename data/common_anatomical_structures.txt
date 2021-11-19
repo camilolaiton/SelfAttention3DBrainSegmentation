@@ -24,3 +24,14 @@ right-hippocampus
 left-amygdala
 right-amygdala
 csf
+left-accumbens-area
+right-accumbens-area
+left-ventraldc
+right-ventraldc
+left-choroid-plexus
+right-choroid-plexus
+cc_posterior
+cc_mid_posterior
+cc_central
+cc_mid_anterior
+cc_anterior

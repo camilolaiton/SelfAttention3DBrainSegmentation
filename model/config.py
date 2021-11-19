@@ -194,10 +194,10 @@ def get_config_local_path():
     config.dataset_path = 'dataset_3D_37/'
     config.unbatch = True
     config.learning_rate = 0.001
-    config.optimizer = 'adamax' #SGD, adam
+    config.optimizer = 'adam' #SGD, adam
     config.weight_decay = 1e-4
     config.momentum = 0.9
-    config.dropout = 0.2
+    config.dropout = 0.1
     config.batch_size = 8
     config.num_epochs = 100
     config.image_height = 64

@@ -37,6 +37,7 @@ import shutil
 import elasticdeform
 from mne.transforms import apply_trans
 from sklearn.preprocessing import MinMaxScaler
+import pandas as pd
 
 scaler = MinMaxScaler()
 
@@ -1262,3 +1263,39 @@ def median_frequency_balancing(image_files, num_classes=4):
     dict_2['total'] = label_2
 
     return class_weights, dict_2 # class_weights, 
+
+def classification_report_csv(report, path, name):
+    report_data = []
+    lines = report.split('\n')
+    columns = ['precision', 'recall', 'f1-score', 'support']
+    for line in lines[1:]:
+      line = [res for res in line.split(' ') if len(res) > 1]
+      if (len(line)):
+        if (len(line) == 5):
+          # print(line)
+          row = {}
+          row['class'] = line[0]
+          row['precision'] = float(line[1])
+          row['recall'] = float(line[2])
+          row['f1_score'] = float(line[3])
+          row['support'] = float(line[4])
+          report_data.append(row)
+        else:
+          if line[0] == 'accuracy':
+            row = {}
+            row['class'] = line[0]
+            row['precision'] = float(0)
+            row['recall'] = float(0)
+            row['f1_score'] = float(line[1])
+            row['support'] = float(line[2])
+            report_data.append(row)
+          else:
+            row = {}
+            row['class'] = line[0] + ' ' + line[1]
+            row['precision'] = float(line[2])
+            row['recall'] = float(line[3])
+            row['f1_score'] = float(line[4])
+            row['support'] = float(line[5])
+            report_data.append(row)
+    dataframe = pd.DataFrame.from_dict(report_data)
+    dataframe.to_excel(path +  name + '.xlsx', index = False)

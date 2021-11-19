@@ -396,6 +396,8 @@ def main():
 
     # Setting up weights 
     weights = utils.read_test_to_list(config.dataset_path + 'weights.txt')
+    
+    div_factor = 10
 
     if (weights == False):
         end_path = '/train/masks'
@@ -408,9 +410,9 @@ def main():
             exit()
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
         print("Weights calculated: ", weights)
-        weights = weights / 100
+        weights = weights / div_factor
     else:
-        weights = [float(weight)/100 for weight in weights]
+        weights = [float(weight)/div_factor for weight in weights]
         # weights = [0.0, 1, 2.7, 3]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read! ", weights)

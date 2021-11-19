@@ -203,43 +203,43 @@ def model_local_path_2(config, inputs):
             name=f"down_conv_block_{filters}"
         )(conv_layers)
 
-    # conv_proj = ConvProjection(
-    #     config.conv_projection,#config.transformer.projection_dim,
-    #     config.transformer.projection_dim,
-    #     num_patches=config.transformer.num_patches, #512
-    #     name='conv_projection'
-    # )(conv_layers)
+    conv_proj = ConvProjection(
+        config.conv_projection,#config.transformer.projection_dim,
+        config.transformer.projection_dim,
+        num_patches=config.transformer.num_patches, #512
+        name='conv_projection'
+    )(conv_layers)
 
-    # transformer_layers_path_1 = []
-    # # Successive transformer layers
-    # for idx in range(config.transformer.layers):
-    #     conv_proj = TransformerBlock(
-    #         num_heads=config.transformer.num_heads,
-    #         projection_dim=config.transformer.projection_dim, 
-    #         dropout_rate=config.transformer.dropout_rate, 
-    #         normalization_rate=config.transformer.normalization_rate, 
-    #         transformer_units=config.transformer.units,
-    #         activation='relu',
-    #         name=f"transformer_block_{idx}"
-    #     )(conv_proj)
-    #     transformer_layers_path_1.append(conv_proj)
+    transformer_layers_path_1 = []
+    # Successive transformer layers
+    for idx in range(config.transformer.layers):
+        conv_proj = TransformerBlock(
+            num_heads=config.transformer.num_heads,
+            projection_dim=config.transformer.projection_dim, 
+            dropout_rate=config.transformer.dropout_rate, 
+            normalization_rate=config.transformer.normalization_rate, 
+            transformer_units=config.transformer.units,
+            activation='relu',
+            name=f"transformer_block_{idx}"
+        )(conv_proj)
+        transformer_layers_path_1.append(conv_proj)
 
-    # dec = config.transformer.patch_size
-    # decoder_block_cup = DecoderBlockCup(
-    #     target_shape=(
-    #         config.image_height//dec, 
-    #         config.image_width//dec, 
-    #         config.image_depth//dec, 
-    #         config.transformer.projection_dim
-    #     ),
-    #     filters=config.transformer.projection_dim,
-    #     kernel_size=3,
-    #     normalization_rate=config.transformer.normalization_rate,
-    #     upsample=False,
-    #     name=f'decoder_cup_{0}'
-    # )(conv_proj)
+    dec = config.transformer.patch_size
+    decoder_block_cup = DecoderBlockCup(
+        target_shape=(
+            config.image_height//dec, 
+            config.image_width//dec, 
+            config.image_depth//dec, 
+            config.transformer.projection_dim
+        ),
+        filters=config.transformer.projection_dim,
+        kernel_size=3,
+        normalization_rate=config.transformer.normalization_rate,
+        upsample=False,
+        name=f'decoder_cup_{0}'
+    )(conv_proj)
 
-    deconv_layers = conv_layers#decoder_block_cup
+    deconv_layers = decoder_block_cup
 
     deconv_layers = ConvolutionalBlock(
         filters=config.dec_filters[0],

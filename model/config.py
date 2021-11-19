@@ -191,7 +191,7 @@ def get_config_local_path():
 
     config = ml_collections.ConfigDict()
     config.config_name = "testing"
-    config.dataset_path = 'dataset_3D_26/'
+    config.dataset_path = 'dataset_3D_37/'
     config.unbatch = True
     config.learning_rate = 0.001
     config.optimizer = 'adamax' #SGD, adam
@@ -232,7 +232,7 @@ def get_config_local_path():
     config.enc_filters = [16, 32, 64]
     config.dec_filters = [64, 32, 16]
 
-    config.n_classes = 27
+    config.n_classes = 38#27
     config.activation = 'softmax'
 
     return config

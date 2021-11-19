@@ -219,7 +219,7 @@ def main():
 
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     STRUCTURES.insert(0, 'background')
-    print(STRUCTURES)
+    print(STRUCTURES, " ", len(STRUCTURES))
 
     training_folder = 'trainings/' + args['folder_name']
     utils.create_folder(f"{training_folder}/insights")

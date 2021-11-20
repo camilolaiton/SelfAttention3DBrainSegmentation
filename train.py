@@ -508,7 +508,7 @@ def main():
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),
             sm.metrics.FScore(threshold=0.5),
-            tf.keras.metrics.Recal()
+            tf.keras.metrics.Recall()
         ],
     )
     

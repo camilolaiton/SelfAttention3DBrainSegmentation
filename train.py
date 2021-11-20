@@ -415,7 +415,7 @@ def main():
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read!")
 
-    weights = [float(w)/div_factor for w in weights]
+    weights = [float(weight)/div_factor for weight in weights]
     print(weights)
 
     # Setting up neural network loss
@@ -669,7 +669,7 @@ def main():
         if epoch < args['lr_epoch_start']:
             return lr
         else:
-            return lr * tf.math.exp(-0.05)
+            return lr * tf.math.exp(-0.1)
 
     lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 

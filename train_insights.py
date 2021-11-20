@@ -282,8 +282,10 @@ def main():
         print("Saving prediction ", name)
         if x == 0:
             np.save(name, prediction)
-            report = classification_report(msk_patches.flatten(), prediction.flatten(), target_names=STRUCTURES)
-            utils.classification_report_csv(report, training_folder + deep_folder, f"/{len(STRUCTURES)}_structures")
+        
+        report = classification_report(msk_patches.flatten(), prediction.flatten(), target_names=STRUCTURES)
+        utils.classification_report_csv(report, training_folder + deep_folder, f"/{len(STRUCTURES)}_structures_{x}")
+
         print(msk_patches.shape, "  ", prediction.shape)
         for id in [50, 58]:
             plot_examples(msk_patches, prediction, id, training_folder + deep_folder, x)

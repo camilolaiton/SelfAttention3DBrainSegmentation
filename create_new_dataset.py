@@ -115,7 +115,7 @@ def main():
     # ]
 
     # mri_paths = [mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]]
-    
+    cnt = 0
     for mri_path in mri_paths:
 
         name = mri_path.split('/')[-1]
@@ -123,7 +123,8 @@ def main():
         data_msk_img, data_msk = utils.readMRI(mri_path + '/aparcNMMjt+aseg.mgz', config_msk)
         # print("after read: ", nib.aff2axcodes(data_img.affine))
         if data.shape != data_msk.shape:
-            print("Fixing shapes in: ", name)
+            print("Fixing shapes in: ", name, " num: ", cnt)
+            cnt += 1
             data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
             data = data_img.get_fdata()
             data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)

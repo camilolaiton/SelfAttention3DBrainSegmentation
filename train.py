@@ -424,8 +424,8 @@ def main():
     with mirrored_strategy.scope():
         model = build_model(config)
         # iouMetric = tf.keras.metrics.MeanIoU(config.n_classes, name='iou_score')
-        diceScore = tfa.metrics.F1Score(config.n_classes, name='dice')
-        recall = tf.keras.metrics.Recall()
+        # diceScore = tfa.metrics.F1Score(config.n_classes, name='dice')
+        # recall = tf.keras.metrics.Recall()
     
     if (retrain):
         model.load_weights(model_path)
@@ -510,10 +510,7 @@ def main():
         metrics=[
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),
-            # sm.metrics.FScore(threshold=0.5),
-            # iouMetric,
-            diceScore,
-            recall
+            sm.metrics.FScore(threshold=0.5),
         ],
     )
     

@@ -415,16 +415,14 @@ def main():
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read!")
 
-    weights = [float("{:.2f}".format(float(w)/div_factor)) for w in weights]
+    weights = [float(w)/div_factor for w in weights]
     print(weights)
 
     # Setting up neural network loss
     #loss = tversky_loss()#
     
     with mirrored_strategy.scope():
-    # model = build_model_patchified_patchsize16(config)
-    # model = build_model_patchified_patchsize16(config)
-        model = build_model(config)#test_model_3(config)
+        model = build_model(config)
     
     if (retrain):
         model.load_weights(model_path)
@@ -494,11 +492,11 @@ def main():
             amsgrad=False, 
             name='optimizer_Adam'
         )
-    elif (config.optimizer == 'radam'):
-        optimizer = tfa.optimizers.RectifiedAdam(
-            lr=config.learning_rate,
-            name='RectifiedAdam'
-        )
+    # elif (config.optimizer == 'radam'):
+    #     optimizer = tfa.optimizers.RectifiedAdam(
+    #         lr=config.learning_rate,
+    #         name='RectifiedAdam'
+    #     )
 
 
     # lr_metric = get_lr_metric(optimizer)
@@ -510,6 +508,7 @@ def main():
             # 'accuracy',
             sm.metrics.IOUScore(threshold=0.5),
             sm.metrics.FScore(threshold=0.5),
+            tf.keras.metrics.Recal()
         ],
     )
     
@@ -668,7 +667,7 @@ def main():
         if epoch < args['lr_epoch_start']:
             return lr
         else:
-            return lr * tf.math.exp(-0.1)
+            return lr * tf.math.exp(-0.05)
 
     lr_callback = tf.keras.callbacks.LearningRateScheduler(scheduler)
 

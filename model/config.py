@@ -193,11 +193,11 @@ def get_config_local_path():
     config.config_name = "testing"
     config.dataset_path = 'dataset_3D_37/'
     config.unbatch = True
-    config.learning_rate = 0.01
+    config.learning_rate = 0.001
     config.optimizer = 'adamax' #SGD, adam
     config.weight_decay = 1e-4
     config.momentum = 0.9
-    config.dropout = 0.1
+    config.dropout = 0.3
     config.batch_size = 8
     config.num_epochs = 100
     config.image_height = 64
@@ -213,9 +213,9 @@ def get_config_local_path():
     config.act_func = 'leaky_relu'
 
     config.transformer = ml_collections.ConfigDict()
-    config.transformer.patch_size = 8
+    config.transformer.patch_size = 16
     config.transformer.num_patches = (config.image_size[0] // config.transformer.patch_size)**3
-    config.conv_projection = 512
+    config.conv_projection = 64
     
     config.transformer.projection_dim = 64# 64 #128
     config.transformer.units = [
@@ -229,8 +229,8 @@ def get_config_local_path():
     config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-4
 
-    config.enc_filters = [16, 32, 64]
-    config.dec_filters = [64, 32, 16]
+    config.enc_filters = [8, 16, 32, 64]
+    config.dec_filters = [64, 32, 16, 8]
 
     config.n_classes = 38#27
     config.activation = 'softmax'

@@ -460,7 +460,7 @@ class msa_3d(layers.Layer):
         )
 
     def call(self, inputs):
-        q, k, v = self.compute_qkv_3d(inputs)
+        q, k, v = self.compute_conv_qkv_3d(inputs)
         
         q = tf.transpose(self.split_last_dimension(q, self.num_heads), [0, 4, 1, 2, 3, 5])
         k = tf.transpose(self.split_last_dimension(k, self.num_heads), [0, 4, 1, 2, 3, 5])
@@ -476,7 +476,7 @@ class msa_3d(layers.Layer):
 
         return output
 
-    def compute_qkv_3d(self, inputs):
+    def compute_conv_qkv_3d(self, inputs):
         q = self.q_conv(inputs)
         k = self.k_conv(inputs)
         v = self.v_conv(inputs)
@@ -553,7 +553,7 @@ class TransformerBlock(layers.Layer):
         #     kernel_initializer='he_normal',
         # )
 
-        self.attention_layer_a = msa_3d(512, 512, 64, 4, 0.2)
+        self.attention_layer_a = msa_3d(128, 128, 64, self.num_heads, self.dropout_rate)
 
         self.add_a = layers.Add()
 

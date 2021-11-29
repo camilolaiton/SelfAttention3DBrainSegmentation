@@ -449,6 +449,15 @@ class msa_3d(layers.Layer):
             use_bias=True,
             padding=self.padding
         )
+        
+        self.out_conv = layers.Conv3D(
+            filters=self.output_filters, 
+            kernel_size=1, 
+            strides=1,
+            kernel_initializer='he_normal',
+            use_bias=True,
+            padding=self.padding
+        )
 
     def call(self, inputs):
         q, k, v = self.compute_qkv_3d(inputs)
@@ -463,14 +472,7 @@ class msa_3d(layers.Layer):
         output = self.global_attention_3d(q, k, v)
         # print(output)
         output = combine_last_two_dimensions(tf.transpose(output, [0, 2, 3, 4, 1, 5]))
-        output = layers.Conv3D(
-            filters=self.output_filters, 
-            kernel_size=1, 
-            strides=1,
-            kernel_initializer='he_normal',
-            use_bias=True,
-            padding=self.padding
-        )(output)
+        output = self.out_conv(output)
 
         return output
 
@@ -529,6 +531,7 @@ class msa_3d(layers.Layer):
             'q_conv' : self.q_conv,
             'k_conv' : self.k_conv,
             'v_conv' : self.v_conv,
+            'out_conv' : self.out_conv,
         })
         return config
 

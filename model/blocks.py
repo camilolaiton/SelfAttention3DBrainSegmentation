@@ -254,7 +254,11 @@ class MLPBlock(layers.Layer):
 
         for units in self.hidden_units:
             self.layers.append(layers.Dense(units, activation=self.activation, kernel_initializer='he_normal'))
+<<<<<<< HEAD
             self.layers.append(layers.SpatialDropout3D(self.dropout_rate))#layers.Dropout(self.dropout_rate))
+=======
+            self.layers.append(layers.Dropout(self.dropout_rate))#layers.SpatialDropout1D(self.dropout_rate))
+>>>>>>> adf35fc8fae8dcb274f016ff749ae53b4feee1c1
 
     def call(self, inputs):
 

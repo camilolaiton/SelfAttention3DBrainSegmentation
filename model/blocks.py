@@ -491,7 +491,7 @@ class msa_3d(layers.Layer):
         # print(q_new, "\n", k_new)
         logits = tf.matmul(q_new, k_new, transpose_b=True)
         weights = tf.nn.softmax(logits, name="attention_weights")
-        weights = tf.keras.layers.Dropout(weights, self.dropout_rate)(weights)
+        weights = tf.compat.v1.layers.dropout(weights, self.dropout_rate)#tf.keras.layers.Dropout(weights, self.dropout_rate)(weights)
         output = tf.matmul(weights, v_new)
         output = tf.reshape(output, new_shape)
 

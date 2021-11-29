@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.python.keras.backend import dropout
 import tensorflow_addons as tfa
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental import preprocessing
@@ -378,6 +379,159 @@ class ConvProjection(layers.Layer):
         })
         return config
 
+def reshape_range(tensor, i, j, shape):
+	"""Reshapes a tensor between dimensions i and j."""
+
+	target_shape = tf.concat(
+			[tf.shape(tensor)[:i], shape, tf.shape(tensor)[j:]],
+			axis=0)
+
+	return tf.reshape(tensor, target_shape)
+
+def flatten_3d(x):
+    x_shape = tf.shape(x)
+    # print("XSHAPE: ", x_shape)
+    x = reshape_range(x, 2, 5, [tf.reduce_prod(x_shape[2:5])])
+    return x
+
+def combine_last_two_dimensions(x):
+	"""Reshape x so that the last two dimension become one.
+	Args:
+		x: a Tensor with shape [..., a, b]
+	Returns:
+		a Tensor with shape [..., a*b]
+	"""
+
+	old_shape = x.get_shape().dims
+	a, b = old_shape[-2:]
+	new_shape = old_shape[:-2] + [a * b if a and b else None]
+
+	ret = tf.reshape(x, tf.concat([tf.shape(x)[:-2], [-1]], 0))
+	ret.set_shape(new_shape)
+
+	return ret
+
+class msa_3d(layers.Layer):
+    def __init__(self, key_filters, value_filters, output_filters, num_heads, dropout_rate=0.5, **kwarks):
+        super(msa_3d, self).__init__(**kwarks)
+        self.num_heads = num_heads
+        self.key_filters = key_filters
+        self.value_filters = value_filters
+        self.output_filters = output_filters
+        self.padding = 'same'
+        self.key_filters_per_head = self.key_filters // self.num_heads
+        self.dropout_rate = dropout_rate
+        # Layers
+        # attention_layer = multihead_attention_3d(x1, 512, 512, 64, 4, False, layer_type='SAME')
+        self.q_conv = layers.Conv3D(
+            filters=self.key_filters, 
+            kernel_size=1, 
+            strides=1,
+            kernel_initializer='he_normal',
+            use_bias=True,
+            padding=self.padding
+        )
+
+        self.k_conv = layers.Conv3D(
+            filters=self.key_filters, 
+            kernel_size=1, 
+            strides=1,
+            kernel_initializer='he_normal',
+            use_bias=True,
+            padding=self.padding
+        )
+
+        self.v_conv = layers.Conv3D(
+            filters=self.value_filters, 
+            kernel_size=1, 
+            strides=1,
+            kernel_initializer='he_normal',
+            use_bias=True,
+            padding=self.padding
+        )
+
+    def call(self, inputs):
+        q, k, v = self.compute_qkv_3d(inputs)
+        
+        q = tf.transpose(self.split_last_dimension(q, self.num_heads), [0, 4, 1, 2, 3, 5])
+        k = tf.transpose(self.split_last_dimension(k, self.num_heads), [0, 4, 1, 2, 3, 5])
+        v = tf.transpose(self.split_last_dimension(v, self.num_heads), [0, 4, 1, 2, 3, 5])
+        
+        q = q * self.key_filters_per_head**-0.5
+        
+        # print(q, "\n", k, "\n", v)
+        output = self.global_attention_3d(q, k, v)
+        # print(output)
+        output = combine_last_two_dimensions(tf.transpose(output, [0, 2, 3, 4, 1, 5]))
+        output = layers.Conv3D(
+            filters=self.output_filters, 
+            kernel_size=1, 
+            strides=1,
+            kernel_initializer='he_normal',
+            use_bias=True,
+            padding=self.padding
+        )(output)
+
+        return output
+
+    def compute_qkv_3d(self, inputs):
+        q = self.q_conv(inputs)
+        k = self.k_conv(inputs)
+        v = self.v_conv(inputs)
+        return q, k, v
+
+    def global_attention_3d(self, q, k, v, name=None):
+        new_shape = tf.concat([tf.shape(q)[0:-1], [v.shape[-1]]], 0)
+        
+        q_new = flatten_3d(q)
+        k_new = flatten_3d(k)
+        v_new = flatten_3d(v)
+
+        # attention
+        # print(q_new, "\n", k_new)
+        logits = tf.matmul(q_new, k_new, transpose_b=True)
+        weights = tf.nn.softmax(logits, name="attention_weights")
+        weights = tf.keras.layers.Dropout(weights, self.dropout_rate)(weights)
+        output = tf.matmul(weights, v_new)
+        output = tf.reshape(output, new_shape)
+
+        return output
+
+    def split_last_dimension(self, x, n):
+        """Reshape x so that the last dimension becomes two dimensions.
+        The first of these two dimensions is n.
+        Args:
+            x: a Tensor with shape [..., m]
+            n: an integer.
+        Returns:
+            a Tensor with shape [..., n, m/n]
+        """
+
+        old_shape = x.get_shape().dims
+        last = old_shape[-1]
+        new_shape = old_shape[:-1] + [n] + [last // n if last else None]
+        
+        ret = tf.reshape(x, tf.concat([tf.shape(x)[:-1], [n, -1]], 0))
+        ret.set_shape(new_shape)
+        
+        return ret
+
+    def get_config(self):
+        config = super().get_config().copy()
+        config.update({
+            'num_heads' : self.num_heads,
+            'key_filters' : self.key_filters,
+            'value_filters' : self.value_filters,
+            'output_filters' : self.output_filters,
+            'key_filters_per_head' : self.key_filters_per_head,
+            'dropout_rate' : self.dropout_rate,
+            # layers
+            'q_conv' : self.q_conv,
+            'k_conv' : self.k_conv,
+            'v_conv' : self.v_conv,
+        })
+        return config
+
 class TransformerBlock(layers.Layer):
     def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, activation='relu', **kwarks):
         super(TransformerBlock, self).__init__(**kwarks)
@@ -389,12 +543,14 @@ class TransformerBlock(layers.Layer):
 
         # Layers
         self.ln_a = layers.LayerNormalization(epsilon=self.normalization_rate)
-        self.attention_layer_a = layers.MultiHeadAttention(
-            num_heads = self.num_heads,
-            key_dim = self.projection_dim,
-            dropout = self.dropout_rate,
-            kernel_initializer='he_normal',
-        )
+        # self.attention_layer_a = layers.MultiHeadAttention(
+        #     num_heads = self.num_heads,
+        #     key_dim = self.projection_dim,
+        #     dropout = self.dropout_rate,
+        #     kernel_initializer='he_normal',
+        # )
+
+        self.attention_layer_a = msa_3d(512, 512, 64, 4, 0.2)
 
         self.add_a = layers.Add()
 
@@ -410,7 +566,8 @@ class TransformerBlock(layers.Layer):
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
         
-        attention_layer = multihead_attention_3d(x1, 512, 512, 64, 4, False, layer_type='SAME')
+        # attention_layer = multihead_attention_3d(x1, 512, 512, 64, 4, False, layer_type='SAME')
+        attention_layer = self.attention_layer_a(x1)
         # attention_layer = self.attention_layer_a(x1, x1)
         
         x2 = self.add_a([attention_layer, encoded_patches])

@@ -1,7 +1,6 @@
 import tensorflow as tf
 from .basic_ops import *
 
-
 """This script defines 3D different multi-head attention layers.
 """
 

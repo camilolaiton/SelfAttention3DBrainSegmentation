@@ -2,6 +2,7 @@ import tensorflow as tf
 import tensorflow_addons as tfa
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental import preprocessing
+from .attention_block_modified import multihead_attention_3d
 
 class RandomInvert(tf.keras.layers.Layer):
     def __init__(self, prob=0.5, global_seed=12, **kwargs):
@@ -253,7 +254,7 @@ class MLPBlock(layers.Layer):
 
         for units in self.hidden_units:
             self.layers.append(layers.Dense(units, activation=self.activation, kernel_initializer='he_normal'))
-            self.layers.append(layers.SpatialDropout1D(self.dropout_rate))#layers.Dropout(self.dropout_rate))
+            self.layers.append(layers.SpatialDropout3D(self.dropout_rate))#layers.Dropout(self.dropout_rate))
 
     def call(self, inputs):
 
@@ -394,6 +395,7 @@ class TransformerBlock(layers.Layer):
             dropout = self.dropout_rate,
             kernel_initializer='he_normal',
         )
+
         self.add_a = layers.Add()
 
         self.ln_b = layers.LayerNormalization(epsilon=self.normalization_rate)
@@ -407,7 +409,10 @@ class TransformerBlock(layers.Layer):
 
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
-        attention_layer = self.attention_layer_a(x1, x1)
+        
+        attention_layer = multihead_attention_3d(x1, 512, 512, 64, 4, False, layer_type='SAME')
+        # attention_layer = self.attention_layer_a(x1, x1)
+        
         x2 = self.add_a([attention_layer, encoded_patches])
         x3 = self.ln_b(x2)
         x3 = self.mlp_block_b(x3)

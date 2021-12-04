@@ -203,13 +203,13 @@ def model_local_path_2(config, inputs):
             name=f"down_conv_block_{filters}"
         )(conv_layers)
 
-    # conv_proj = ConvProjection(
-    #     config.conv_projection,#config.transformer.projection_dim,
-    #     config.transformer.projection_dim,
-    #     num_patches=config.transformer.num_patches, #512
-    #     name='conv_projection'
-    # )(conv_layers)
-    conv_proj = conv_layers
+    conv_proj = ConvProjection(
+        config.conv_projection,#config.transformer.projection_dim,
+        config.transformer.projection_dim,
+        num_patches=config.transformer.num_patches, #512
+        name='conv_projection'
+    )(conv_layers)
+    # conv_proj = conv_layers
     
     transformer_layers_path_1 = []
     # Successive transformer layers

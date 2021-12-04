@@ -34,7 +34,8 @@ import segmentation_models as sm
 from augmend import Augmend, Elastic, FlipRot90
 import argparse
 from tensorflow.keras import mixed_precision
-from focal_loss import SparseCategoricalFocalLoss
+from models_comparative.unet_3D import build_unet3D_model
+
 sm.set_framework('tf.keras')
 
 # import tensorflow_addons as tfa
@@ -422,7 +423,13 @@ def main():
     #loss = tversky_loss()#
     
     with mirrored_strategy.scope():
-        model = build_model(config)
+        
+        # Train unet
+        model = build_unet3D_model(config)
+
+        # Original network
+        # model = build_model(config)
+        
         # iouMetric = tf.keras.metrics.MeanIoU(config.n_classes, name='iou_score')
         # diceScore = tfa.metrics.F1Score(config.n_classes, name='dice')
         # recall = tf.keras.metrics.Recall()

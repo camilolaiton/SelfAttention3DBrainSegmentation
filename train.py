@@ -34,7 +34,7 @@ import segmentation_models as sm
 from augmend import Augmend, Elastic, FlipRot90
 import argparse
 from tensorflow.keras import mixed_precision
-from models_comparative.unet_3D import build_unet3D_model
+from models_comparative.unet_3D import build_unet3D_model, build_unet3D_model_2
 
 sm.set_framework('tf.keras')
 
@@ -425,7 +425,7 @@ def main():
     with mirrored_strategy.scope():
         
         # Train unet
-        model = build_unet3D_model(config)
+        model = build_unet3D_model_2(config)
 
         # Original network
         # model = build_model(config)

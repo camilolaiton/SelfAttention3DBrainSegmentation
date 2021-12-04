@@ -146,8 +146,6 @@ def build_unet3D_model(config):
     """
 
     encoder_filters = [
-        # {'filters': 8, 'dropout': False},
-        # {'filters': 16, 'dropout': False},
         {'filters': 32, 'dropout': False, 'pool':True},
         {'filters': 64, 'dropout': False, 'pool':True},
         {'filters': 128, 'dropout': False, 'pool':True},
@@ -160,7 +158,7 @@ def build_unet3D_model(config):
     x = inputs
     encoder_layers = []
     for encoder_filter in encoder_filters:
-        # Conv3D + ReLu + Conv3D + ReLu + (Dropout?) + MaxPooling 
+        # Conv3D + ReLu + Conv3D + ReLu + MaxPooling 
         x = Conv3D_Unet(
             filters=encoder_filter['filters'],
             kernels=3,
@@ -172,14 +170,11 @@ def build_unet3D_model(config):
             encoder_layers.append(x)
             x = layers.MaxPooling3D(pool_size=2)(x)
 
-    decoder_layers = []
     for idx in range(len(encoder_layers)-1, -1, -1):
-
-        # print(encoder_filters[idx+1]['filters'])
+        # Upsampĺing + Conv3D + ReLu + Conv3D + ReLu + MaxPooling
         x = Up_conv3D_unet(
             filters=encoder_filters[idx+1]['filters']
         )(x, encoder_layers[idx])
-        decoder_layers.append(x)
 
     # Segmentation head
     x = layers.Conv3D(

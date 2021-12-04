@@ -146,10 +146,10 @@ def build_unet3D_model(config):
     """
 
     encoder_filters = [
+        {'filters': 8, 'dropout': False, 'pool':True},
+        {'filters': 16, 'dropout': False, 'pool':True},
         {'filters': 32, 'dropout': False, 'pool':True},
-        {'filters': 64, 'dropout': False, 'pool':True},
-        {'filters': 128, 'dropout': False, 'pool':True},
-        {'filters': 256, 'dropout': False, 'pool':False},
+        {'filters': 64, 'dropout': False, 'pool':False},
     ]
 
     # 3D input image shape (64,64,64, 1)

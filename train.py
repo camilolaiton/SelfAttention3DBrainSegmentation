@@ -34,7 +34,7 @@ import segmentation_models as sm
 from augmend import Augmend, Elastic, FlipRot90
 import argparse
 from tensorflow.keras import mixed_precision
-from models_comparative.unet_3D import build_unet3D_model, build_unet3D_model_2
+from models_comparative.unet_3D import build_unet3D_model
 
 sm.set_framework('tf.keras')
 

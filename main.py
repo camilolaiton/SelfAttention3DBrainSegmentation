@@ -34,7 +34,7 @@ from volumentations import *
 from model.blocks import Keras3DAugmentation
 import nibabel as nib
 from patchify import patchify, unpatchify
-from models_comparative.unet_3D import build_unet3D_model, build_unet3D_model_2
+from models_comparative.unet_3D import build_unet3D_model
 
 def structure_validation():
 

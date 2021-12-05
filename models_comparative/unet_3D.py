@@ -4,7 +4,6 @@
 
 import tensorflow as tf
 from tensorflow.keras import Model, Input, layers
-import segmentation_models_3D as sm
 # from model.config import *
 
 class Conv3D_Unet(layers.Layer):

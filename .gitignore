@@ -9,3 +9,4 @@ trainings/*/*/*.hdf5
 trainings/*/*/*.npy
 trainings/*/logs*
 test_model.png
+network_repos/*

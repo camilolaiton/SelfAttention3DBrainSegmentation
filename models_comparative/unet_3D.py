@@ -4,6 +4,7 @@
 
 import tensorflow as tf
 from tensorflow.keras import Model, Input, layers
+import segmentation_models_3D as sm
 # from model.config import *
 
 class Conv3D_Unet(layers.Layer):
@@ -188,68 +189,7 @@ def build_unet3D_model(config):
     return Model(inputs, x)
 
 def build_unet3D_model_2(config):
-
-    inputs = Input(config.image_size)
-    #s = Lambda(lambda x: x / 255)(inputs)   #No need for this if we normalize our inputs beforehand
-    s = inputs
-    kernel_initializer = 'he_normal'
-    #Contraction path
-    c1 = layers.Conv3D(16, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(s)
-    c1 = layers.Dropout(0.1)(c1)
-    c1 = layers.Conv3D(16, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c1)
-    p1 = layers.MaxPooling3D((2, 2, 2))(c1)
-    
-    c2 = layers.Conv3D(32, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(p1)
-    c2 = layers.Dropout(0.1)(c2)
-    c2 = layers.Conv3D(32, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c2)
-    p2 = layers.MaxPooling3D((2, 2, 2))(c2)
-     
-    c3 = layers.Conv3D(64, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(p2)
-    c3 = layers.Dropout(0.2)(c3)
-    c3 = layers.Conv3D(64, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c3)
-    p3 = layers.MaxPooling3D((2, 2, 2))(c3)
-     
-    c4 = layers.Conv3D(128, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(p3)
-    c4 = layers.Dropout(0.2)(c4)
-    c4 = layers.Conv3D(128, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c4)
-    p4 = layers.MaxPooling3D(pool_size=(2, 2, 2))(c4)
-     
-    c5 = layers.Conv3D(256, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(p4)
-    c5 = layers.Dropout(0.3)(c5)
-    c5 = layers.Conv3D(256, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c5)
-    
-    #Expansive path 
-    u6 = layers.Conv3DTranspose(128, (2, 2, 2), strides=(2, 2, 2), padding='same')(c5)
-    u6 = layers.concatenate([u6, c4])
-    c6 = layers.Conv3D(128, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(u6)
-    c6 = layers.Dropout(0.2)(c6)
-    c6 = layers.Conv3D(128, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c6)
-     
-    u7 = layers.Conv3DTranspose(64, (2, 2, 2), strides=(2, 2, 2), padding='same')(c6)
-    u7 = layers.concatenate([u7, c3])
-    c7 = layers.Conv3D(64, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(u7)
-    c7 = layers.Dropout(0.2)(c7)
-    c7 = layers.Conv3D(64, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c7)
-     
-    u8 = layers.Conv3DTranspose(32, (2, 2, 2), strides=(2, 2, 2), padding='same')(c7)
-    u8 = layers.concatenate([u8, c2])
-    c8 = layers.Conv3D(32, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(u8)
-    c8 = layers.Dropout(0.1)(c8)
-    c8 = layers.Conv3D(32, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c8)
-     
-    u9 = layers.Conv3DTranspose(16, (2, 2, 2), strides=(2, 2, 2), padding='same')(c8)
-    u9 = layers.concatenate([u9, c1])
-    c9 = layers.Conv3D(16, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(u9)
-    c9 = layers.Dropout(0.1)(c9)
-    c9 = layers.Conv3D(16, (3, 3, 3), activation='relu', kernel_initializer=kernel_initializer, padding='same')(c9)
-     
-    outputs = layers.Conv3D(config.n_classes, (1, 1, 1), activation='softmax')(c9)
-     
-    model = Model(inputs=[inputs], outputs=[outputs])
-    #compile model outside of this function to make 
-    model.summary()
-    
-    return model
+    return sm.Unet(None, input_shape=config.image_size, activation='softmax', encoder_weights=None)
 # def main():
 #     config = get_config_local_path()#get_config_test()
 #     model = unet3D_model(config)

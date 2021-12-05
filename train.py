@@ -425,7 +425,7 @@ def main():
     with mirrored_strategy.scope():
         
         # Train unet
-        model = build_unet3D_model_2(config)
+        model = build_unet3D_model(config)
 
         # Original network
         # model = build_model(config)

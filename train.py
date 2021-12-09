@@ -35,7 +35,7 @@ from augmend import Augmend, Elastic, FlipRot90
 import argparse
 from tensorflow.keras import mixed_precision
 from models_comparative.unet_3D import build_unet3D_model
-from model_comparative.vnet import build_vnet
+from models_comparative.vnet import build_vnet
 
 sm.set_framework('tf.keras')
 

@@ -39,7 +39,7 @@ def up_resBlock(forward_conv,input_conv,stage):#扩展路径
         return conv_add
 
 def build_vnet(pretrained_weights = None,input_size = (256,256,1),num_class=1,is_training=True,stage_num=5,thresh=0.5):#二分类时num_classes设置成1，不是2，stage_num可自行改变，也即可自行改变网络深度
-    keep_prob = 1.0 if is_training else 1.0#不使用dropout
+    keep_prob = 0.5
     features=[]
     input_model = Input(input_size)
     x=PReLU()(BatchNormalization()(Conv3D(16, 5, activation = None, padding = 'same', kernel_initializer = 'he_normal')(input_model)))

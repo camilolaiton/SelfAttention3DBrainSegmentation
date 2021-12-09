@@ -35,6 +35,7 @@ from augmend import Augmend, Elastic, FlipRot90
 import argparse
 from tensorflow.keras import mixed_precision
 from models_comparative.unet_3D import build_unet3D_model
+from model_comparative.vnet import build_vnet
 
 sm.set_framework('tf.keras')
 
@@ -425,7 +426,13 @@ def main():
     with mirrored_strategy.scope():
         
         # Train unet
-        model = build_unet3D_model(config)
+        # model = build_unet3D_model(config)
+        model = build_vnet(
+            input_size=config.image_size,
+            num_class=config.n_classes,
+            is_training=True,
+            stage_num=2
+        )
 
         # Original network
         # model = build_model(config)

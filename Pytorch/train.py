@@ -134,7 +134,7 @@ def main():
 
         for i, data in enumerate(train_dataloader):
             # Getting the data
-            image, mask = data['image'].to(device), torch.tensor(data['mask'], dtype=torch.long).to(device)
+            image, mask = data['image'].to(device), torch.tensor(data['mask'].detach().clone(), dtype=torch.long).to(device)
 
             # forward + backward + optimize
             output = model(image)

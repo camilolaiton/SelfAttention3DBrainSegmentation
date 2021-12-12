@@ -7,6 +7,7 @@ from sklearn.preprocessing import MinMaxScaler
 import nilearn
 import nibabel as nib
 import argparse
+import torchio as tio
 
 def generating_images(patch_size, ori_path, dest_path):
     for filename in glob.glob(ori_path):
@@ -46,7 +47,7 @@ def main():
     parser.add_argument('--folder_name', metavar='folder', type=str,
                         help='Insert the folder for the new dataset')
     parser.add_argument('--same_id', metavar='same_structs', type=int,
-                        help='boolean to say if we use the same ids for structs', default=1)
+                        help='boolean to say if we use the same ids for structs', default=0)
     args = vars(parser.parse_args())
 
     dataset_name_folder = args['folder_name']#'dataset_3D_p64'
@@ -115,6 +116,9 @@ def main():
     # ]
 
     # mri_paths = [mri_paths[mri_paths.index('data/MMRR-21/MMRR-21-20')]]
+
+    rescale_intensity = tio.RescaleIntensity((0, 1))
+
     cnt = 0
     for mri_path in mri_paths:
 
@@ -127,7 +131,10 @@ def main():
             cnt += 1
             data_img = nilearn.image.resample_to_img(data_img, data_msk_img)
             data = data_img.get_fdata()
-            data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
+            # data = scaler.fit_transform(data.reshape(-1, data.shape[-1])).reshape(data.shape)
+            data = np.expand_dims(data, axis=0)
+            data = rescale_intensity(data)
+            data = np.squeeze(data, axis=0)
 
         msk = np.zeros((256, 256, 256), dtype=np.uint8)
         for structure in STRUCTURES:
@@ -162,7 +169,7 @@ def main():
 
         # Saving msk
         np.save(f'{dataset_name_folder}/{end_folder}/masks/{name}_patched.npy', msk)
-        # exit()
+        exit()
 
     # train_dir_imgs = 'dataset_3D/train/images/*'
     # train_dir_msks = 'dataset_3D/train/masks/*'

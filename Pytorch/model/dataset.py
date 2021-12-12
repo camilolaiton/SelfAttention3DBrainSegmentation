@@ -47,8 +47,8 @@ class Mindboggle_101(Dataset):
                 self.current_img = np.squeeze(np.load(img_path, mmap_mode='r').astype(np.float32), axis=-1)
                 self.current_msk = np.argmax(np.load(msk_path, mmap_mode='r'), axis=4).astype(np.uint8)
             else:
-                self.current_img = np.load(img_path, mmap_mode='r').astype(np.float32)
-                self.current_msk = np.load(msk_path, mmap_mode='r').astype(np.uint8)
+                self.current_img = np.load(img_path, mmap_mode='r').astype(np.float16)
+                self.current_msk = np.load(msk_path, mmap_mode='r').astype(np.float16)
             # print("image: ", self.current_img.shape)
             # print("msk: ", self.current_msk.shape)
 
@@ -74,7 +74,7 @@ class Mindboggle_101(Dataset):
             # print("AFTER: ", sample['image'].shape, " msk ", sample['mask'].shape)
         
         sample['image'] = torch.from_numpy(sample['image'].copy().astype(np.float32)).permute(3, 0, 1, 2)
-        sample['mask'] = torch.from_numpy(sample['mask'].copy()).permute(3, 0, 1, 2)
+        sample['mask'] = torch.tensor(sample['mask'].copy(), dtype=torch.float16).permute(3, 0, 1, 2)
 
         return sample
         

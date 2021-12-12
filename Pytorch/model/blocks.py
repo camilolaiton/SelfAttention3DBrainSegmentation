@@ -215,7 +215,7 @@ class SegmentationHead(nn.Sequential):
             padding='same'
         )
 
-        activation = nn.Softmax() # dim=1
+        activation = nn.Softmax(dim=1)
         super(SegmentationHead, self).__init__(
             conv, 
             activation

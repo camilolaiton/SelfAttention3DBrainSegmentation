@@ -137,19 +137,18 @@ def main():
             # Getting the data
             image, mask = data['image'].to(device), data['mask'].to(device)
 
+            optimizer.zero_grad()
+
             # forward + backward + optimize
             pred = model(image)
             loss = loss_fn(pred, mask)
-            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             # print statistics
             running_loss += loss
 
-            print("Loss: ", running_loss)
-
-
+            print("Loss: ", loss)
 
 if __name__ == "__main__":
     main()

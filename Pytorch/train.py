@@ -94,6 +94,19 @@ def main():
     
     # Loading the model
     model = BrainSegmentationNetwork()
+
+    # Loading device
+    device = None
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    
+    if torch.cuda.device_count() > 1:
+        print("[INFO] Using {} GPUs!" % torch.cuda.device_count())
+        model = torch.nn.DataParallel(model)
+
+    print("[INFO] Device: ", device)
+
+    model.to(device)
+
     trainable_params, total_params = count_params(model)
     print("[INFO] Trainable params: ", trainable_params, " total params: ", total_params)
 
@@ -115,7 +128,7 @@ def main():
 
         for i, data in enumerate(train_dataloader):
             # Getting the data
-            image, mask = data['image'], data['mask']
+            image, mask = data['image'].to(device), data['mask'].to(device)
 
             optimizer.zero_grad()
 

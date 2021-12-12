@@ -110,6 +110,8 @@ def main():
     print("[INFO] Device: ", device)
 
     model.to(device)
+    
+    print(model)
 
     trainable_params, total_params = count_params(model)
     print("[INFO] Trainable params: ", trainable_params, " total params: ", total_params)

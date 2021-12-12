@@ -131,24 +131,23 @@ def main():
 
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
+        model.train()
 
         for i, data in enumerate(train_dataloader):
             # Getting the data
             image, mask = data['image'].to(device), data['mask'].to(device)
 
             # forward + backward + optimize
-            output = model(image)
-            loss = loss_fn(output, mask)
+            pred = model(image)
+            loss = loss_fn(pred, mask)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             # print statistics
-            running_loss += loss.item()
+            running_loss += loss
 
-            if i % 10 == 0:
-                print("Loss: ", (epoch + 1, i + 1, running_loss / 10))
-                running_loss = 0.0
+            print("Loss: ", running_loss)
 
 
 

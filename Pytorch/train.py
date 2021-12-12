@@ -92,7 +92,7 @@ def main():
     )
 
     # Creating dataloaders
-    num_workers = 2
+    num_workers = 2 # os.cpu_count()
     train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers)
     test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers)
     
@@ -101,7 +101,7 @@ def main():
 
     # Loading device
     device = None
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     if torch.cuda.device_count() > 1:
         print("[INFO] Using {} GPUs!" % torch.cuda.device_count())
@@ -134,11 +134,10 @@ def main():
             # Getting the data
             image, mask = data['image'].to(device), data['mask'].to(device)
 
-            optimizer.zero_grad()
-
             # forward + backward + optimize
             output = model(image)
             loss = loss_fn(output, mask)
+            optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 

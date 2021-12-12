@@ -73,8 +73,8 @@ class Mindboggle_101(Dataset):
             sample['mask'] = to_categorical(transformed_samples[1], num_classes=38)#np.squeeze(sample['mask'], axis=0)
             # print("AFTER: ", sample['image'].shape, " msk ", sample['mask'].shape)
         
-        sample['image'] = torch.from_numpy(sample['image'].copy().astype(np.float32))
-        sample['mask'] = torch.from_numpy(sample['mask'].copy().astype(np.uint8))
+        sample['image'] = torch.from_numpy(sample['image'].copy().astype(np.float32)).permute(3, 0, 1, 2)
+        sample['mask'] = torch.from_numpy(sample['mask'].copy().astype(np.uint8)).permute(3, 0, 1, 2)
 
         return sample
         
@@ -163,6 +163,7 @@ if __name__ == '__main__':
     for i, sample in enumerate(dataloader):
         # print(len(sample[0]), " ", len(sample[1]))
         image, mask = sample['image'], sample['mask']
+        image = np.transpose(image, (0, 2, 3, 4, 1))
         print(i, " image shape: ", image.shape, " mask shape: ", mask.shape)
         plt.imshow(image[1][0], cmap='gray')
         plt.show()

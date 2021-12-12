@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Variable
 from torch import nn
-from blocks import *
+from .blocks import *
 from torchviz import make_dot
 
 class EncoderPath(nn.Module):

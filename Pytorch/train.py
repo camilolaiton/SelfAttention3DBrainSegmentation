@@ -1,3 +1,7 @@
+import sys
+# insert at 1, 0 is the script path (or '' in REPL)
+sys.path.insert(1, '../')
+
 import argparse
 from utils import utils
 import torch
@@ -6,8 +10,8 @@ from torch.utils.data import DataLoader
 from augmend import Augmend, Elastic, FlipRot90
 from model.config import get_config
 from model.dataset import Mindboggle_101
-from torch.utils.tensorboard import SummaryWriter
-from datetime import datetime
+# from torch.utils.tensorboard import SummaryWriter
+# from datetime import datetime
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 

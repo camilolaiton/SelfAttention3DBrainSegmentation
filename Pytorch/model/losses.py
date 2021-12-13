@@ -227,8 +227,8 @@ class Dice_and_Focal_loss(nn.Module):
         self.dice = DiceLoss()
         self.focal = FocalLoss()
     
-    def forward(self, pred, mask):
-        dice_loss = self.dice(pred, mask)
+    def forward(self, pred, mask, weights=None):
+        dice_loss = self.dice(pred, mask, weights)
         focal_loss = self.focal(pred, mask)
         result = dice_loss + focal_loss
         return result

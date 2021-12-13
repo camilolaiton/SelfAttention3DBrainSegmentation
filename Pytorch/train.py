@@ -244,6 +244,7 @@ def main():
                     'Accuracy': metrics['Accuracy'],
                     'Precision': metrics['Precision'],
                     'Recall': metrics['Recall'],
+                    'F1': metrics['F1'],
                 })
                 tbatch.update()
                 sleep(0.01)

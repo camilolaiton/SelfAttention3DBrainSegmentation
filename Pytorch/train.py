@@ -15,6 +15,7 @@ from model.dataset import Mindboggle_101
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
+from model.losses import *
 
 def defining_augmentations():
     aug = Augmend()
@@ -134,7 +135,7 @@ def main():
     model.cuda(device)
 
     # Loss function
-    loss_fn = torch.nn.CrossEntropyLoss()#.cuda(gpu)
+    loss_fn = DiceLoss() + ()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
     # Optimizer
     optimizer = optim.Adam(
@@ -153,11 +154,12 @@ def main():
     use_amp = True
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
-    print("Starting training!")
+    print("[INFO] Starting training!")
 
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
         
+        end_i = 0
         for i, data in enumerate(train_dataloader):
 
             # Getting the data
@@ -182,8 +184,10 @@ def main():
 
             # this reduces the number of memory operations.
             optimizer.zero_grad(set_to_none=True)
-            print(f"[Epoch {epoch}-{i}]: loss {loss}")    
+            print(f"[Epoch {epoch}-{i}]: loss {loss}")
+            end_i = i
 
+        running_loss = running_loss / end_i
         print(f"{epoch} Loss: {running_loss}")
 
         if (best_loss > running_loss):

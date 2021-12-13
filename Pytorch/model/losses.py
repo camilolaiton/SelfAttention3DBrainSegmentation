@@ -97,6 +97,8 @@ class DiceLoss(nn.Module):
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 
+        print(inputs.shape, " ", targets.shape)
+
         intersection = (inputs * targets).sum(-1)
         if (weights is not None):
             print(intersection.shape, " ", weights.shape)

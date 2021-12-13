@@ -13,6 +13,7 @@ from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 import numpy as np
+import glob 
 
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
@@ -74,8 +75,6 @@ def main():
         print("Weights read!")
 
     weights = [float(weight)/div_factor for weight in weights]
-    torch_weights = torch.as_tensor(np.array(weights))
-    print(torch_weights)
 
     # For parallel data pytorch
     # torch.distributed.init_process_group(backend='nccl')
@@ -101,6 +100,9 @@ def main():
     print("[INFO] Device: ", device)
 
     model.to(device)
+
+    torch_weights = torch.as_tensor(np.array(weights)).to(device)
+    print(torch_weights)
     
     print(model)
 

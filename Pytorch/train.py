@@ -165,6 +165,14 @@ def main():
     
     model.cuda(device)
 
+    # Metrics
+    metric_collection = MetricCollection([
+        Accuracy(),
+        F1(num_classes=config.n_classes, average='macro', multiclass=True),
+        Precision(num_classes=config.n_classes, average='macro', multiclass=True),
+        Recall(num_classes=config.n_classes, average='macro', multiclass=True),
+    ])
+
     # Loss function
     loss_fn = FocalDiceLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
@@ -186,14 +194,6 @@ def main():
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
     print("[INFO] Starting training!")
-
-    # main_cycle = tqdm(config.num_epochs, desc='Training model', leave=True)
-    metric_collection = MetricCollection([
-        Accuracy(),
-        F1(num_classes=config.n_classes, average='macro', multiclass=True),
-        Precision(num_classes=config.n_classes, average='macro', multiclass=True),
-        Recall(num_classes=config.n_classes, average='macro', multiclass=True),
-    ])
     
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
@@ -207,7 +207,7 @@ def main():
             for i, data in enumerate(tbatch):
                 # Getting the data
                 metrics = {}
-                image, mask = data['image'].to(device), data['mask'].to(device)
+                image, mask = data['image'].to(device), data['mask'].type(torch.int16).to(device)
                 # image.cuda(device)
                 # mask.cuda(device)
 
@@ -219,7 +219,7 @@ def main():
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
                     print("pred: ", pred.shape, " mask ", mask.shape)
-                    metrics = metric_collection(pred, mask.type(torch.int16))
+                    metrics = metric_collection(pred, mask)
                 
                 scaler.scale(loss).backward()
                 # loss.backward(loss)

@@ -1,65 +1,68 @@
 from torch import nn
 import torch
 
+# class DiceLoss(nn.Module):
+#     """DiceLoss.
+
+#     .. seealso::
+#         Milletari, Fausto, Nassir Navab, and Seyed-Ahmad Ahmadi. "V-net: Fully convolutional neural networks for
+#         volumetric medical image segmentation." 2016 fourth international conference on 3D vision (3DV). IEEE, 2016.
+
+#     Args:
+#         smooth (float): Value to avoid division by zero when images and predictions are empty.
+
+#     Attributes:
+#         smooth (float): Value to avoid division by zero when images and predictions are empty.
+#     """
+#     def __init__(self, smooth=1.0):
+#         super(DiceLoss, self).__init__()
+#         self.smooth = smooth
+
+#     def forward(self, prediction, target, weights=None):
+#         iflat = prediction.reshape(-1)
+#         tflat = target.reshape(-1)
+#         intersection = (iflat * tflat).sum()
+
+#         if (weights is not None):
+#             intersection = weights * intersection
+
+#         return - (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
+
+# class WeightedLoss(nn.Module):
+#     def __init__(self, loss):
+#         super().__init__()
+#         self.loss = loss
+#         self.name = f'Weighted {loss.name}'
+
+#     def forward(self, inputs, true, weights):
+#         iflat = inputs.contiguous().view(-1)
+#         wflat = weights.contiguous().view(-1)
+
+#         loss_part = self.loss(inputs, true)
+#         weight_part = torch.mean(iflat * wflat)
+
+#         return loss_part + weight_part
+
 class DiceLoss(nn.Module):
-    """DiceLoss.
-
-    .. seealso::
-        Milletari, Fausto, Nassir Navab, and Seyed-Ahmad Ahmadi. "V-net: Fully convolutional neural networks for
-        volumetric medical image segmentation." 2016 fourth international conference on 3D vision (3DV). IEEE, 2016.
-
-    Args:
-        smooth (float): Value to avoid division by zero when images and predictions are empty.
-
-    Attributes:
-        smooth (float): Value to avoid division by zero when images and predictions are empty.
-    """
-    def __init__(self, smooth=1.0):
+    def __init__(self, size_average=True):
         super(DiceLoss, self).__init__()
-        self.smooth = smooth
 
-    def forward(self, prediction, target, weights=None):
-        iflat = prediction.reshape(-1)
-        tflat = target.reshape(-1)
-        intersection = (iflat * tflat).sum()
-
+    def forward(self, inputs, targets, weights=None, smooth=1):
+        
+        #comment out if your model contains a sigmoid or equivalent activation layer
+        inputs = nn.functional.sigmoid(inputs)       
+        
+        #flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+        
+        intersection = (inputs * targets).sum()
         if (weights is not None):
             intersection = weights * intersection
-
-        return - (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
-
-class WeightedLoss(nn.Module):
-    def __init__(self, loss):
-        super().__init__()
-        self.loss = loss
-        self.name = f'Weighted {loss.name}'
-
-    def forward(self, inputs, true, weights):
-        iflat = inputs.contiguous().view(-1)
-        wflat = weights.contiguous().view(-1)
-
-        loss_part = self.loss(inputs, true)
-        weight_part = torch.mean(iflat * wflat)
-
-        return loss_part + weight_part
-
-# class DiceLoss(nn.Module):
-#     def __init__(self, weight=None, size_average=True):
-#         super(DiceLoss, self).__init__()
-
-#     def forward(self, inputs, targets, smooth=1):
+                   
+        dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         
-#         #comment out if your model contains a sigmoid or equivalent activation layer
-#         inputs = nn.functional.sigmoid(inputs)       
-        
-#         #flatten label and prediction tensors
-#         inputs = inputs.view(-1)
-#         targets = targets.view(-1)
-        
-#         intersection = (inputs * targets).sum()                            
-#         dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
-        
-#         return 1 - dice
+        return 1 - dice
 
 # ALPHA = 0.8
 # GAMMA = 2

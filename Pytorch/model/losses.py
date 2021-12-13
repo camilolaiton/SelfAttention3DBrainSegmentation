@@ -43,6 +43,20 @@ import torch
 
 #         return loss_part + weight_part
 
+def flatten(tensor):
+    """Flattens a given tensor such that the channel axis is first.
+    The shapes are transformed as follows:
+       (N, C, D, H, W) -> (C, N * D * H * W)
+    """
+    # number of channels
+    C = tensor.size(1)
+    # new axis order
+    axis_order = (1, 0) + tuple(range(2, tensor.dim()))
+    # Transpose: (N, C, D, H, W) -> (C, N, D, H, W)
+    transposed = tensor.permute(axis_order)
+    # Flatten: (C, N, D, H, W) -> (C, N * D * H * W)
+    return transposed.contiguous().view(C, -1)
+
 class DiceLoss(nn.Module):
     def __init__(self, size_average=True):
         super(DiceLoss, self).__init__()
@@ -50,13 +64,16 @@ class DiceLoss(nn.Module):
     def forward(self, inputs, targets, weights=None, smooth=1):
         
         #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = nn.functional.sigmoid(inputs)       
+        inputs = torch.sigmoid(inputs)       
         
         #flatten label and prediction tensors
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-        
-        intersection = (inputs * targets).sum()
+        # inputs = inputs.view(-1)
+        inputs = flatten(inputs)
+        # targets = targets.view(-1)
+        targets = flatten(targets)
+        targets = targets.float()
+
+        intersection = (inputs * targets).sum(-1)
         if (weights is not None):
             intersection = weights * intersection
                    

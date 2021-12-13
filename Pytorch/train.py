@@ -189,10 +189,9 @@ def main():
 
     # main_cycle = tqdm(config.num_epochs, desc='Training model', leave=True)
     metric_collection = MetricCollection([
-        Accuracy(),
+        F1(num_classes=config.n_classes, average='macro'),
         Precision(num_classes=config.n_classes, average='macro'),
         Recall(num_classes=config.n_classes, average='macro'),
-        F1(num_classes=config.n_classes, average='macro'),
     ])
     
     for epoch in range(0, config.num_epochs):
@@ -241,10 +240,9 @@ def main():
                     'Epoch': epoch, 
                     'Inner batch': i, 
                     'Loss': running_loss/i, 
-                    'Accuracy': metrics['Accuracy'],
+                    'F1': metrics['F1'],
                     'Precision': metrics['Precision'],
                     'Recall': metrics['Recall'],
-                    'F1': metrics['F1'],
                 })
                 tbatch.update()
                 sleep(0.01)

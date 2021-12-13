@@ -170,7 +170,7 @@ def main():
         Accuracy().to(device),
         F1(num_classes=config.n_classes, average='macro').to(device),
         Precision(num_classes=config.n_classes, average='macro').to(device),
-        Recall(num_classes=config.n_classes, average='macro', mdmc_reduce='global').to(device),
+        Recall(num_classes=config.n_classes, average='macro').to(device),
     ])
 
     # Loss function
@@ -221,7 +221,8 @@ def main():
                     print("pred: ", pred.shape, " mask ", mask.shape)
                     metrics = metric_collection(
                         torch.argmax(pred, dim=1), 
-                        torch.argmax(mask, dim=1)
+                        torch.argmax(mask, dim=1),
+                        mdmc_reduce='global'
                     )
                 
                 scaler.scale(loss).backward()

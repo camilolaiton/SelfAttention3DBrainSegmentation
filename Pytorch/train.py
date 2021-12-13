@@ -197,8 +197,6 @@ def main():
         
         # for i, data in enumerate(train_dataloader):
             for i, data in enumerate(tbatch):
-                print(i, data)
-                exit()
                 # Getting the data
                 image, mask = data['image'].to(device), data['mask'].to(device)
                 # image.cuda(device)

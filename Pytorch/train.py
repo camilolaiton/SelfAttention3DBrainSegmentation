@@ -69,7 +69,7 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     if torch.cuda.device_count() > 1:
-        print("[INFO] Using {} GPUs!" % torch.cuda.device_count())
+        print(f"[INFO] Using {torch.cuda.device_count()} GPUs!")
         # model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
         model = torch.nn.DataParallel(model)
 

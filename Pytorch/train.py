@@ -224,10 +224,10 @@ def main():
                 # this reduces the number of memory operations.
                 optimizer.zero_grad(set_to_none=True)
                 
-                print(f"[Epoch {epoch}-{i}]: loss {loss}")
+                # print(f"[Epoch {epoch}-{i}]: loss {loss}")
                 tbatch.set_description("Training model")
                 tbatch.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
-                # tbatch.refresh() # to show immediately the update
+                tbatch.update()
                 sleep(0.01)
                 end_i = i
         

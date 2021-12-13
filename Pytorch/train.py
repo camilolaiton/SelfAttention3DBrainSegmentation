@@ -14,6 +14,7 @@ from model.dataset import Mindboggle_101
 # from datetime import datetime
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
+from torch.utils.tensorboard import SummaryWriter
 
 def defining_augmentations():
     aug = Augmend()
@@ -46,6 +47,7 @@ def main():
 
     # Creating folders for saving trainings
     utils.create_folder(f"{training_folder}/checkpoints")
+    writer = SummaryWriter(training_folder)
 
     # getting training config
     config = get_config()
@@ -151,6 +153,8 @@ def main():
     use_amp = True
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
+    print("Starting training!")
+
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
         
@@ -177,7 +181,8 @@ def main():
             scaler.update()
 
             # this reduces the number of memory operations.
-            optimizer.zero_grad(set_to_none=True)            
+            optimizer.zero_grad(set_to_none=True)
+            print(f"[Epoch {epoch}-{i}]: loss {loss}")    
 
         print(f"{epoch} Loss: {running_loss}")
 
@@ -186,6 +191,11 @@ def main():
             best_epoch = epoch
             print(f"Saving best model in epoch {best_epoch} with loss {best_loss}")
             torch.save(model.state_dict(), training_folder+'best-model-parameters.pt')
+
+        writer.add_scalar('LearningRate/train', optimizer.param_groups[0]['lr'], epoch)
+        writer.add_scalar('Loss/train', running_loss, epoch)
+
+    writer.close()
         
 
 if __name__ == "__main__":

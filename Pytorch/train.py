@@ -169,7 +169,7 @@ def main():
     metric_collection = MetricCollection([
         Accuracy().to(device),
         F1(num_classes=config.n_classes, average='macro').to(device),
-        Precision(num_classes=config.n_classes, average='macro', mdmc_reduce='global').to(device),
+        Precision(num_classes=config.n_classes, average='macro').to(device),
         Recall(num_classes=config.n_classes, average='macro', mdmc_reduce='global').to(device),
     ])
 

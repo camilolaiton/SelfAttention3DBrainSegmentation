@@ -418,8 +418,7 @@ def main():
         print("Weights read!")
 
     weights = [float(weight)/div_factor for weight in weights]
-    weights = torch.FloatTensor(weights, dtype=torch.float16)
-    print(weights)
+    print("W: ", weights)
 
     # Setting up neural network loss
     #loss = tversky_loss()#

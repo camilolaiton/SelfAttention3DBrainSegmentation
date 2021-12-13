@@ -12,6 +12,7 @@ import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
+import numpy as np
 
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
@@ -73,6 +74,8 @@ def main():
         print("Weights read!")
 
     weights = [float(weight)/div_factor for weight in weights]
+    torch_weights = torch.as_tensor(np.array(weights)
+
     print(weights)
 
     # For parallel data pytorch
@@ -192,7 +195,7 @@ def main():
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)
-                loss = loss_fn(pred, mask, weights)
+                loss = loss_fn(pred, mask, torch_weights)
                 # loss_1 = dice_loss(pred, mask)
                 # loss_2 = focal_loss(pred, mask)
                 running_loss += loss

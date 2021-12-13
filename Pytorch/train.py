@@ -181,6 +181,7 @@ def main():
     dice_loss = DiceLoss()
     focal_loss = FocalLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
+    loss_fn = dice_loss + focal_loss
     # Optimizer
     optimizer = optim.Adam(
         model.parameters(), 
@@ -214,14 +215,14 @@ def main():
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)
-                # loss = loss_fn(pred, mask)
-                loss_1 = dice_loss(pred, mask)
-                loss_2 = focal_loss(pred, mask)
-                running_loss += (loss_1 + loss_2)
+                loss = loss_fn(pred, mask)
+                # loss_1 = dice_loss(pred, mask)
+                # loss_2 = focal_loss(pred, mask)
+                running_loss += loss
             
-            # loss.backward(loss)
-            scaler.scale(loss_1).backward()
-            scaler.scale(loss_2).backward()
+            loss.backward(loss)
+            # scaler.scale(loss_1).backward()
+            # scaler.scale(loss_2).backward()
 
             # optimizer.step()
             scaler.step(optimizer)
@@ -231,6 +232,7 @@ def main():
 
             # this reduces the number of memory operations.
             optimizer.zero_grad(set_to_none=True)
+            
             print(f"[Epoch {epoch}-{i}]: loss {loss}")
             end_i = i
 

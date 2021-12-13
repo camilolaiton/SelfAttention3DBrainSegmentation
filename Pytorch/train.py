@@ -75,7 +75,7 @@ def main():
 
     print("[INFO] Device: ", device)
 
-    # model.to(device)
+    model.to(device)
     
     print(model)
 
@@ -159,7 +159,9 @@ def main():
 
             # Getting the data
             image, mask = data['image'], data['mask']
-
+            image.to(device)
+            mask.to(device)
+            
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)

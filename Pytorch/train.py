@@ -15,50 +15,9 @@ from model.dataset import Mindboggle_101
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
-# from model.losses import DiceLoss, FocalLoss
+from model.losses import Dice_and_Focal_loss
 
-from torch import nn
-
-class DiceLoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
-        super(DiceLoss, self).__init__()
-
-    def forward(self, inputs, targets, smooth=1):
-        
-        #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = nn.functional.sigmoid(inputs)       
-        
-        #flatten label and prediction tensors
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-        
-        intersection = (inputs * targets).sum()                            
-        dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
-        
-        return 1 - dice
-
-ALPHA = 0.8
-GAMMA = 2
-
-class FocalLoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
-        super(FocalLoss, self).__init__()
-
-    def forward(self, inputs, targets, alpha=ALPHA, gamma=GAMMA, smooth=1):
-        
-        #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = nn.functional.sigmoid(inputs)       
-        
-        #flatten label and prediction tensors
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-        
-        #first compute binary cross-entropy 
-        BCE = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='mean')
-        BCE_EXP = torch.exp(-BCE)
-        focal_loss = alpha * (1-BCE_EXP)**gamma * BCE
-                       
-        return focal_loss
+# https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
 def defining_augmentations():
     aug = Augmend()
@@ -178,10 +137,8 @@ def main():
     model.cuda(device)
 
     # Loss function
-    dice_loss = DiceLoss()
-    focal_loss = FocalLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
+    loss_fn = Dice_and_Focal_loss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
-    loss_fn = dice_loss + focal_loss
     # Optimizer
     optimizer = optim.Adam(
         model.parameters(), 

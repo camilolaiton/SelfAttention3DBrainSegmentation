@@ -93,21 +93,20 @@ class DiceLoss(nn.Module):
         # #comment out if your model contains a sigmoid or equivalent activation layer
         # inputs = torch.sigmoid(inputs)       
         
-        # #flatten label and prediction tensors
-        # # inputs = inputs.view(-1)
-        # inputs = flatten(inputs)
-        # # targets = targets.view(-1)
-        # targets = flatten(targets)
-        # targets = targets.float()
+        #flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
 
-        # intersection = (inputs * targets).sum(-1)
-        # if (weights is not None):
-        #     intersection = weights * intersection
+        intersection = (inputs * targets).sum()
+        if (weights is not None):
+            print(intersection.shape, " ", weights.shape)
+            print(type(weights), " ", type(intersection))
+            intersection = weights * intersection
                    
-        # dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
+        dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         
-        # return 1 - dice
-        return compute_per_channel_dice(inputs, targets, weight=weights)
+        return 1 - dice
+        # return compute_per_channel_dice(inputs, targets, weight=weights)
 
 # ALPHA = 0.8
 # GAMMA = 2

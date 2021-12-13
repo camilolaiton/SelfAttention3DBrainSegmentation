@@ -13,6 +13,7 @@ from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 from model.metrics import dice_coefficient
+from torchmetrics import MetricCollection, Accuracy, Precision, Recall, F1
 import numpy as np
 import glob
 import time
@@ -187,7 +188,13 @@ def main():
     print("[INFO] Starting training!")
 
     # main_cycle = tqdm(config.num_epochs, desc='Training model', leave=True)
-
+    metric_collection = MetricCollection([
+        Accuracy(),
+        Precision(num_classes=config.n_classes, average='macro'),
+        Recall(num_classes=config.n_classes, average='macro'),
+        F1(num_classes=config.n_classes, average='macro'),
+    ])
+    
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
         
@@ -199,7 +206,7 @@ def main():
         # for i, data in enumerate(train_dataloader):
             for i, data in enumerate(tbatch):
                 # Getting the data
-                dice_coef = 0
+                metrics = {}
                 image, mask = data['image'].to(device), data['mask'].to(device)
                 # image.cuda(device)
                 # mask.cuda(device)
@@ -211,7 +218,7 @@ def main():
                     # loss_1 = dice_loss(pred, mask)
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
-                    dice_coef = dice_coefficient(pred, mask)
+                    metrics = metric_collection(pred, mask)
                 
                 scaler.scale(loss).backward()
                 # loss.backward(loss)
@@ -228,8 +235,16 @@ def main():
                 optimizer.zero_grad(set_to_none=True)
                 
                 # print(f"[Epoch {epoch}-{i}]: loss {loss}")
+                
                 tbatch.set_description("Training model")
-                tbatch.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i, 'dice coef': dice_coef})
+                tbatch.set_postfix({
+                    'Epoch': epoch, 
+                    'Inner batch': i, 
+                    'Loss': running_loss/i, 
+                    'Accuracy': metrics['Accuracy'],
+                    'Precision': metrics['Precision'],
+                    'Recall': metrics['Recall'],
+                })
                 tbatch.update()
                 sleep(0.01)
                 end_i = i

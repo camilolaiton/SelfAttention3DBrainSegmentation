@@ -213,7 +213,7 @@ def main():
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)
-                loss = sum(loss_fn(pred, mask))
+                loss = loss_fn(pred, mask)
                 running_loss += loss
             
             # loss.backward(loss)

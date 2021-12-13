@@ -62,8 +62,6 @@ def main():
     # Loading the model
     model = BrainSegmentationNetwork()
 
-    model.cuda(0)
-
     # Loading device
     device = None
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -75,7 +73,8 @@ def main():
 
     print("[INFO] Device: ", device)
 
-    model.to(device)
+    # model.to(device)
+    model.cuda(device)
     
     print(model)
 
@@ -159,9 +158,9 @@ def main():
 
             # Getting the data
             image, mask = data['image'], data['mask']
-            image.to(device)
-            mask.to(device)
-            
+            image.cuda(device)
+            mask.cuda(device)
+
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)

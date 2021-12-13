@@ -167,10 +167,10 @@ def main():
 
     # Metrics
     metric_collection = MetricCollection([
-        Accuracy(),
-        F1(num_classes=config.n_classes, average='macro', multiclass=True),
-        Precision(num_classes=config.n_classes, average='macro', multiclass=True),
-        Recall(num_classes=config.n_classes, average='macro', multiclass=True),
+        Accuracy().to(device),
+        F1(num_classes=config.n_classes, average='macro', multiclass=True).to(device),
+        Precision(num_classes=config.n_classes, average='macro', multiclass=True).to(device),
+        Recall(num_classes=config.n_classes, average='macro', multiclass=True).to(device),
     ])
 
     # Loss function

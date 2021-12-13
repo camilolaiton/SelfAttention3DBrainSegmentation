@@ -157,9 +157,9 @@ def main():
         for i, data in enumerate(train_dataloader):
 
             # Getting the data
-            image, mask = data['image'], data['mask']
-            image.cuda(device)
-            mask.cuda(device)
+            image, mask = data['image'].to(device), data['mask'].to(device)
+            # image.cuda(device)
+            # mask.cuda(device)
 
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize

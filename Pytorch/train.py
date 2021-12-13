@@ -13,7 +13,8 @@ from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 import numpy as np
-import glob 
+import glob
+import time
 
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
@@ -186,6 +187,7 @@ def main():
         running_loss = 0.0
         
         end_i = 0
+        start_time = time.time()
         for i, data in enumerate(train_dataloader):
 
             # Getting the data
@@ -217,9 +219,12 @@ def main():
             
             print(f"[Epoch {epoch}-{i}]: loss {loss}")
             end_i = i
+        
+        end_time = time.time()
+        epoch_time = (end_time-start_time)/60
 
         running_loss = running_loss / end_i
-        print(f"{epoch} Loss: {running_loss}")
+        print(f"{epoch} Loss: {running_loss} in {epoch_time} seconds")
 
         if (best_loss > running_loss):
             best_loss = running_loss

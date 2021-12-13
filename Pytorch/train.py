@@ -54,7 +54,7 @@ class FocalLoss(nn.Module):
         targets = targets.view(-1)
         
         #first compute binary cross-entropy 
-        BCE = nn.functional.binary_cross_entropy(inputs, targets, reduction='mean')
+        BCE = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='mean')
         BCE_EXP = torch.exp(-BCE)
         focal_loss = alpha * (1-BCE_EXP)**gamma * BCE
                        
@@ -178,7 +178,8 @@ def main():
     model.cuda(device)
 
     # Loss function
-    loss_fn = FocalLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
+    dice_loss = DiceLoss()
+    focal_loss = FocalLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
     # Optimizer
     optimizer = optim.Adam(
@@ -213,11 +214,14 @@ def main():
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)
-                loss = loss_fn(pred, mask)
-                running_loss += loss
+                # loss = loss_fn(pred, mask)
+                loss_1 = dice_loss(pred, mask)
+                loss_2 = focal_loss(pred, mask)
+                running_loss += (loss_1 + loss_2)
             
             # loss.backward(loss)
-            scaler.scale(loss).backward()
+            scaler.scale(loss_1).backward()
+            scaler.scale(loss_2).backward()
 
             # optimizer.step()
             scaler.step(optimizer)

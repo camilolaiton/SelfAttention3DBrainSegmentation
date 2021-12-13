@@ -107,7 +107,7 @@ class DiceLoss(nn.Module):
         # dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         
         # return 1 - dice
-        return compute_per_channel_dice(inputs, targets, weight=self.weight)
+        return compute_per_channel_dice(inputs, targets, weight=weights)
 
 # ALPHA = 0.8
 # GAMMA = 2

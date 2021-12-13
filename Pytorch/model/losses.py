@@ -106,7 +106,7 @@ class DiceLoss(nn.Module):
             intersection = weights * intersection
                    
         dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
-        
+        print(dice, " ", dice.shape)
         return 1 - dice
         # return compute_per_channel_dice(inputs, targets, weight=weights)
 

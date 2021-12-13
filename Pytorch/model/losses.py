@@ -76,7 +76,7 @@ def compute_per_channel_dice(input, target, epsilon=1e-6, weight=None):
     target = target.float()
 
     # compute per channel Dice Coefficient
-    intersect = (input * target).sum(-1)
+    intersect = torch.tensor((input * target).sum(-1), dtype=torch.int32)
     if weight is not None:
         intersect = weight * intersect
 

@@ -35,6 +35,7 @@ class WeightedLoss(nn.Module):
         # self.name = f'Weighted {loss.name}'
 
     def forward(self, inputs, true, weights):
+        print(inputs.shape)
         iflat = inputs.contiguous().view(-1)
         wflat = weights.contiguous().view(-1)
 

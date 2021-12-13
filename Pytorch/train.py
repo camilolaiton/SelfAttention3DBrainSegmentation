@@ -73,8 +73,7 @@ def main():
 
     print("[INFO] Device: ", device)
 
-    # model.to(device)
-    model.cuda(device)
+    model.to(device)
     
     print(model)
 
@@ -130,6 +129,7 @@ def main():
     train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers, pin_memory=True)
     # test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers, pin_memory=True)
     
+    model.cuda(device)
 
     # Loss function
     loss_fn = torch.nn.CrossEntropyLoss()#.cuda(gpu)

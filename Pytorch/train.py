@@ -50,6 +50,40 @@ def main():
     # getting training config
     config = get_config()
 
+    # For parallel data pytorch
+    torch.distributed.init_process_group(backend='nccl')
+
+    gpu = 0
+
+    torch.manual_seed(12)
+    torch.cuda.manual_seed(12)
+    torch.cuda.set_device(gpu)
+
+    # Loading the model
+    model = BrainSegmentationNetwork()
+
+    model.cuda(0)
+
+    # Loading device
+    device = None
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
+    if torch.cuda.device_count() > 1:
+        print("[INFO] Using {} GPUs!" % torch.cuda.device_count())
+        model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
+
+    print("[INFO] Device: ", device)
+
+    # model.to(device)
+    
+    print(model)
+
+    trainable_params, total_params = count_params(model)
+    print("[INFO] Trainable params: ", trainable_params, " total params: ", total_params)
+
+    # Model training mode
+    model.train()
+
     transform = transforms.Compose([
         defining_augmentations()
     ])
@@ -83,41 +117,22 @@ def main():
     test_image_path = 'test/images/'
     test_mask_path = 'test/masks/'
 
-    mindboggle_101_test = Mindboggle_101(
-        dataset_path=config.dataset_path,
-        image_path=test_image_path,
-        mask_path=test_mask_path,
-        limit=27,
-        transform=None
-    )
+    # mindboggle_101_test = Mindboggle_101(
+    #     dataset_path=config.dataset_path,
+    #     image_path=test_image_path,
+    #     mask_path=test_mask_path,
+    #     limit=27,
+    #     transform=None
+    # )
 
     # Creating dataloaders
     num_workers = 2 # os.cpu_count()
-    train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers)
-    test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers)
+    train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers, pin_memory=True)
+    # test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers, pin_memory=True)
     
-    # Loading the model
-    model = BrainSegmentationNetwork()
-
-    # Loading device
-    device = None
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
-    if torch.cuda.device_count() > 1:
-        print("[INFO] Using {} GPUs!" % torch.cuda.device_count())
-        model = torch.nn.DataParallel(model)
-
-    print("[INFO] Device: ", device)
-
-    model.to(device)
-    
-    print(model)
-
-    trainable_params, total_params = count_params(model)
-    print("[INFO] Trainable params: ", trainable_params, " total params: ", total_params)
 
     # Loss function
-    loss_fn = torch.nn.CrossEntropyLoss()
+    loss_fn = torch.nn.CrossEntropyLoss().cuda(gpu)
 
     # Optimizer
     optimizer = optim.Adam(
@@ -129,26 +144,47 @@ def main():
         amsgrad=False 
     )
 
+    best_loss = 100
+    best_epoch = -1
+    
+    # For mixed precision
+    use_amp = True
+    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
-        model.train()
-
+        
         for i, data in enumerate(train_dataloader):
+
             # Getting the data
-            image, mask = data['image'].to(device), data['mask'].to(device)
+            image, mask = data['image'], data['mask']
 
-            optimizer.zero_grad()
+            with torch.cuda.amp.autocast():
+                # forward + backward + optimize
+                pred = model(image)
+                loss = loss_fn(pred, mask)
+                running_loss += loss
+            
+            # loss.backward(loss)
+            scaler.scale(loss).backward()
 
-            # forward + backward + optimize
-            pred = model(image)
-            loss = loss_fn(pred, mask)
-            loss.backward()
-            optimizer.step()
+            # optimizer.step()
+            scaler.step(optimizer)
 
-            # print statistics
-            running_loss += loss
+            # Updates the scale for next iteration.
+            scaler.update()
 
-            print("Loss: ", loss)
+            # this reduces the number of memory operations.
+            optimizer.zero_grad(set_to_none=True)            
+
+        print(f"{epoch} Loss: {running_loss}")
+
+        if (best_loss > running_loss):
+            best_loss = running_loss
+            best_epoch = epoch
+            print(f"Saving best model in epoch {best_epoch} with loss {best_loss}")
+            torch.save(model.state_dict(), training_folder+'best-model-parameters.pt')
+        
 
 if __name__ == "__main__":
     main()

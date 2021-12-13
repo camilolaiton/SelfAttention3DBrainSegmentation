@@ -11,7 +11,7 @@ from model.dataset import Mindboggle_101
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
-from model.losses import Dice_and_Focal_loss
+from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 import numpy as np
 import glob 
 
@@ -161,7 +161,7 @@ def main():
     model.cuda(device)
 
     # Loss function
-    loss_fn = Dice_and_Focal_loss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
+    loss_fn = FocalDiceLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
     # Optimizer
     optimizer = optim.Adam(

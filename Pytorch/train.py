@@ -178,7 +178,7 @@ def main():
     model.cuda(device)
 
     # Loss function
-    loss_fn = [DiceLoss(), FocalLoss()]#torch.nn.CrossEntropyLoss()#.cuda(gpu)
+    loss_fn = FocalLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
     # Optimizer
     optimizer = optim.Adam(

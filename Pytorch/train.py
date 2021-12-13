@@ -224,7 +224,7 @@ def main():
             
             print(f"[Epoch {epoch}-{i}]: loss {loss}")
             main_cycle.set_description("Training model")
-            main_cycle.set_postfix({'Epoch': 1, 'Inner batch': i, 'Loss': 0.5})
+            main_cycle.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
             main_cycle.refresh() # to show immediately the update
             sleep(0.01)
             end_i = i

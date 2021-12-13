@@ -217,7 +217,8 @@ def main():
                     # loss_1 = dice_loss(pred, mask)
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
-                    metrics = metric_collection(pred, mask)
+                    print("pred: ", pred.shape, " mask ", mask.shape)
+                    metrics = metric_collection(pred, mask.type(torch.int16))
                 
                 scaler.scale(loss).backward()
                 # loss.backward(loss)

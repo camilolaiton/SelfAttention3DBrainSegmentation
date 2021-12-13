@@ -12,6 +12,7 @@ import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
+from model.metrics import dice_coefficient
 import numpy as np
 import glob
 import time
@@ -198,6 +199,7 @@ def main():
         # for i, data in enumerate(train_dataloader):
             for i, data in enumerate(tbatch):
                 # Getting the data
+                dice_coef = 0
                 image, mask = data['image'].to(device), data['mask'].to(device)
                 # image.cuda(device)
                 # mask.cuda(device)
@@ -209,6 +211,7 @@ def main():
                     # loss_1 = dice_loss(pred, mask)
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
+                    dice_coef = dice_coefficient(pred, mask)
                 
                 scaler.scale(loss).backward()
                 # loss.backward(loss)
@@ -226,7 +229,7 @@ def main():
                 
                 # print(f"[Epoch {epoch}-{i}]: loss {loss}")
                 tbatch.set_description("Training model")
-                tbatch.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
+                tbatch.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i, 'dice coef': dice_coef})
                 tbatch.update()
                 sleep(0.01)
                 end_i = i
@@ -235,7 +238,7 @@ def main():
         epoch_time = (end_time-start_time)/60
 
         running_loss = running_loss / end_i
-        print(f"{epoch} Loss: {running_loss} in {epoch_time} seconds")
+        print(f"{epoch} Loss: {running_loss} in {epoch_time} minutes")
 
         if (best_loss > running_loss):
             best_loss = running_loss

@@ -15,7 +15,7 @@ from model.dataset import Mindboggle_101
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
-from model.losses import *
+from model.losses import DiceLoss, FocalLoss
 
 def defining_augmentations():
     aug = Augmend()

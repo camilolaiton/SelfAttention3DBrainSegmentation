@@ -51,13 +51,13 @@ def main():
     config = get_config()
 
     # For parallel data pytorch
-    torch.distributed.init_process_group(backend='nccl')
+    # torch.distributed.init_process_group(backend='nccl')
 
     gpu = 0
 
     torch.manual_seed(12)
     torch.cuda.manual_seed(12)
-    torch.cuda.set_device(gpu)
+    # torch.cuda.set_device(gpu)
 
     # Loading the model
     model = BrainSegmentationNetwork()
@@ -70,7 +70,8 @@ def main():
     
     if torch.cuda.device_count() > 1:
         print("[INFO] Using {} GPUs!" % torch.cuda.device_count())
-        model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
+        # model = torch.nn.DistributedDataParallel(model, device_ids=[gpu], output_device=gpu, find_unused_parameters=True)
+        model = torch.nn.DataParallel(model)
 
     print("[INFO] Device: ", device)
 
@@ -132,7 +133,7 @@ def main():
     
 
     # Loss function
-    loss_fn = torch.nn.CrossEntropyLoss().cuda(gpu)
+    loss_fn = torch.nn.CrossEntropyLoss()#.cuda(gpu)
 
     # Optimizer
     optimizer = optim.Adam(

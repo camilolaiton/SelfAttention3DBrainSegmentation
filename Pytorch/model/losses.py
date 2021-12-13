@@ -32,7 +32,7 @@ class WeightedLoss(nn.Module):
     def __init__(self, loss):
         super().__init__()
         self.loss = loss
-        self.name = f'Weighted {loss.name}'
+        # self.name = f'Weighted {loss.name}'
 
     def forward(self, inputs, true, weights):
         iflat = inputs.contiguous().view(-1)

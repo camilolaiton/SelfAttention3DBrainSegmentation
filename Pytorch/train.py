@@ -74,9 +74,8 @@ def main():
         print("Weights read!")
 
     weights = [float(weight)/div_factor for weight in weights]
-    torch_weights = torch.as_tensor(np.array(weights)
-
-    print(weights)
+    torch_weights = torch.as_tensor(np.array(weights))
+    print(torch_weights)
 
     # For parallel data pytorch
     # torch.distributed.init_process_group(backend='nccl')

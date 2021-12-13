@@ -29,7 +29,7 @@ class FocalLoss(nn.Module):
     def forward(self, inputs, targets, alpha=ALPHA, gamma=GAMMA, smooth=1):
         
         #comment out if your model contains a sigmoid or equivalent activation layer
-        inputs = nn.functional.sigmoid(inputs)       
+        inputs = torch.sigmoid(inputs)       
         
         #flatten label and prediction tensors
         inputs = inputs.view(-1)

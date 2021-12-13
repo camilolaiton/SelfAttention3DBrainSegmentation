@@ -173,7 +173,8 @@ def main():
                 # loss_2 = focal_loss(pred, mask)
                 running_loss += loss
             
-            loss.backward(loss)
+            scaler.scale(loss).backward()
+            # loss.backward(loss)
             # scaler.scale(loss_1).backward()
             # scaler.scale(loss_2).backward()
 

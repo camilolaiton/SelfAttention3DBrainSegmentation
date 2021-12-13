@@ -100,7 +100,7 @@ def main():
     print("[INFO] Device: ", device)
 
     model.to(device)
-    torch_weights = torch.as_tensor(np.array(weights)).to(device)
+    torch_weights = torch.as_tensor(np.array(weights, dtype=np.float16)).to(device)
 
     print(model)
 

@@ -101,137 +101,137 @@ class DiceLoss(nn.Module):
 
         intersection = (inputs * targets).sum()
         if (weights is not None):
-            print(intersection.shape, " ", weights.shape)
-            print(type(weights), " ", type(intersection))
-            intersection = torch.mean(weights * intersection)
+            # print(intersection.shape, " ", weights.shape)
+            # print(type(weights), " ", type(intersection))
+            intersection = weights * intersection
                    
         dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
-        print(dice, " ", dice.shape)
-        return 1 - dice
+        # print(dice, " ", dice.shape)
+        return 1 - torch.mean(dice)
         # return compute_per_channel_dice(inputs, targets, weight=weights)
 
-# ALPHA = 0.8
-# GAMMA = 2
-
-# class FocalLoss(nn.Module):
-#     def __init__(self, weight=None, size_average=True):
-#         super(FocalLoss, self).__init__()
-
-#     def forward(self, inputs, targets, alpha=ALPHA, gamma=GAMMA, smooth=1):
-        
-#         #comment out if your model contains a sigmoid or equivalent activation layer
-#         inputs = torch.sigmoid(inputs)       
-        
-#         #flatten label and prediction tensors
-#         inputs = inputs.view(-1)
-#         targets = targets.view(-1)
-        
-#         #first compute binary cross-entropy 
-#         BCE = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='mean')
-#         BCE_EXP = torch.exp(-BCE)
-#         focal_loss = alpha * (1-BCE_EXP)**gamma * BCE
-                       
-#         return focal_loss
+ALPHA = 0.8
+GAMMA = 2
 
 class FocalLoss(nn.Module):
-    """FocalLoss.
-
-    .. seealso::
-        Lin, Tsung-Yi, et al. "Focal loss for dense object detection."
-        Proceedings of the IEEE international conference on computer vision. 2017.
-
-    Args:
-        gamma (float): Value from 0 to 5, Control between easy background and hard ROI
-            training examples. If set to 0, equivalent to cross-entropy.
-        alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
-            imbalance.
-        eps (float): Epsilon to avoid division by zero.
-
-    Attributes:
-        gamma (float): Value from 0 to 5, Control between easy background and hard ROI
-            training examples. If set to 0, equivalent to cross-entropy.
-        alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
-            imbalance.
-        eps (float): Epsilon to avoid division by zero.
-    """
-
-    def __init__(self, gamma=2, alpha=0.25, eps=1e-7):
+    def __init__(self, weight=None, size_average=True):
         super(FocalLoss, self).__init__()
-        self.gamma = gamma
-        self.alpha = alpha
-        self.eps = eps
 
-    def forward(self, input, target):
-        input = input.clamp(self.eps, 1. - self.eps)
+    def forward(self, inputs, targets, alpha=ALPHA, gamma=GAMMA, smooth=1):
+        
+        #comment out if your model contains a sigmoid or equivalent activation layer
+        inputs = torch.sigmoid(inputs)       
+        
+        #flatten label and prediction tensors
+        inputs = inputs.view(-1)
+        targets = targets.view(-1)
+        
+        #first compute binary cross-entropy 
+        BCE = nn.functional.binary_cross_entropy_with_logits(inputs, targets, reduction='mean')
+        BCE_EXP = torch.exp(-BCE)
+        focal_loss = alpha * (1-BCE_EXP)**gamma * BCE
+                       
+        return focal_loss
 
-        cross_entropy = - (target * torch.log(input) + (1 - target) * torch.log(1 - input))  # eq1
-        logpt = - cross_entropy
-        pt = torch.exp(logpt)  # eq2
+# class FocalLoss(nn.Module):
+#     """FocalLoss.
 
-        at = self.alpha * target + (1 - self.alpha) * (1 - target)
-        balanced_cross_entropy = - at * logpt  # eq3
+#     .. seealso::
+#         Lin, Tsung-Yi, et al. "Focal loss for dense object detection."
+#         Proceedings of the IEEE international conference on computer vision. 2017.
 
-        focal_loss = balanced_cross_entropy * ((1 - pt) ** self.gamma)  # eq5
+#     Args:
+#         gamma (float): Value from 0 to 5, Control between easy background and hard ROI
+#             training examples. If set to 0, equivalent to cross-entropy.
+#         alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
+#             imbalance.
+#         eps (float): Epsilon to avoid division by zero.
 
-        return focal_loss.sum()
+#     Attributes:
+#         gamma (float): Value from 0 to 5, Control between easy background and hard ROI
+#             training examples. If set to 0, equivalent to cross-entropy.
+#         alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
+#             imbalance.
+#         eps (float): Epsilon to avoid division by zero.
+#     """
+
+#     def __init__(self, gamma=2, alpha=0.25, eps=1e-7):
+#         super(FocalLoss, self).__init__()
+#         self.gamma = gamma
+#         self.alpha = alpha
+#         self.eps = eps
+
+#     def forward(self, input, target):
+#         input = input.clamp(self.eps, 1. - self.eps)
+
+#         cross_entropy = - (target * torch.log(input) + (1 - target) * torch.log(1 - input))  # eq1
+#         logpt = - cross_entropy
+#         pt = torch.exp(logpt)  # eq2
+
+#         at = self.alpha * target + (1 - self.alpha) * (1 - target)
+#         balanced_cross_entropy = - at * logpt  # eq3
+
+#         focal_loss = balanced_cross_entropy * ((1 - pt) ** self.gamma)  # eq5
+
+#         return focal_loss.sum()
 
 ALPHA = 0.5 # < 0.5 penalises FP more, > 0.5 penalises FN more
 CE_RATIO = 0.5 #weighted contribution of modified CE loss compared to Dice loss
 
-class FocalDiceLoss(nn.Module):
-    """FocalDiceLoss.
+# class FocalDiceLoss(nn.Module):
+#     """FocalDiceLoss.
 
-    .. seealso::
-        Wong, Ken CL, et al. "3D segmentation with exponential logarithmic loss for highly unbalanced object sizes."
-        International Conference on Medical Image Computing and Computer-Assisted Intervention. Springer, Cham, 2018.
+#     .. seealso::
+#         Wong, Ken CL, et al. "3D segmentation with exponential logarithmic loss for highly unbalanced object sizes."
+#         International Conference on Medical Image Computing and Computer-Assisted Intervention. Springer, Cham, 2018.
 
-    Args:
-        beta (float): Value from 0 to 1, indicating the weight of the dice loss.
-        gamma (float): Value from 0 to 5, Control between easy background and hard ROI
-            training examples. If set to 0, equivalent to cross-entropy.
-        alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
-            imbalance.
+#     Args:
+#         beta (float): Value from 0 to 1, indicating the weight of the dice loss.
+#         gamma (float): Value from 0 to 5, Control between easy background and hard ROI
+#             training examples. If set to 0, equivalent to cross-entropy.
+#         alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
+#             imbalance.
 
-    Attributes:
-        beta (float): Value from 0 to 1, indicating the weight of the dice loss.
-        gamma (float): Value from 0 to 5, Control between easy background and hard ROI
-            training examples. If set to 0, equivalent to cross-entropy.
-        alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
-            imbalance.
-    """
-    def __init__(self, beta=1, gamma=2, alpha=0.25):
-        super().__init__()
-        self.beta = beta
-        self.focal = FocalLoss(gamma, alpha)
-        self.dice = DiceLoss()
-
-    def forward(self, input, target, weights=None):
-        dc_loss = - self.dice(input, target, weights)
-        fc_loss = self.focal(input, target)
-
-        # used to fine tune beta
-        # with torch.no_grad():
-        #     print('DICE loss:', dc_loss.cpu().numpy(), 'Focal loss:', fc_loss.cpu().numpy())
-        #     log_dc_loss = torch.log(torch.clamp(dc_loss, 1e-7))
-        #     log_fc_loss = torch.log(torch.clamp(fc_loss, 1e-7))
-        #     print('Log DICE loss:', log_dc_loss.cpu().numpy(), 'Log Focal loss:', log_fc_loss.cpu().numpy())
-        #     print('*'*20)
-
-        loss = torch.log(torch.clamp(fc_loss, 1e-7)) - self.beta * torch.log(torch.clamp(dc_loss, 1e-7))
-
-        return loss
-
-# class Dice_and_Focal_loss(nn.Module):
-#     def __init__(self):
-#         super(Dice_and_Focal_loss, self).__init__()
+#     Attributes:
+#         beta (float): Value from 0 to 1, indicating the weight of the dice loss.
+#         gamma (float): Value from 0 to 5, Control between easy background and hard ROI
+#             training examples. If set to 0, equivalent to cross-entropy.
+#         alpha (float): Value from 0 to 1, usually corresponding to the inverse of class frequency to address class
+#             imbalance.
+#     """
+#     def __init__(self, beta=1, gamma=2, alpha=0.25):
+#         super().__init__()
+#         self.beta = beta
+#         self.focal = FocalLoss(gamma, alpha)
 #         self.dice = DiceLoss()
-#         self.focal = FocalLoss()
+
+#     def forward(self, input, target, weights=None):
+#         dc_loss = - self.dice(input, target, weights)
+#         fc_loss = self.focal(input, target)
+
+#         # used to fine tune beta
+#         # with torch.no_grad():
+#         #     print('DICE loss:', dc_loss.cpu().numpy(), 'Focal loss:', fc_loss.cpu().numpy())
+#         #     log_dc_loss = torch.log(torch.clamp(dc_loss, 1e-7))
+#         #     log_fc_loss = torch.log(torch.clamp(fc_loss, 1e-7))
+#         #     print('Log DICE loss:', log_dc_loss.cpu().numpy(), 'Log Focal loss:', log_fc_loss.cpu().numpy())
+#         #     print('*'*20)
+
+#         loss = torch.log(torch.clamp(fc_loss, 1e-7)) - self.beta * torch.log(torch.clamp(dc_loss, 1e-7))
+
+#         return loss
+
+class Dice_and_Focal_loss(nn.Module):
+    def __init__(self):
+        super(Dice_and_Focal_loss, self).__init__()
+        self.dice = DiceLoss()
+        self.focal = FocalLoss()
     
-#     def forward(self, pred, mask):
-#         dice_loss = self.dice(pred, mask)
-#         focal_loss = self.focal(pred, mask)
-#         result = dice_loss + focal_loss
-#         return result
+    def forward(self, pred, mask):
+        dice_loss = self.dice(pred, mask)
+        focal_loss = self.focal(pred, mask)
+        result = dice_loss + focal_loss
+        return result
 
 # class ComboLoss(nn.Module):
 #     def __init__(self, weight=None, size_average=True):

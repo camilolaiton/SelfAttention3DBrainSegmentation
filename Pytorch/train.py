@@ -51,6 +51,30 @@ def main():
     # getting training config
     config = get_config()
 
+    # Setting up weights 
+    weights = utils.read_test_to_list(config.dataset_path + 'weights.txt')
+    
+    div_factor = 100
+
+    if (weights == False):
+        end_path = '/train/masks'
+        image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
+        print(f"Calculating weights for {config.n_classes}")
+        weights, label_to_frequency_dict = utils.median_frequency_balancing(image_files=image_files, num_classes=config.n_classes)
+        print("Resulting weights: ", weights)
+        if (weights == False):
+            print("Please check the path")
+            exit()
+        utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
+        print("Weights calculated")
+    else:
+        # weights = [0.0, 1, 2.7, 3]
+        # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
+        print("Weights read!")
+
+    weights = [float(weight)/div_factor for weight in weights]
+    print(weights)
+
     # For parallel data pytorch
     # torch.distributed.init_process_group(backend='nccl')
 
@@ -168,7 +192,7 @@ def main():
             with torch.cuda.amp.autocast():
                 # forward + backward + optimize
                 pred = model(image)
-                loss = loss_fn(pred, mask)
+                loss = loss_fn(pred, mask, weights)
                 # loss_1 = dice_loss(pred, mask)
                 # loss_2 = focal_loss(pred, mask)
                 running_loss += loss

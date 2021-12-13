@@ -18,12 +18,30 @@ class DiceLoss(nn.Module):
         super(DiceLoss, self).__init__()
         self.smooth = smooth
 
-    def forward(self, prediction, target):
+    def forward(self, prediction, target, weights=None):
         iflat = prediction.reshape(-1)
         tflat = target.reshape(-1)
         intersection = (iflat * tflat).sum()
 
+        if (weights is not None):
+            intersection = weights * intersection
+
         return - (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
+
+class WeightedLoss(nn.Module):
+    def __init__(self, loss):
+        super().__init__()
+        self.loss = loss
+        self.name = f'Weighted {loss.name}'
+
+    def forward(self, inputs, true, weights):
+        iflat = inputs.contiguous().view(-1)
+        wflat = weights.contiguous().view(-1)
+
+        loss_part = self.loss(inputs, true)
+        weight_part = torch.mean(iflat * wflat)
+
+        return loss_part + weight_part
 
 # class DiceLoss(nn.Module):
 #     def __init__(self, weight=None, size_average=True):
@@ -136,10 +154,10 @@ class FocalDiceLoss(nn.Module):
         super().__init__()
         self.beta = beta
         self.focal = FocalLoss(gamma, alpha)
-        self.dice = DiceLoss()
+        self.dice = WeightedLoss(DiceLoss())
 
-    def forward(self, input, target):
-        dc_loss = - self.dice(input, target)
+    def forward(self, input, target, weights=None):
+        dc_loss = - self.dice(input, target, weights)
         fc_loss = self.focal(input, target)
 
         # used to fine tune beta

@@ -97,17 +97,17 @@ class DiceLoss(nn.Module):
         inputs = inputs.view(-1)
         targets = targets.view(-1)
 
-        print(inputs.shape, " ", targets.shape)
+        # print(inputs.shape, " ", targets.shape)
 
         intersection = (inputs * targets).sum()
         if (weights is not None):
             # print(intersection.shape, " ", weights.shape)
             # print(type(weights), " ", type(intersection))
-            intersection = weights * intersection
+            intersection = torch.mean(weights * intersection)
                    
         dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         # print(dice, " ", dice.shape)
-        return 1 - torch.mean(dice)
+        return 1 - dice
         # return compute_per_channel_dice(inputs, targets, weight=weights)
 
 ALPHA = 0.8

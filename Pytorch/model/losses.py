@@ -99,11 +99,11 @@ class DiceLoss(nn.Module):
 
         print(inputs.shape, " ", targets.shape)
 
-        intersection = (inputs * targets).sum(-1)
+        intersection = (inputs * targets).sum()
         if (weights is not None):
             print(intersection.shape, " ", weights.shape)
             print(type(weights), " ", type(intersection))
-            intersection = weights * intersection
+            intersection = torch.mean(weights * intersection)
                    
         dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)  
         print(dice, " ", dice.shape)

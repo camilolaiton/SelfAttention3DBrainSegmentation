@@ -100,14 +100,14 @@ def main():
     print("[INFO] Device: ", device)
 
     model.to(device)
-
     torch_weights = torch.as_tensor(np.array(weights)).to(device)
-    print(torch_weights)
-    
+
     print(model)
 
     trainable_params, total_params = count_params(model)
     print("[INFO] Trainable params: ", trainable_params, " total params: ", total_params)
+
+    print(torch_weights)
 
     # Model training mode
     model.train()

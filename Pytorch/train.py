@@ -185,7 +185,7 @@ def main():
 
     print("[INFO] Starting training!")
 
-    main_cycle = tqdm(config.num_epochs, desc='Training model', leave=True)
+    # main_cycle = tqdm(config.num_epochs, desc='Training model', leave=True)
 
     for epoch in range(0, config.num_epochs):
         running_loss = 0.0
@@ -193,7 +193,7 @@ def main():
         end_i = 0
         start_time = time.time()
         
-        with tqdm(train_dataloader, unit='batch') as tbatch:
+        with tqdm(train_dataloader, unit='batch', position=0, leave=True) as tbatch:
         
         # for i, data in enumerate(train_dataloader):
             for i, data in enumerate(tbatch):
@@ -225,9 +225,9 @@ def main():
                 optimizer.zero_grad(set_to_none=True)
                 
                 print(f"[Epoch {epoch}-{i}]: loss {loss}")
-                main_cycle.set_description("Training model")
-                main_cycle.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
-                # main_cycle.refresh() # to show immediately the update
+                tbatch.set_description("Training model")
+                tbatch.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
+                # tbatch.refresh() # to show immediately the update
                 sleep(0.01)
                 end_i = i
         

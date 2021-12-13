@@ -15,7 +15,7 @@ from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 import numpy as np
 import glob
 import time
-from tqdm import trange
+from tqdm import tqdm
 from time import sleep
 
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
@@ -185,49 +185,53 @@ def main():
 
     print("[INFO] Starting training!")
 
-    main_cycle = trange(config.num_epochs, desc='Training model', leave=True)
+    main_cycle = tqdm(config.num_epochs, desc='Training model', leave=True)
 
-    # for epoch in range(0, config.num_epochs):
-    for epoch in main_cycle:
+    for epoch in range(0, config.num_epochs):
         running_loss = 0.0
         
         end_i = 0
         start_time = time.time()
-        for i, data in enumerate(train_dataloader):
+        
+        with tqdm(train_dataloader, unit='batch') as tbatch:
+        
+        # for i, data in enumerate(train_dataloader):
+            for data in tbatch:
+                print(data)
+                exit()
+                # Getting the data
+                image, mask = data['image'].to(device), data['mask'].to(device)
+                # image.cuda(device)
+                # mask.cuda(device)
 
-            # Getting the data
-            image, mask = data['image'].to(device), data['mask'].to(device)
-            # image.cuda(device)
-            # mask.cuda(device)
+                with torch.cuda.amp.autocast():
+                    # forward + backward + optimize
+                    pred = model(image)
+                    loss = loss_fn(pred, mask)#, torch_weights)
+                    # loss_1 = dice_loss(pred, mask)
+                    # loss_2 = focal_loss(pred, mask)
+                    running_loss += loss
+                
+                scaler.scale(loss).backward()
+                # loss.backward(loss)
+                # scaler.scale(loss_1).backward()
+                # scaler.scale(loss_2).backward()
 
-            with torch.cuda.amp.autocast():
-                # forward + backward + optimize
-                pred = model(image)
-                loss = loss_fn(pred, mask)#, torch_weights)
-                # loss_1 = dice_loss(pred, mask)
-                # loss_2 = focal_loss(pred, mask)
-                running_loss += loss
-            
-            scaler.scale(loss).backward()
-            # loss.backward(loss)
-            # scaler.scale(loss_1).backward()
-            # scaler.scale(loss_2).backward()
+                # optimizer.step()
+                scaler.step(optimizer)
 
-            # optimizer.step()
-            scaler.step(optimizer)
+                # Updates the scale for next iteration.
+                scaler.update()
 
-            # Updates the scale for next iteration.
-            scaler.update()
-
-            # this reduces the number of memory operations.
-            optimizer.zero_grad(set_to_none=True)
-            
-            print(f"[Epoch {epoch}-{i}]: loss {loss}")
-            main_cycle.set_description("Training model")
-            main_cycle.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
-            main_cycle.refresh() # to show immediately the update
-            sleep(0.01)
-            end_i = i
+                # this reduces the number of memory operations.
+                optimizer.zero_grad(set_to_none=True)
+                
+                print(f"[Epoch {epoch}-{i}]: loss {loss}")
+                main_cycle.set_description("Training model")
+                main_cycle.set_postfix({'Epoch': epoch, 'Inner batch': i, 'Loss': running_loss/i})
+                # main_cycle.refresh() # to show immediately the update
+                sleep(0.01)
+                end_i = i
         
         end_time = time.time()
         epoch_time = (end_time-start_time)/60

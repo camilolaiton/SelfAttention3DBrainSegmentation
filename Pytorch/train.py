@@ -17,7 +17,6 @@ from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import Dice_and_Focal_loss
 
-exit()
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
 def defining_augmentations():

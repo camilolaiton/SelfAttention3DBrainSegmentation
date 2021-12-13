@@ -15,6 +15,8 @@ from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 import numpy as np
 import glob
 import time
+from tqdm import trange
+from time import sleep
 
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
@@ -183,7 +185,10 @@ def main():
 
     print("[INFO] Starting training!")
 
-    for epoch in range(0, config.num_epochs):
+    main_cycle = trange(config.num_epochs, desc='Training model', leave=True)
+
+    # for epoch in range(0, config.num_epochs):
+    for epoch in main_cycle:
         running_loss = 0.0
         
         end_i = 0
@@ -218,6 +223,10 @@ def main():
             optimizer.zero_grad(set_to_none=True)
             
             print(f"[Epoch {epoch}-{i}]: loss {loss}")
+            main_cycle.set_description("Training model")
+            main_cycle.set_postfix({'Epoch': 1, 'Inner batch': i, 'Loss': 0.5})
+            main_cycle.refresh() # to show immediately the update
+            sleep(0.01)
             end_i = i
         
         end_time = time.time()

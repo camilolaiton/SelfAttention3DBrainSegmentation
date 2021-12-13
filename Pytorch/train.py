@@ -196,8 +196,8 @@ def main():
         with tqdm(train_dataloader, unit='batch') as tbatch:
         
         # for i, data in enumerate(train_dataloader):
-            for data in tbatch:
-                print(data)
+            for i, data in enumerate(tbatch):
+                print(i, data)
                 exit()
                 # Getting the data
                 image, mask = data['image'].to(device), data['mask'].to(device)

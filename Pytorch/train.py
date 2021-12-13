@@ -207,7 +207,7 @@ def main():
             for i, data in enumerate(tbatch):
                 # Getting the data
                 metrics = {}
-                image, mask = data['image'].to(device), data['mask'].type(torch.int16).to(device)
+                image, mask = data['image'].to(device), data['mask'].to(device)
                 # image.cuda(device)
                 # mask.cuda(device)
 
@@ -219,7 +219,10 @@ def main():
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
                     print("pred: ", pred.shape, " mask ", mask.shape)
-                    metrics = metric_collection(pred, mask)
+                    metrics = metric_collection(
+                        torch.argmax(pred, dim=1), 
+                        torch.argmax(mask, dim=1)
+                    )
                 
                 scaler.scale(loss).backward()
                 # loss.backward(loss)

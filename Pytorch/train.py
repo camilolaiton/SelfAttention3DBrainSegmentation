@@ -159,7 +159,7 @@ def main():
     # )
 
     # Creating dataloaders
-    num_workers = 2 # os.cpu_count()
+    num_workers = 1 # os.cpu_count()
     train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers, pin_memory=True)
     # test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers, pin_memory=True)
     

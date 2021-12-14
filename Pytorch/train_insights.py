@@ -90,7 +90,7 @@ def main():
     config = get_config()#get_config_test()
     
     model = BrainSegmentationNetwork()
-    model.load_state_dict(torch.load(model_path))
+    model.load_state_dict(torch.load(model_path), strict=False)
     device = None
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)

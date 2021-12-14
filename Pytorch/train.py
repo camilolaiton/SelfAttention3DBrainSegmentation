@@ -244,7 +244,7 @@ def main():
                 tbatch.set_postfix({
                     'Epoch': epoch, 
                     'Inner batch': i, 
-                    'Loss': running_loss/i, 
+                    'Loss': running_loss[0]/i, 
                     'F1': metrics['F1'],
                     'Accuracy': metrics['Accuracy'],
                     'Precision': metrics['Precision'],

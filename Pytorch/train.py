@@ -164,7 +164,7 @@ def main():
     model.cuda(device)
 
     # Metrics
-    average = 'macro'
+    average = 'micro'
     metric_collection = MetricCollection([
         Accuracy().to(device),
         F1(num_classes=config.n_classes, average=average, mdmc_average='global').to(device),

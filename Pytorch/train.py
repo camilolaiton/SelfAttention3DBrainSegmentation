@@ -174,7 +174,7 @@ def main():
     ])
 
     # Loss function
-    loss_fn = torch.nn.CrossEntropyLoss()#FocalDiceLoss()
+    loss_fn = FocalDiceLoss() # torch.nn.CrossEntropyLoss()
 
     # Optimizer
     optimizer = optim.Adam(

@@ -21,7 +21,7 @@ class DiceLoss(nn.Module):
     def forward(self, prediction, target, weights=None):
         loss = 0.
 
-        if weights:
+        if weights is not None:
             
             print(weights.shape)
             for c in range():

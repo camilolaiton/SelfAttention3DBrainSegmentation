@@ -166,11 +166,12 @@ def main():
     model.cuda(device)
 
     # Metrics
+    average = 'weighted'
     metric_collection = MetricCollection([
         Accuracy().to(device),
-        F1(num_classes=config.n_classes, average='macro', mdmc_average='global').to(device),
-        Precision(num_classes=config.n_classes, average='macro', mdmc_average='global').to(device),
-        Recall(num_classes=config.n_classes, average='macro', mdmc_average='global').to(device),
+        F1(num_classes=config.n_classes, average=average, mdmc_average='global').to(device),
+        Precision(num_classes=config.n_classes, average=average, mdmc_average='global').to(device),
+        Recall(num_classes=config.n_classes, average=average, mdmc_average='global').to(device),
     ])
 
     # Loss function

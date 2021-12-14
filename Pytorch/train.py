@@ -245,10 +245,10 @@ def main():
                     'Epoch': epoch, 
                     'Inner batch': i, 
                     'Loss': running_loss.item()/(i+1), 
-                    'F1': metrics['F1'],
-                    'Accuracy': metrics['Accuracy'],
-                    'Precision': metrics['Precision'],
-                    'Recall': metrics['Recall'],
+                    'F1': metrics['F1'].item(),
+                    'Accuracy': metrics['Accuracy'].item(),
+                    'Precision': metrics['Precision'].item(),
+                    'Recall': metrics['Recall'].item(),
                 })
                 tbatch.update()
                 sleep(0.01)

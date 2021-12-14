@@ -174,7 +174,7 @@ def main():
     ])
 
     # Loss function
-    loss_fn = FocalDiceLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)
+    loss_fn = torch.nn.CrossEntropyLoss()#FocalDiceLoss()
 
     # Optimizer
     optimizer = optim.Adam(
@@ -210,7 +210,7 @@ def main():
                 image, mask = data['image'].to(device), data['mask'].to(device)
                 # image.cuda(device)
                 # mask.cuda(device)
-
+                pred = None
                 with torch.cuda.amp.autocast():
                     # forward + backward + optimize
                     pred = model(image)
@@ -219,10 +219,6 @@ def main():
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
                     # print("pred: ", pred.shape, " mask ", mask.shape)
-                    metrics = metric_collection(
-                        torch.argmax(pred, dim=1), 
-                        torch.argmax(mask, dim=1)
-                    )
                 
                 scaler.scale(loss).backward()
                 # loss.backward(loss)
@@ -239,6 +235,10 @@ def main():
                 optimizer.zero_grad(set_to_none=True)
                 
                 # print(f"[Epoch {epoch}-{i}]: loss {loss}")
+                metrics = metric_collection(
+                    torch.argmax(pred, dim=1), 
+                    torch.argmax(mask, dim=1)
+                )
                 
                 tbatch.set_description("Training")
                 tbatch.set_postfix({

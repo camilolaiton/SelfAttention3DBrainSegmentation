@@ -23,7 +23,8 @@ class DiceLoss(nn.Module):
 
         if weights:
             
-            for c in range(weights.shape[0]):
+            print(weights.shape)
+            for c in range():
                 iflat = prediction.reshape(-1)
                 tflat = target.reshape(-1)
                 intersection = (iflat * tflat).sum()

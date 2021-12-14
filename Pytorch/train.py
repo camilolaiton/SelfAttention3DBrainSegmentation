@@ -6,13 +6,11 @@ from torch.utils.data import DataLoader
 from augmend import Augmend, Elastic, FlipRot90
 from model.config import get_config
 from model.dataset import Mindboggle_101
-# from torch.utils.tensorboard import SummaryWriter
-# from datetime import datetime
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
-from model.metrics import dice_coefficient
+# from model.metrics import dice_coefficient
 from torchmetrics import MetricCollection, Accuracy, Precision, Recall, F1
 import numpy as np
 import glob
@@ -146,22 +144,9 @@ def main():
         mindboggle_101_train_transformed,
     ])
 
-    # Loading testing dataset
-    test_image_path = 'test/images/'
-    test_mask_path = 'test/masks/'
-
-    # mindboggle_101_test = Mindboggle_101(
-    #     dataset_path=config.dataset_path,
-    #     image_path=test_image_path,
-    #     mask_path=test_mask_path,
-    #     limit=27,
-    #     transform=None
-    # )
-
     # Creating dataloaders
     num_workers = 2 # os.cpu_count()
     train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers, pin_memory=True)
-    # test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     model.cuda(device)
 

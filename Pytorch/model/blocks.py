@@ -37,15 +37,38 @@ class PositionalEmbedding(nn.Module):
         super(PositionalEmbedding, self).__init__()
 
         self.projection = nn.Linear(in_features=feature_maps_size, out_features=feature_maps_size)
-        self.positional_embedding = nn.Parameter(torch.zeros(1, flatten_dim, feature_maps_size))
-        # self.positional_embedding = nn.Embedding(8, 64)
+        # self.positional_embedding = nn.Parameter(torch.zeros(1, flatten_dim, feature_maps_size))
+        self.positional_embedding = nn.Embedding(8, 64)
         # self.positions = torch.arange(start=0, end=num_patches)
 
     def forward(self, x):
         proj = self.projection(x)
-        emb = self.positional_embedding
+        emb = self.positional_embedding(x)
         # print("proj: ", proj.shape, " emb: ", emb.shape)
         return proj + emb
+
+class PositionalEncoding(nn.Module):
+
+    def __init__(self, embedding_dim, feature_maps_size=64):
+        super(PositionalEncoding, self).__init__()
+
+        self.projection = nn.Linear(in_features=feature_maps_size, out_features=feature_maps_size)
+
+        pe = torch.zeros(feature_maps_size, embedding_dim)
+        position = torch.arange(0, feature_maps_size, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(
+            torch.arange(0, embedding_dim, 2).float()
+            * (-torch.log(torch.tensor(10000.0)) / embedding_dim)
+        )
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0).transpose(0, 1)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        linear = self.projection(x)
+        x = linear + self.pe[: x.size(0), :]
+        return x
 
 class TransformerBlock(nn.Module):
     def __init__(self, num_heads, embedding_dim, dropout_rate, norm_rate):

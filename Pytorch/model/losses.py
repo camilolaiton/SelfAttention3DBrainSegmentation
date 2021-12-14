@@ -19,14 +19,29 @@ class DiceLoss(nn.Module):
         self.smooth = smooth
 
     def forward(self, prediction, target, weights=None):
-        iflat = prediction.reshape(-1)
-        tflat = target.reshape(-1)
-        intersection = (iflat * tflat).sum()
+        loss = 0.
 
-        if (weights is not None):
-            intersection = torch.mean(weights * intersection)
+        if weights:
+            
+            for c in range(weights.shape[0]):
+                iflat = prediction.reshape(-1)
+                tflat = target.reshape(-1)
+                intersection = (iflat * tflat).sum()
 
-        return - (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
+                w = weights[c]
+                loss += w*(1 - ((2. * intersection + self.smooth) /
+                             (iflat.sum() + tflat.sum() + self.smooth)))
+        else:
+            iflat = prediction.reshape(-1)
+            tflat = target.reshape(-1)
+            intersection = (iflat * tflat).sum()
+
+            # if (weights is not None):
+            #     intersection = torch.mean(weights * intersection)
+
+            loss = - (2.0 * intersection + self.smooth) / (iflat.sum() + tflat.sum() + self.smooth)
+
+        return loss
 
 class WeightedLoss(nn.Module):
     def __init__(self, loss):
@@ -43,48 +58,7 @@ class WeightedLoss(nn.Module):
         weight_part = torch.mean(iflat * wflat)
 
         return loss_part + weight_part
-
-def flatten(tensor):
-    """Flattens a given tensor such that the channel axis is first.
-    The shapes are transformed as follows:
-       (N, C, D, H, W) -> (C, N * D * H * W)
-    """
-    # number of channels
-    C = tensor.size(1)
-    # new axis order
-    axis_order = (1, 0) + tuple(range(2, tensor.dim()))
-    # Transpose: (N, C, D, H, W) -> (C, N, D, H, W)
-    transposed = tensor.permute(axis_order)
-    # Flatten: (C, N, D, H, W) -> (C, N * D * H * W)
-    return transposed.contiguous().view(C, -1)
-
-def compute_per_channel_dice(input, target, epsilon=1e-6, weight=None):
-    """
-    Computes DiceCoefficient as defined in https://arxiv.org/abs/1606.04797 given  a multi channel input and target.
-    Assumes the input is a normalized probability, e.g. a result of Sigmoid or Softmax function.
-    Args:
-         input (torch.Tensor): NxCxSpatial input tensor
-         target (torch.Tensor): NxCxSpatial target tensor
-         epsilon (float): prevents division by zero
-         weight (torch.Tensor): Cx1 tensor of weight per channel/class
-    """
-
-    # input and target shapes must match
-    assert input.size() == target.size(), "'input' and 'target' must have the same shape"
-
-    input = flatten(input)
-    target = flatten(target)
-    target = target.float()
-
-    # compute per channel Dice Coefficient
-    intersect = (input * target).sum(-1)
-    if weight is not None:
-        intersect = weight * intersect
-
-    # here we can use standard dice (input + target).sum(-1) or extension (see V-Net) (input^2 + target^2).sum(-1)
-    denominator = (input * input).sum(-1) + (target * target).sum(-1)
-    return 2 * (intersect / denominator.clamp(min=epsilon))
-
+        
 # class DiceLoss(nn.Module):
 #     def __init__(self, size_average=True):
 #         super(DiceLoss, self).__init__()

@@ -214,7 +214,7 @@ def main():
                 with torch.cuda.amp.autocast():
                     # forward + backward + optimize
                     pred = model(image)
-                    loss = loss_fn(pred, mask)#, torch_weights)
+                    loss = loss_fn(pred, mask, weights)#, torch_weights)
                     # loss_1 = dice_loss(pred, mask)
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss

@@ -218,7 +218,7 @@ def main():
                     # loss_1 = dice_loss(pred, mask)
                     # loss_2 = focal_loss(pred, mask)
                     running_loss += loss
-                    print("pred: ", pred.shape, " mask ", mask.shape)
+                    # print("pred: ", pred.shape, " mask ", mask.shape)
                     metrics = metric_collection(
                         torch.argmax(pred, dim=1), 
                         torch.argmax(mask, dim=1)

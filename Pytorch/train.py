@@ -263,7 +263,7 @@ def main():
             best_loss = running_loss
             best_epoch = epoch
             print(f"Saving best model in epoch {best_epoch} with loss {best_loss}")
-            torch.save(model.state_dict(), training_folder+'best-model-parameters.pt')
+            torch.save(model.state_dict(), model_path)
 
         writer.add_scalar('LearningRate/train', optimizer.param_groups[0]['lr'], epoch)
         writer.add_scalar('Loss/train', running_loss, epoch)

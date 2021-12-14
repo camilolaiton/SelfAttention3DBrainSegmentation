@@ -144,14 +144,27 @@ def main():
         mindboggle_101_train_transformed,
     ])
 
+    # Loading testing dataset
+    test_image_path = 'test/images/'
+    test_mask_path = 'test/masks/'
+    
+    mindboggle_101_test = Mindboggle_101(
+        dataset_path=config.dataset_path,
+        image_path=test_image_path,
+        mask_path=test_mask_path,
+        limit=27,
+        transform=None
+    )
+
     # Creating dataloaders
     num_workers = 2 # os.cpu_count()
     train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers, pin_memory=True)
+    test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     model.cuda(device)
 
     # Metrics
-    average = 'weighted'
+    average = 'macro'
     metric_collection = MetricCollection([
         Accuracy().to(device),
         F1(num_classes=config.n_classes, average=average, mdmc_average='global').to(device),
@@ -188,8 +201,8 @@ def main():
         start_time = time.time()
         
         with tqdm(train_dataloader, unit='batch', position=0, leave=True) as tbatch:
-        
-        # for i, data in enumerate(train_dataloader):
+            
+            # for i, data in enumerate(train_dataloader):
             for i, data in enumerate(tbatch):
                 # Getting the data
                 metrics = {}
@@ -254,6 +267,46 @@ def main():
         writer.add_scalar('LearningRate/train', optimizer.param_groups[0]['lr'], epoch)
         writer.add_scalar('Loss/train', running_loss, epoch)
 
+        f1 = []
+        accuracy = []
+        precision = []
+        recall = []
+
+        # Evaluation mode
+        model.eval()
+        with torch.no_grad():
+            with tqdm(test_dataloader, unit='batch', position=0, leave=True) as tbatch:
+                for i, data in enumerate(tbatch):
+                    image, mask = data['image'].to(device), data['mask'].to(device)
+                    pred = model(image)
+
+                    pred_argmax = torch.argmax(pred, dim=1)
+                    mask_argmax = torch.argmax(mask, dim=1)
+                    
+                    metrics = metric_collection(
+                        pred_argmax, 
+                        mask_argmax
+                    )
+                    print("[INFO] Unique labels in this prediction: ", torch.unique(pred_argmax))
+
+                    accuracy.append(metrics['Accuracy'].item())
+                    f1.append(metrics['F1'].item())
+                    recall.append(metrics['Recall'].item())
+                    precision.append(metrics['Precision'].item())
+
+                    tbatch.set_description("Training")
+                    tbatch.set_postfix({
+                        'Batch': f"{i+1}",
+                        'Accuracy': np.mean(accuracy),
+                        'F1': np.mean(f1),
+                        'Recall': np.mean(recall),
+                        'Precision': np.mean(precision),
+                    })
+                    tbatch.update()
+                    sleep(0.01)
+
+        # going back to train mode
+        model.train()
     writer.close()
         
 

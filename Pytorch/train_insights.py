@@ -115,7 +115,7 @@ def main():
     test_dataloader = DataLoader(mindboggle_101_test, batch_size=27, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     # Metrics
-    average = 'weighted'
+    average = 'macro'
     metric_collection = MetricCollection([
         Accuracy().to(device),
         F1(num_classes=config.n_classes, average=average, mdmc_average='global').to(device),

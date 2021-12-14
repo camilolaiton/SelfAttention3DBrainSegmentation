@@ -240,15 +240,14 @@ def main():
                 
                 # print(f"[Epoch {epoch}-{i}]: loss {loss}")
                 
-                tbatch.set_description("Training model")
+                tbatch.set_description("Training")
                 tbatch.set_postfix({
-                    'Epoch': epoch, 
-                    'Inner batch': i, 
+                    'Epoch batch': f"{epoch}-{i+1}",
                     'Loss': running_loss.item()/(i+1), 
-                    'F1': metrics['F1'].item(),
                     'Accuracy': metrics['Accuracy'].item(),
-                    'Precision': metrics['Precision'].item(),
+                    'F1': metrics['F1'].item(),
                     'Recall': metrics['Recall'].item(),
+                    'Precision': metrics['Precision'].item(),
                 })
                 tbatch.update()
                 sleep(0.01)

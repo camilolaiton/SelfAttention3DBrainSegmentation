@@ -148,8 +148,8 @@ def main():
                 precision.append(metrics['Precision'].item())
 
                 if i == 0:
-                    pred_numpy = pred_argmax.numpy()
-                    mask_numpy = mask_argmax.numpy()
+                    pred_numpy = pred_argmax.cpu().numpy()
+                    mask_numpy = mask_argmax.cpu().numpy()
                     print("Unique: ", np.unique(pred_numpy), " ", pred_numpy.shape)
                     name = training_folder + f"/prediction_{i}.npy"
                     print("Saving prediction ", name)

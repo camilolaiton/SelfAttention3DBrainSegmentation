@@ -171,7 +171,7 @@ def main():
         F1(num_classes=config.n_classes, average='macro').to(device),
         Precision(num_classes=config.n_classes, average='macro').to(device),
         Recall(num_classes=config.n_classes, average='macro').to(device),
-    ], mdmc_reduce='global')
+    ])
 
     # Loss function
     loss_fn = FocalDiceLoss()#torch.nn.CrossEntropyLoss()#.cuda(gpu)

@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Variable
 from torch import nn
-from .blocks import *
+from blocks import *
 from torchviz import make_dot
 
 class EncoderPath(nn.Module):
@@ -85,7 +85,8 @@ class EncoderPath(nn.Module):
 
         ### Positional embedding
         self.pos_embedding = PositionalEncoding(64)#PositionalEmbedding()
-
+        # self.pos_embedding = PositionEmbeddingSine(normalize=True)
+        
         ### Transformer block
         self.attention_1 = TransformerBlock(4, 64, 0.1, 1e-4)
         self.attention_2 = TransformerBlock(4, 64, 0.1, 1e-4)

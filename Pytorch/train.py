@@ -8,6 +8,7 @@ from model.config import get_config
 from model.dataset import Mindboggle_101
 import torch.optim as optim
 from model.network import BrainSegmentationNetwork
+from model.3dunet import UNet
 from torch.utils.tensorboard import SummaryWriter
 from model.losses import FocalDiceLoss#Dice_and_Focal_loss
 # from model.metrics import dice_coefficient
@@ -17,6 +18,8 @@ import glob
 import time
 from tqdm import tqdm
 from time import sleep
+import os
+# import segmentation_models_pytorch as smp
 
 # https://discuss.pytorch.org/t/combining-two-loss-functions-with-trainable-paramers/23343/3
 
@@ -89,7 +92,8 @@ def main():
     # torch.cuda.set_device(gpu)
 
     # Loading the model
-    model = BrainSegmentationNetwork()
+    # model = BrainSegmentationNetwork()
+    model = UNet()
 
     # Loading device
     device = None
@@ -157,14 +161,14 @@ def main():
     )
 
     # Creating dataloaders
-    num_workers = 2 # os.cpu_count()
+    num_workers = 2#os.cpu_count()
     train_dataloader = DataLoader(mindboggle_101_aug, batch_size=8, shuffle=True, num_workers=num_workers, pin_memory=True)
     test_dataloader = DataLoader(mindboggle_101_test, batch_size=8, shuffle=False, num_workers=num_workers, pin_memory=True)
     
     model.cuda(device)
 
     # Metrics
-    average = 'macro'
+    average = 'micro'
     mdmc_avg = 'samplewise'
     metric_collection = MetricCollection([
         Accuracy().to(device),
@@ -172,6 +176,12 @@ def main():
         Precision(num_classes=config.n_classes, average=average, mdmc_average=mdmc_avg).to(device),
         Recall(num_classes=config.n_classes, average=average, mdmc_average=mdmc_avg).to(device),
     ])
+
+    # metrics = [
+    #     smp.utils.metrics.IoU(threshold=0.5),
+    #     smp.utils.metrics.Fscore(threshold=0.5),
+    #     #smp.utils.metrics.Accuracy(threshold=0.5),
+    # ]
 
     # Loss function
     loss_fn = FocalDiceLoss() # torch.nn.CrossEntropyLoss()

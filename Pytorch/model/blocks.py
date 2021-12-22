@@ -1,6 +1,7 @@
 from numpy.core.numeric import normalize_axis_tuple
 from torch import nn
 import torch
+import math
 
 class PrintLayer(nn.Module):
     def __init__(self):
@@ -46,7 +47,7 @@ class PositionalEmbedding(nn.Module):
         emb = self.positional_embedding(x)
         # print("proj: ", proj.shape, " emb: ", emb.shape)
         return proj + emb
-
+        
 class PositionalEncoding(nn.Module):
 
     def __init__(self, embedding_dim, feature_maps_size=64):

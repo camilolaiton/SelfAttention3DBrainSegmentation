@@ -277,6 +277,7 @@ def main():
 
         writer.add_scalar('LearningRate/train', optimizer.param_groups[0]['lr'], epoch)
         writer.add_scalar('Loss/train', running_loss, epoch)
+        writer.add_scalar('F1_Score/train', metrics['F1'].item(), epoch)
 
         f1 = []
         accuracy = []

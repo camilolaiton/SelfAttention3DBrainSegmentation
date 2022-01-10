@@ -419,9 +419,6 @@ def main():
 
     weights = [float(weight)/div_factor for weight in weights]
     print("W: ", weights)
-
-    # Setting up neural network loss
-    #loss = tversky_loss()#
     
     with mirrored_strategy.scope():
         

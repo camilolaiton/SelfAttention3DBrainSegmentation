@@ -255,7 +255,7 @@ class MLPBlock(layers.Layer):
 
         for units in self.hidden_units:
             self.layers.append(layers.Dense(units, activation=self.activation, kernel_initializer='he_normal'))
-            self.layers.append(layers.Dropout(self.dropout_rate)) # layers.SpatialDropout1D(self.dropout_rate))
+            self.layers.append(layers.SpatialDropout1D(self.dropout_rate))#layers.Dropout(self.dropout_rate))
 
     def call(self, inputs):
 
@@ -553,38 +553,24 @@ class TransformerBlock(layers.Layer):
             kernel_initializer='he_normal',
         )
 
-        # self.attention_layer_a = msa_3d(128, 128, 64, self.num_heads, self.dropout_rate)
-
         self.add_a = layers.Add()
 
         self.ln_b = layers.LayerNormalization(epsilon=self.normalization_rate)
         self.mlp_block_b = MLPBlock(
             hidden_units=self.transformer_units, 
             dropout_rate=self.dropout_rate,
-            activation='elu'
+            #activation='leaky_relu'
         )
 
         self.add_b = layers.Add()
 
     def call(self, encoded_patches):
         x1 = self.ln_a(encoded_patches)
-        
-        # attention_layer = multihead_attention_3d(x1, 512, 512, 64, 4, False, layer_type='SAME')
-        # attention_layer = self.attention_layer_a(x1)
         attention_layer = self.attention_layer_a(x1, x1)
-        
         x2 = self.add_a([attention_layer, encoded_patches])
         x3 = self.ln_b(x2)
         x3 = self.mlp_block_b(x3)
         x3 = self.add_b([x3, x2])
-
-        # attention_layer = self.attention_layer_a(encoded_patches, encoded_patches)
-        # x1 = self.add_a([attention_layer, encoded_patches])
-        # x2 = self.ln_a(x1)
-
-        # x3 = self.mlp_block_b(x2)
-        # x3 = self.add_b([x3, x2])
-        # x3 = self.ln_b(x3)
         return x3
 
     def get_config(self):

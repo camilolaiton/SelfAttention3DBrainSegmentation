@@ -197,7 +197,7 @@ def get_config_local_path():
     config.optimizer = 'adam' #SGD, adam
     config.weight_decay = 1e-4
     config.momentum = 0.9
-    config.dropout = 0.3
+    config.dropout = 0.2
     config.batch_size = 8
     config.num_epochs = 40
     config.image_height = 64

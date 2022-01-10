@@ -199,7 +199,7 @@ def get_config_local_path():
     config.momentum = 0.9
     config.dropout = 0.3
     config.batch_size = 8
-    config.num_epochs = 100
+    config.num_epochs = 40
     config.image_height = 64
     config.image_width = 64
     config.image_depth = 64

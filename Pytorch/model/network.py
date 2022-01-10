@@ -306,9 +306,11 @@ def count_params(model):
 
 def main():
     print(torch.__version__)
-    x = Variable(torch.randn(1, 1, 64, 64, 64))
+    image_size = 64
+    channels = 1
+    x = torch.Tensor(1, channels, image_size, image_size, image_size)
     # print(x.shape)
-    model = BrainSegmentationNetwork()
+    model = VNet(in_channels=channels, out_channels=38)#BrainSegmentationNetwork()
     
     # for param in model.parameters():
     #     print(type(param.data), param.size())

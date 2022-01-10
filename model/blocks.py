@@ -3,7 +3,7 @@ from tensorflow.python.keras.backend import dropout
 import tensorflow_addons as tfa
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental import preprocessing
-from .attention_block_modified import multihead_attention_3d
+# from .attention_block_modified import multihead_attention_3d
 
 class RandomInvert(tf.keras.layers.Layer):
     def __init__(self, prob=0.5, global_seed=12, **kwargs):
@@ -640,7 +640,7 @@ class DecoderBlockCup(layers.Layer):
             padding='same'
         )
         # self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
-        self.bn_a = layers.BatchNormalization()
+        self.bn_a = layers.BatchNormalization() # layers.LayerNormalization()#
         self.activation_fnc = layers.Activation(self.activation)
         self.upsample_a = layers.UpSampling3D(
             size=(2, 2, 2)

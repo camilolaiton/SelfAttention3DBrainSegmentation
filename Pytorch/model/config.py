@@ -42,7 +42,7 @@ def get_config():
     ]
     config.transformer.layers = 4#4
     config.transformer.num_heads = 4 #8
-    config.transformer.dropout_rate = 0.5
+    config.transformer.dropout_rate = 0.1
     config.transformer.normalization_rate = 1e-4
 
     config.enc_filters = [16, 32, 64]

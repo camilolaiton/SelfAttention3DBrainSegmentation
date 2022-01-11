@@ -50,7 +50,7 @@ def main():
         config.dataset_path + 'test/masks/*'))
     
     model = build_model(config)
-    model_path = f"{training_folder}/model_trained_architecture_2.hdf5"
+    model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model.load_weights(model_path)
     times = {}
 

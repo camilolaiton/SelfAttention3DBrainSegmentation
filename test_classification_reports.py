@@ -56,7 +56,7 @@ def main():
         print(f"[+] Image path: {image_list_test[idx]} test path: {mask_list_test[idx]}")
         filename = image_list_test[idx].split('/')[-1].split('.')[0]
         img_patches = np.load(image_list_test[idx])
-        msk_patches = np.load(mask_list_test[idx])
+        msk_patches = np.argmax(np.load(mask_list_test[idx]), axis=4)
 
         start_time = time.time()
         

@@ -63,14 +63,14 @@ def main():
         
         print(f"[{idx}] Starting prediction for {filename}")
         prediction = model.predict(img_patches)
-        print("[{idx}] Unique: ", np.unique(prediction))
         end_time = time.time()
         final_time = (end_time-start_time)/60
         times[filename] = final_time
         print(f"[{idx}] Finished prediction for {filename} in {final_time} minutes")
 
         prediction = np.argmax(prediction, axis=4)
-
+        print("[{idx}] Unique: ", np.unique(prediction))
+        
         report = classification_report(msk_patches.flatten(), prediction.flatten(), target_names=STRUCTURES)
         utils.classification_report_csv(report, training_folder + deep_folder, f"/{filename}_{len(STRUCTURES)}_structures")
 

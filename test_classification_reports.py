@@ -78,6 +78,7 @@ def main():
         report = classification_report(msk_patches.flatten(), prediction.flatten(), target_names=STRUCTURES)
         utils.classification_report_csv(report, training_folder + deep_folder, filename, sheets=True, writer=writer)
 
+    writer.save()
     utils.write_dict_to_txt(times, training_folder + deep_folder + '/times.txt')
 
 if __name__ == "__main__":

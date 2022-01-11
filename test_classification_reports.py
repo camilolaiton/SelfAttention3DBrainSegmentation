@@ -48,12 +48,12 @@ def main():
         config.dataset_path + 'test/masks/*'))
     
     model = build_model(config)
-    model_path = f"{training_folder}/model_trained_architecture.hdf5"
+    model_path = f"{training_folder}/model_trained_architecture_2.hdf5"
     model.load_weights(model_path)
     times = {}
 
     for idx in range(len(image_list_test)):
-        print(f"[+] Image path: {image_list_test[idx]} test path: {mask_list_test[idx]}")
+        print(f"[{idx}] Image path: {image_list_test[idx]} test path: {mask_list_test[idx]}")
         filename = image_list_test[idx].split('/')[-1].split('.')[0]
         filename = filename.replace('images\\', '')
         img_patches = np.load(image_list_test[idx])
@@ -61,12 +61,13 @@ def main():
 
         start_time = time.time()
         
-        print(f"[+] Starting prediction for {filename}")
+        print(f"[{idx}] Starting prediction for {filename}")
         prediction = model.predict(img_patches)
+        print("[{idx}] Unique: ", np.unique(prediction))
         end_time = time.time()
         final_time = (end_time-start_time)/60
         times[filename] = final_time
-        print(f"[+] Finished prediction for {filename} in {final_time} minutes")
+        print(f"[{idx}] Finished prediction for {filename} in {final_time} minutes")
 
         prediction = np.argmax(prediction, axis=4)
 

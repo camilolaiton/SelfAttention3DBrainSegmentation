@@ -399,8 +399,6 @@ def main():
     # Setting up weights 
     weights = utils.read_test_to_list(config.dataset_path + 'weights.txt')
     
-    div_factor = 100
-
     if (weights == False):
         end_path = '/train/masks'
         image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
@@ -416,10 +414,19 @@ def main():
         # weights = [0.0, 1, 2.7, 3]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read!")
-
-    weights = [float(weight)/div_factor for weight in weights]
-    print("W: ", weights)
     
+    max_val = len(str(max(weights)).split('.')[0])
+    print(max_val)
+
+    divisor = '1'
+    for i in range(max_val-1):
+        divisor += '0'
+    divisor = int(divisor)
+
+    weights = [float(weight)/divisor for weight in weights]
+    print("W: ", weights)
+    exit()
+
     with mirrored_strategy.scope():
         
         # Train unet

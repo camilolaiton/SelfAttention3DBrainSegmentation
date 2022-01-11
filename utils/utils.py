@@ -1185,7 +1185,38 @@ def read_files_from_directory(files_path, limit=None):
         i += 1
     return np.array(files)
 
-def median_frequency_balancing(image_files, num_classes=4):
+def inverseNumberOfSamples(image_files, num_classes=38):
+    len_files = len(image_files)
+    print("Amount of files: ", len_files)
+    if not len_files:
+      return False
+
+    classes = {}
+
+    for i in range(num_classes):
+      classes[i] = []
+
+    for n in range(len(image_files)):
+        image = np.argmax(np.load(image_files[n]), axis=4)
+        # print(image.shape)
+        #For each image sum up the frequency of each label in that image and append to the dictionary if frequency is positive.
+        for i in range(num_classes):
+            class_mask = np.equal(image, i)
+            class_mask = class_mask.astype(np.float32)
+            class_frequency = np.sum(class_mask)
+
+            if class_frequency != 0.0:
+              classes[i].append(class_frequency)
+    
+    class_weights = []
+
+    for i, j in classes.items():
+      isns = 1/sum(j)
+      class_weights.append(isns)
+    
+    return class_weights
+
+def median_frequency_balancing(image_files, num_classes=38, includeZero=True):
     '''
     Perform median frequency balancing on the image files, given by the formula:
     f = Median_freq_c / total_freq_c
@@ -1206,15 +1237,19 @@ def median_frequency_balancing(image_files, num_classes=4):
     label_to_frequency_dict = {}
     # class_weights = {}
 
-    for i in range(num_classes):
+    start = 1
+    if includeZero:
+      start = 0
+
+    for i in range(start, num_classes):
         label_to_frequency_dict[i] = []
         # class_weights[i] = -1
 
     for n in range(len(image_files)):
-        image = np.argmax(np.load(image_files[n]), axis=3)
-
+        image = np.argmax(np.load(image_files[n]), axis=4)
+        print(image.shape)
         #For each image sum up the frequency of each label in that image and append to the dictionary if frequency is positive.
-        for i in range(num_classes):
+        for i in range(start, num_classes):
             class_mask = np.equal(image, i)
             class_mask = class_mask.astype(np.float32)
             class_frequency = np.sum(class_mask)
@@ -1228,8 +1263,8 @@ def median_frequency_balancing(image_files, num_classes=4):
     total_pixels = 0
     for frequencies in label_to_frequency_dict.values():
         total_pixels += sum(frequencies)
-
-    print("keys: ", label_to_frequency_dict.keys())
+    
+    print("keys: ", label_to_frequency_dict.keys(), " total pixels: ", total_pixels)
     # print("labels sorted: ", sorted(label_to_frequency_dict[0]))
 
     for i, j in label_to_frequency_dict.items():
@@ -1242,30 +1277,32 @@ def median_frequency_balancing(image_files, num_classes=4):
         # class_weights[i] = median_frequency_balanced
 
     #Set the last class_weight to 0.0 as it's the background class
-    # class_weights[0] = 0.0
-    class_weights[0] = 0.0
+    if includeZero:
+      class_weights[0] = 0.0
+    else:
+      class_weights.insert(0, 0.0)
     
     dict_2 = {'calc': label_to_frequency_dict}
-    label_2 = {}
-    label_2[0] = {}
-    label_2[0]['sum'] = sum(label_to_frequency_dict[0])
-    label_2[0]['c'] = len(label_to_frequency_dict[0])
+    # label_2 = {}
+    # label_2[0] = {}
+    # label_2[0]['sum'] = sum(label_to_frequency_dict[0])
+    # label_2[0]['c'] = len(label_to_frequency_dict[0])
     
-    label_2[1] = {}
-    label_2[1]['sum'] = sum(label_to_frequency_dict[1])
-    label_2[1]['c'] = len(label_to_frequency_dict[1])
+    # label_2[1] = {}
+    # label_2[1]['sum'] = sum(label_to_frequency_dict[1])
+    # label_2[1]['c'] = len(label_to_frequency_dict[1])
 
-    label_2[2] = {}
-    label_2[2]['sum'] = sum(label_to_frequency_dict[2])
-    label_2[2]['c'] = len(label_to_frequency_dict[2])
+    # label_2[2] = {}
+    # label_2[2]['sum'] = sum(label_to_frequency_dict[2])
+    # label_2[2]['c'] = len(label_to_frequency_dict[2])
 
-    label_2[3] = {}
-    label_2[3]['sum'] = sum(label_to_frequency_dict[3])
-    label_2[3]['c'] = len(label_to_frequency_dict[3])
+    # label_2[3] = {}
+    # label_2[3]['sum'] = sum(label_to_frequency_dict[3])
+    # label_2[3]['c'] = len(label_to_frequency_dict[3])
 
-    label_2['total_pixels'] = total_pixels
+    # label_2['total_pixels'] = total_pixels
 
-    dict_2['total'] = label_2
+    # dict_2['total'] = label_2
 
     return class_weights, dict_2 # class_weights, 
 

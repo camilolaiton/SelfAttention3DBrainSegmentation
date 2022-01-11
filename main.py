@@ -210,7 +210,32 @@ def main():
     # print("List: ", results_list)
     
     config = get_config_local_path()
-    model = build_unet3D_model(config)# build_model(config) # build_unet3D_model(config)
+
+    end_path = '/train/masks'
+    image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
+    print(f"Calculating weights for {config.n_classes}")
+    class_weights = utils.inverseNumberOfSamples(image_files, config.n_classes)
+    print("ISNS: ", class_weights)
+
+    weights, label_to_frequency_dict = utils.median_frequency_balancing(
+        image_files=image_files, 
+        num_classes=config.n_classes, 
+        includeZero=True
+    )
+    max_val = len(str(max(weights)).split('.')[0])
+    print(max_val)
+
+    divisor = '1'
+    for i in range(max_val-1):
+        divisor += '0'
+    divisor = int(divisor)
+
+    print("Before: ", weights)
+    weights = [float(weight)/divisor for weight in weights]
+    print("\n", weights, divisor)
+    print(label_to_frequency_dict)
+    exit()
+    # model = build_unet3D_model(config)# build_model(config) # build_unet3D_model(config)
 
     # sample_weight = np.ones(4)
     # sample_weight[0] = 2.0

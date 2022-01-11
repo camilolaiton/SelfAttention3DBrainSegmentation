@@ -198,7 +198,7 @@ def get_config_local_path():
     config.weight_decay = 1e-4
     config.momentum = 0.9
     config.dropout = 0.2
-    config.batch_size = 8
+    config.batch_size = 4
     config.num_epochs = 40
     config.image_height = 64
     config.image_width = 64
@@ -207,7 +207,7 @@ def get_config_local_path():
     config.image_size = (config.image_height, config.image_width, config.image_depth, config.image_channels)
     config.skip_connections = True
     config.data_augmentation = False
-    config.loss_fnc = 'dice_focal_loss'#'dice_focal_loss'#'focal' #'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
+    config.loss_fnc = 'dice_categorical'#'dice_focal_loss'#'dice_focal_loss'#'focal' #'dice_focal_loss'#'focal_tversky'#'weighted_crossentropy'#'dice_focal_loss'#'tversky' #crossentropy
     config.decoder_conv_localpath = False
     config.decoder_conv_globalpath = False
     config.act_func = 'leaky_relu'

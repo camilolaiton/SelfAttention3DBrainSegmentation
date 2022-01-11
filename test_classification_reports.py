@@ -8,6 +8,7 @@ import numpy as np
 import argparse
 from sklearn.metrics import classification_report
 import time
+import pandas as pd
 
 def read_patches_filename(filename, path):
     patches = []
@@ -52,6 +53,8 @@ def main():
     model.load_weights(model_path)
     times = {}
 
+    writer = pd.ExcelWriter(training_folder + deep_folder + f"/report_test.xlsx", engine='xlsxwriter')
+
     for idx in range(len(image_list_test)):
         print(f"[{idx}] Image path: {image_list_test[idx]} test path: {mask_list_test[idx]}")
         filename = image_list_test[idx].split('/')[-1].split('.')[0]
@@ -69,10 +72,11 @@ def main():
         print(f"[{idx}] Finished prediction for {filename} in {final_time} minutes")
 
         prediction = np.argmax(prediction, axis=4)
-        print("[{idx}] Unique: ", np.unique(prediction))
+        print(f"[{idx}] Unique: ", np.unique(prediction))
+
         
         report = classification_report(msk_patches.flatten(), prediction.flatten(), target_names=STRUCTURES)
-        utils.classification_report_csv(report, training_folder + deep_folder, f"/{filename}_{len(STRUCTURES)}_structures")
+        utils.classification_report_csv(report, training_folder + deep_folder, filename, sheets=True, writer=writer)
 
     utils.write_dict_to_txt(times, training_folder + deep_folder + '/times.txt')
 

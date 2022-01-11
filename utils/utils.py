@@ -1269,7 +1269,7 @@ def median_frequency_balancing(image_files, num_classes=4):
 
     return class_weights, dict_2 # class_weights, 
 
-def classification_report_csv(report, path, name):
+def classification_report_csv(report, path, name, sheets=False, writer=None):
     report_data = []
     lines = report.split('\n')
     columns = ['precision', 'recall', 'f1-score', 'support']
@@ -1302,5 +1302,15 @@ def classification_report_csv(report, path, name):
             row['f1_score'] = float(line[4])
             row['support'] = float(line[5])
             report_data.append(row)
-    dataframe = pd.DataFrame.from_dict(report_data)
-    dataframe.to_excel(path +  name + '.xlsx', index = False)
+
+    if sheets and writer != None:
+      dataframe = pd.DataFrame.from_dict(report_data)
+      dataframe.to_excel(
+        writer, 
+        header=True,
+        index=False,
+        sheet_name=name
+      )
+    else:
+      dataframe = pd.DataFrame.from_dict(report_data)
+      dataframe.to_excel(path +  name + '.xlsx', index = False)

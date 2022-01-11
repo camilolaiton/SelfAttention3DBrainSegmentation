@@ -191,7 +191,7 @@ def get_config_local_path():
 
     config = ml_collections.ConfigDict()
     config.config_name = "testing"
-    config.dataset_path = 'dataset_3D_37/'
+    config.dataset_path = 'dataset_3D_26/'
     config.unbatch = True
     config.learning_rate = 0.001
     config.optimizer = 'adamax' #SGD, adam

@@ -41,9 +41,9 @@ def main():
     config = get_config_local_path()#get_config_test()
     
     # Getting images
-    image_list_test = sorted(glob.glob(
+    image_list_test = sorted(glob(
         config.dataset_path + 'test/images/*'))
-    mask_list_test = sorted(glob.glob(
+    mask_list_test = sorted(glob(
         config.dataset_path + 'test/masks/*'))
     
     model = build_model(config)

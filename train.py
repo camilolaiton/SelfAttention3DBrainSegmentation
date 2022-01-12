@@ -425,7 +425,6 @@ def main():
 
     weights = [float(weight)/divisor for weight in weights]
     print("W: ", weights)
-    exit()
 
     with mirrored_strategy.scope():
         

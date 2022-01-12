@@ -1247,7 +1247,7 @@ def median_frequency_balancing(image_files, num_classes=38, includeZero=True):
 
     for n in range(len(image_files)):
         image = np.argmax(np.load(image_files[n]), axis=4)
-        print(image.shape)
+        # print(image.shape)
         #For each image sum up the frequency of each label in that image and append to the dictionary if frequency is positive.
         for i in range(start, num_classes):
             class_mask = np.equal(image, i)

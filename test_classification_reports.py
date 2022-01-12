@@ -33,7 +33,7 @@ def main():
     os.environ["CUDA_VISIBLE_DEVICES"]="1"
 
     # STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
-    STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures_27.txt')
+    STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     STRUCTURES.insert(0, 'background')
     print(STRUCTURES, " ", len(STRUCTURES))
 

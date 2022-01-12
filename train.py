@@ -415,16 +415,16 @@ def main():
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read!")
     
-    # max_val = len(str(max(weights)).split('.')[0])
-    # print(max_val)
+    max_val = len(str(max(weights)).split('.')[0])
+    print(max_val)
 
-    # divisor = '1'
-    # for i in range(max_val):
-    #     divisor += '0'
-    # divisor = int(divisor)
+    divisor = '1'
+    for i in range(max_val-1):
+        divisor += '0'
+    divisor = int(divisor)
 
-    # weights = [float(weight)/divisor for weight in weights]
-    # print("W: ", weights)
+    weights = [float(weight)/divisor for weight in weights]
+    print("W: ", weights)
 
     with mirrored_strategy.scope():
         

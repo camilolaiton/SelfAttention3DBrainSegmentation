@@ -209,8 +209,7 @@ def model_local_path_2(config, inputs):
         num_patches=config.transformer.num_patches, #512
         name='conv_projection'
     )(conv_layers)
-    # conv_proj = conv_layers
-    
+
     transformer_layers_path_1 = []
     # Successive transformer layers
     for idx in range(config.transformer.layers):

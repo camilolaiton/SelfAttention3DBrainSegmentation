@@ -1,9 +1,7 @@
 import tensorflow as tf
-from tensorflow.python.keras.backend import dropout
 import tensorflow_addons as tfa
 from tensorflow.keras import layers
 from tensorflow.keras.layers.experimental import preprocessing
-# from .attention_block_modified import multihead_attention_3d
 
 class RandomInvert(tf.keras.layers.Layer):
     def __init__(self, prob=0.5, global_seed=12, **kwargs):
@@ -255,7 +253,7 @@ class MLPBlock(layers.Layer):
 
         for units in self.hidden_units:
             self.layers.append(layers.Dense(units, activation=self.activation, kernel_initializer='he_normal'))
-            self.layers.append(layers.SpatialDropout1D(self.dropout_rate))#layers.Dropout(self.dropout_rate))
+            self.layers.append(layers.Dropout(self.dropout_rate))#layers.SpatialDropout1D(self.dropout_rate))
 
     def call(self, inputs):
 
@@ -379,162 +377,6 @@ class ConvProjection(layers.Layer):
         })
         return config
 
-def reshape_range(tensor, i, j, shape):
-	"""Reshapes a tensor between dimensions i and j."""
-
-	target_shape = tf.concat(
-			[tf.shape(tensor)[:i], shape, tf.shape(tensor)[j:]],
-			axis=0)
-
-	return tf.reshape(tensor, target_shape)
-
-def flatten_3d(x):
-    x_shape = tf.shape(x)
-    # print("XSHAPE: ", x_shape)
-    x = reshape_range(x, 2, 5, [tf.reduce_prod(x_shape[2:5])])
-    return x
-
-def combine_last_two_dimensions(x):
-	"""Reshape x so that the last two dimension become one.
-	Args:
-		x: a Tensor with shape [..., a, b]
-	Returns:
-		a Tensor with shape [..., a*b]
-	"""
-
-	old_shape = x.get_shape().dims
-	a, b = old_shape[-2:]
-	new_shape = old_shape[:-2] + [a * b if a and b else None]
-
-	ret = tf.reshape(x, tf.concat([tf.shape(x)[:-2], [-1]], 0))
-	ret.set_shape(new_shape)
-
-	return ret
-
-class msa_3d(layers.Layer):
-    def __init__(self, key_filters, value_filters, output_filters, num_heads, dropout_rate=0.5, **kwarks):
-        super(msa_3d, self).__init__(**kwarks)
-        self.num_heads = num_heads
-        self.key_filters = key_filters
-        self.value_filters = value_filters
-        self.output_filters = output_filters
-        self.padding = 'same'
-        self.key_filters_per_head = self.key_filters // self.num_heads
-        self.dropout_rate = dropout_rate
-        # Layers
-        # attention_layer = multihead_attention_3d(x1, 512, 512, 64, 4, False, layer_type='SAME')
-        self.q_conv = layers.Conv3D(
-            filters=self.key_filters, 
-            kernel_size=1, 
-            strides=1,
-            kernel_initializer='he_normal',
-            use_bias=True,
-            padding=self.padding
-        )
-
-        self.k_conv = layers.Conv3D(
-            filters=self.key_filters, 
-            kernel_size=1, 
-            strides=1,
-            kernel_initializer='he_normal',
-            use_bias=True,
-            padding=self.padding
-        )
-
-        self.v_conv = layers.Conv3D(
-            filters=self.value_filters, 
-            kernel_size=1, 
-            strides=1,
-            kernel_initializer='he_normal',
-            use_bias=True,
-            padding=self.padding
-        )
-        
-        self.out_conv = layers.Conv3D(
-            filters=self.output_filters, 
-            kernel_size=1, 
-            strides=1,
-            kernel_initializer='he_normal',
-            use_bias=True,
-            padding=self.padding
-        )
-
-    def call(self, inputs):
-        q, k, v = self.compute_conv_qkv_3d(inputs)
-        
-        q = tf.transpose(self.split_last_dimension(q, self.num_heads), [0, 4, 1, 2, 3, 5])
-        k = tf.transpose(self.split_last_dimension(k, self.num_heads), [0, 4, 1, 2, 3, 5])
-        v = tf.transpose(self.split_last_dimension(v, self.num_heads), [0, 4, 1, 2, 3, 5])
-        
-        q = q * self.key_filters_per_head**-0.5
-        
-        # print(q, "\n", k, "\n", v)
-        output = self.global_attention_3d(q, k, v)
-        # print(output)
-        output = combine_last_two_dimensions(tf.transpose(output, [0, 2, 3, 4, 1, 5]))
-        output = self.out_conv(output)
-
-        return output
-
-    def compute_conv_qkv_3d(self, inputs):
-        q = self.q_conv(inputs)
-        k = self.k_conv(inputs)
-        v = self.v_conv(inputs)
-        return q, k, v
-
-    def global_attention_3d(self, q, k, v):
-        new_shape = tf.concat([tf.shape(q)[0:-1], [v.shape[-1]]], 0)
-        
-        q_new = flatten_3d(q)
-        k_new = flatten_3d(k)
-        v_new = flatten_3d(v)
-
-        # attention
-        # print(q_new, "\n", k_new)
-        logits = tf.matmul(q_new, k_new, transpose_b=True)
-        weights = tf.nn.softmax(logits, name="attention_weights")
-        weights = tf.nn.dropout(weights, self.dropout_rate)#tf.keras.layers.Dropout(weights, self.dropout_rate)(weights)
-        output = tf.matmul(weights, v_new)
-        output = tf.reshape(output, new_shape)
-
-        return output
-
-    def split_last_dimension(self, x, n):
-        """Reshape x so that the last dimension becomes two dimensions.
-        The first of these two dimensions is n.
-        Args:
-            x: a Tensor with shape [..., m]
-            n: an integer.
-        Returns:
-            a Tensor with shape [..., n, m/n]
-        """
-
-        old_shape = x.get_shape().dims
-        last = old_shape[-1]
-        new_shape = old_shape[:-1] + [n] + [last // n if last else None]
-        
-        ret = tf.reshape(x, tf.concat([tf.shape(x)[:-1], [n, -1]], 0))
-        ret.set_shape(new_shape)
-        
-        return ret
-
-    def get_config(self):
-        config = super().get_config().copy()
-        config.update({
-            'num_heads' : self.num_heads,
-            'key_filters' : self.key_filters,
-            'value_filters' : self.value_filters,
-            'output_filters' : self.output_filters,
-            'key_filters_per_head' : self.key_filters_per_head,
-            'dropout_rate' : self.dropout_rate,
-            # layers
-            'q_conv' : self.q_conv,
-            'k_conv' : self.k_conv,
-            'v_conv' : self.v_conv,
-            'out_conv' : self.out_conv,
-        })
-        return config
-
 class TransformerBlock(layers.Layer):
     def __init__(self, num_heads, projection_dim, dropout_rate, normalization_rate, transformer_units, activation='relu', **kwarks):
         super(TransformerBlock, self).__init__(**kwarks)
@@ -552,14 +394,13 @@ class TransformerBlock(layers.Layer):
             dropout = self.dropout_rate,
             kernel_initializer='he_normal',
         )
-
         self.add_a = layers.Add()
 
         self.ln_b = layers.LayerNormalization(epsilon=self.normalization_rate)
         self.mlp_block_b = MLPBlock(
             hidden_units=self.transformer_units, 
             dropout_rate=self.dropout_rate,
-            #activation='leaky_relu'
+            activation='elu'
         )
 
         self.add_b = layers.Add()
@@ -571,6 +412,14 @@ class TransformerBlock(layers.Layer):
         x3 = self.ln_b(x2)
         x3 = self.mlp_block_b(x3)
         x3 = self.add_b([x3, x2])
+
+        # attention_layer = self.attention_layer_a(encoded_patches, encoded_patches)
+        # x1 = self.add_a([attention_layer, encoded_patches])
+        # x2 = self.ln_a(x1)
+
+        # x3 = self.mlp_block_b(x2)
+        # x3 = self.add_b([x3, x2])
+        # x3 = self.ln_b(x3)
         return x3
 
     def get_config(self):
@@ -626,7 +475,7 @@ class DecoderBlockCup(layers.Layer):
             padding='same'
         )
         # self.max_pool_a = layers.MaxPooling3D(pool_size=self.pool_size)
-        self.bn_a = layers.BatchNormalization() # layers.LayerNormalization()#
+        self.bn_a = layers.BatchNormalization()
         self.activation_fnc = layers.Activation(self.activation)
         self.upsample_a = layers.UpSampling3D(
             size=(2, 2, 2)

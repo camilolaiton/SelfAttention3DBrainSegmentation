@@ -419,7 +419,7 @@ def main():
     print(max_val)
 
     divisor = '1'
-    for i in range(max_val-1):
+    for i in range(max_val):
         divisor += '0'
     divisor = int(divisor)
 

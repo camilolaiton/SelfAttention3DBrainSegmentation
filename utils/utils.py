@@ -1216,6 +1216,40 @@ def inverseNumberOfSamples(image_files, num_classes=38):
     
     return class_weights
 
+def calculate_information_number(image_files, classes):
+  len_files = len(image_files)
+  print("Amount of files: ", len_files)
+  if not len_files:
+    return False
+
+  #Initialize all the labels key with a list value
+  label_to_frequency_dict = {}
+  # class_weights = {}
+
+  for idx, class_name in enumerate(classes):
+    label_to_frequency_dict[class_name] = []
+  
+  for n in range(len(image_files)):
+    image = np.argmax(np.load(image_files[n]), axis=4)
+    # print(image.shape)
+    #For each image sum up the frequency of each label in that image and append to the dictionary if frequency is positive.
+    for idx, class_name in enumerate(classes):
+      class_mask = np.equal(image, idx)
+      class_mask = class_mask.astype(np.float32)
+      class_frequency = np.sum(class_mask)
+      # print(class_frequency, " for class ", idx)
+      if class_frequency != 0.0:
+          label_to_frequency_dict[class_name].append(class_frequency)
+
+  new_frequency = {}
+
+  for key, value in label_to_frequency_dict.items():
+    new_frequency[key] = sum(value)
+  
+  new_frequency = {k: v for k, v in sorted(new_frequency.items(), key=lambda item: item[1], reverse=True)}
+  
+  return new_frequency
+
 def median_frequency_balancing(image_files, num_classes=38, includeZero=True):
     '''
     Perform median frequency balancing on the image files, given by the formula:

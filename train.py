@@ -393,6 +393,13 @@ def main():
     config = get_config_local_path()#get_config_test()
     model = None
 
+    STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
+    STRUCTURES.insert(0, 'background')
+    end_path = '/train/masks'
+    image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
+    utils.write_dict_to_txt(utils.calculate_information_number(image_files=image_files, classes=STRUCTURES), config.dataset_path + 'order.txt')
+    exit()
+
     # Mirrored strategy for parallel training
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
 
@@ -409,12 +416,13 @@ def main():
             print("Please check the path")
             exit()
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
+        # utils.write_dict_to_txt(label_to_frequency_dict, config.dataset_path + 'weights_dicti.txt')
         print("Weights calculated")
+        
     else:
         # weights = [0.0, 1, 2.7, 3]
         # weights = [0.0, 2.3499980585022096, 6.680915101433645, 7.439929426050408]
         print("Weights read!")
-    
     # max_val = len(str(max(weights)).split('.')[0])
     # print(max_val)
 

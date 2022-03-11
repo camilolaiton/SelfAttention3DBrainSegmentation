@@ -1,6 +1,19 @@
 from torch import nn
 import torch
 
+class diceloss(torch.nn.Module):
+    def init(self):
+        super(diceloss, self).init()
+
+    def forward(self,pred, target):
+       smooth = 1.
+       iflat = pred.contiguous().view(-1)
+       tflat = target.contiguous().view(-1)
+       intersection = (iflat * tflat).sum()
+       A_sum = torch.sum(iflat * iflat)
+       B_sum = torch.sum(tflat * tflat)
+       return 1 - ((2. * intersection + smooth) / (A_sum + B_sum + smooth) )
+
 class DiceLoss(nn.Module):
     """DiceLoss.
 
@@ -212,19 +225,19 @@ class FocalDiceLoss(nn.Module):
 #     def __init__(self, weight=None, size_average=True):
 #         super(ComboLoss, self).__init__()
 
-#     def forward(self, inputs, targets, smooth=1, alpha=ALPHA, beta=BETA, eps=1e-9):
+    # def forward(self, inputs, targets, smooth=1, alpha=ALPHA, beta=BETA, eps=1e-9):
         
-#         #flatten label and prediction tensors
-#         inputs = inputs.view(-1)
-#         targets = targets.view(-1)
+    #     #flatten label and prediction tensors
+    #     inputs = inputs.view(-1)
+    #     targets = targets.view(-1)
         
-#         #True Positives, False Positives & False Negatives
-#         intersection = (inputs * targets).sum()    
-#         dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
+    #     #True Positives, False Positives & False Negatives
+    #     intersection = (inputs * targets).sum()    
+    #     dice = (2. * intersection + smooth) / (inputs.sum() + targets.sum() + smooth)
         
-#         inputs = torch.clamp(inputs, eps, 1.0 - eps)       
-#         out = - (ALPHA * ((targets * torch.log(inputs)) + ((1 - ALPHA) * (1.0 - targets) * torch.log(1.0 - inputs))))
-#         weighted_ce = out.mean(-1)
-#         combo = (CE_RATIO * weighted_ce) - ((1 - CE_RATIO) * dice)
+    #     inputs = torch.clamp(inputs, eps, 1.0 - eps)       
+    #     out = - (ALPHA * ((targets * torch.log(inputs)) + ((1 - ALPHA) * (1.0 - targets) * torch.log(1.0 - inputs))))
+    #     weighted_ce = out.mean(-1)
+    #     combo = (CE_RATIO * weighted_ce) - ((1 - CE_RATIO) * dice)
         
-#         return combo
+    #     return combo

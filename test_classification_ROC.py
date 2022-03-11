@@ -8,6 +8,7 @@ import argparse
 from sklearn.metrics import roc_curve, auc
 from sklearn.metrics import roc_auc_score
 import matplotlib.pyplot as plt
+import pandas as pd
 
 def read_patches_filename(filename, path):
     patches = []
@@ -20,6 +21,94 @@ def read_patches_filename(filename, path):
     
     patches = np.array(patches)
     return patches
+
+# def create_excel(src_folder, dest_folder):
+#     dict_users = {"class": []}
+
+#     writer = pd.ExcelWriter(dest_folder + '.xlsx', engine='xlsxwriter')
+
+#     for folder in glob.glob(src_folder + '/*'):
+#         name = folder.split('/')[-1]
+#         aseg_file = [file_ for file_ in glob.glob(f"{folder}/mri/*") if 'aseg.stats' in file_]
+
+#         if (len(aseg_file)):
+#             print(f"Creating excel - Reading {name}")
+#             aseg_file = aseg_file[0]
+
+#             dict_users["users"].append(name)
+#             dictionary = read_aseg_file(aseg_file, save_local=True)
+#             if (not read_struct_cols):
+#                 for structname in dictionary['StructName']:
+#                     dict_users[structname] = []
+#                 read_struct_cols = 1
+
+#             for i in range(len(dictionary['StructName'])):
+#                 dict_users[dictionary['StructName'][i]].append(dictionary['Volume_mm3'][i])
+
+#     pd.DataFrame(dict_users).to_csv(dest_folder + '.csv', header=True,index=False)
+#     pd.DataFrame(dict_users).to_excel(dest_folder + '.xlsx', header=True,index=False)
+
+def helper_fnc(structure, dictionary, column, info):
+    if structure in dictionary:
+        dictionary[structure].append(info[column][structure])
+    else:
+        dictionary[structure] = [info[column][structure]]
+
+    return dictionary
+
+def creating_excel(path):
+    STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
+    STRUCTURES.insert(0, 'background')
+    print(STRUCTURES, " ", len(STRUCTURES))
+
+    precision = {'name': []}
+    recall = {'name': []}
+    f1_score = {'name': []}
+    support = {'name': []}
+
+    for folder in glob(path + '/*structures*'):
+        info = pd.read_excel(folder, index_col='class')
+        
+        name = folder.split('/')[-1].split('.')[0].split('_')[0]
+        
+        precision['name'].append(name)
+        recall['name'].append(name)
+        f1_score['name'].append(name)
+        support['name'].append(name)
+
+
+        for structure in STRUCTURES:
+            precision = helper_fnc(structure, precision, 'precision', info)
+            recall = helper_fnc(structure, recall, 'recall', info)
+            f1_score = helper_fnc(structure, f1_score, 'f1_score', info)
+            support = helper_fnc(structure, support, 'support', info)
+
+    writer = pd.ExcelWriter(path + '/collection_pre_re_f1_spport.xlsx', engine='xlsxwriter')
+    pd.DataFrame(precision).to_excel(
+        writer, 
+        header=True,
+        index=False,
+        sheet_name='precision'
+    )
+    pd.DataFrame(recall).to_excel(
+        writer, 
+        header=True,
+        index=False,
+        sheet_name='recall'
+    )
+    pd.DataFrame(f1_score).to_excel(
+        writer, 
+        header=True,
+        index=False,
+        sheet_name='f1_score'
+    )
+    pd.DataFrame(support).to_excel(
+        writer, 
+        header=True,
+        index=False,
+        sheet_name='support'
+    )
+    writer.save()
 
 def main():
 
@@ -99,4 +188,12 @@ def main():
     # utils.write_dict_to_txt(times, training_folder + deep_folder + '/times.txt')
 
 if __name__ == "__main__":
-    main()
+    # main()
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--folder_name', metavar='folder', type=str,
+                        help='Insert the folder for insights')
+    args = vars(parser.parse_args())
+
+    training_folder = 'trainings/' + args['folder_name']
+
+    creating_excel(training_folder + '/reports')

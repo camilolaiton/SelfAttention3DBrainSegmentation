@@ -118,7 +118,7 @@ def main():
     args = vars(parser.parse_args())
 
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
-    os.environ["CUDA_VISIBLE_DEVICES"]="1"
+    os.environ["CUDA_VISIBLE_DEVICES"]="0"
 
     # STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')
     STRUCTURES = utils.read_test_to_list('data/common_anatomical_structures.txt')

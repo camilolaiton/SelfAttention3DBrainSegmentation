@@ -6,9 +6,9 @@ import os
 import numpy as np
 import argparse
 from sklearn.metrics import roc_curve, auc
-from sklearn.metrics import roc_auc_score
 import matplotlib.pyplot as plt
 import pandas as pd
+import tensorflow as tf
 
 def read_patches_filename(filename, path):
     patches = []
@@ -129,6 +129,8 @@ def main():
     utils.create_folder(f"{training_folder}/reports")
     deep_folder = '/reports'
 
+    tf.keras.backend.clear_session()
+
     config = get_config_local_path()#get_config_test()
     
     # Getting images
@@ -149,7 +151,7 @@ def main():
     for idx in range(len(image_list_test)):
         if idx_limit == idx:
             break
-
+        
         print(f"[{idx}] Image path: {image_list_test[idx]} test path: {mask_list_test[idx]}")
         filename = image_list_test[idx].split('/')[-1].split('.')[0]
         filename = filename.replace('images\\', '')

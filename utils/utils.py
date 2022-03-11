@@ -1233,6 +1233,7 @@ def calculate_information_number(image_files, classes):
     image = np.argmax(np.load(image_files[n]), axis=4)
     # print(image.shape)
     #For each image sum up the frequency of each label in that image and append to the dictionary if frequency is positive.
+    print("Processing image: ", n)
     for idx, class_name in enumerate(classes):
       class_mask = np.equal(image, idx)
       class_mask = class_mask.astype(np.float32)

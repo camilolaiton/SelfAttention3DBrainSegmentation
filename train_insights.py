@@ -12,6 +12,8 @@ import os
 import numpy as np
 import argparse
 from sklearn.metrics import classification_report
+# from sklearn.metrics import jaccard_similarity_score
+from models_comparative.unet_3D import build_unet3D_model
 
 def plot_model_training_info(model_history, dest_path):
     loss = model_history['loss']
@@ -203,6 +205,8 @@ def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--folder_name', metavar='folder', type=str,
                         help='Insert the folder for insights')
+    parser.add_argument('--unet', metavar='unet_evaluation', type=int,
+                        help='Start epoch lr decrease', default=0)
     args = vars(parser.parse_args())
 
     # path_prediction = 'trainings/version_8_0_2paths/insights/prediction_0.npy'
@@ -248,7 +252,11 @@ def main():
     ), axis=4)[0, :, :, :, :]"""
     # msk_patches = np.argmax(np.load(f"{config.dataset_path}test/masks/{test_filename}"), axis=4)
 
-    model = build_model(config)#test_model_3(config)
+    model = None
+    if args['unet']:
+        model = build_unet3D_model(config)
+    else:
+        model = build_model(config)#test_model_3(config)
     # print(f"[+] Building model with config {config}")
     np.save(training_folder+"/ground_truth.npy", msk_patches)
 

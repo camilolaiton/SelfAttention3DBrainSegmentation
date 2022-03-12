@@ -1,18 +1,10 @@
-# Master Thesis - Method for the segmentation of brain magnetic resonance images using a neural network architecture based on attention models
+# Deep 3D neural network for brain structures segmentation using self-attention modules in MRI images
 
-[![Instagram](https://img.shields.io/static/v1?label=insta&logo=instagram&message=camilo_laiton&color=purple "Camilo's Instagram")](https://www.instagram.com/camilo_laiton/ "profil")
+The proposed method is oriented towards the 3D segmentation of 37 anatomical brain structures using deep learning techniques based on attention models. In this proposed architecture, we aim to explore the usage of Transformers for segmentation in small-size medical image datasets. 
 
-Code for my master thesis called "Método para la segmentación de imágenes de resonancia magnética 
-cerebrales usando una arquitectura de red neuronal basada en modelos de atención".
-  
-## End
-  This master thesis is currently being developped. For more information, please contact me.
-  **Thanks for reading**
+## Authors
+- **M.Sc. (c) Camilo Laiton** [[CamiloLaiton]](https://github.com/camilolaiton) [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0001674441)
 
-## Author
-- **Engineer Camilo Laiton** [[CamiloLaiton]](https://github.com/camilolaiton) [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0001674441)
-
-## Tutors
 - **Ph.D. German Sánchez Torres** [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000479918)
 
 - **Ph.D. John Willian Branch** [[CvLac]](https://scienti.minciencias.gov.co/cvlac/visualizador/generarCurriculoCv.do?cod_rh=0000027090)

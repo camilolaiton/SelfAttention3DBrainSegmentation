@@ -7,6 +7,7 @@ import os
 import numpy as np
 import argparse
 from sklearn.metrics import classification_report
+from models_comparative.unet_3D import build_unet3D_model
 import time
 import pandas as pd
 
@@ -27,6 +28,8 @@ def main():
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('--folder_name', metavar='folder', type=str,
                         help='Insert the folder for insights')
+    parser.add_argument('--unet', metavar='unet_evaluation', type=int,
+                        help='Start epoch lr decrease', default=0)
     args = vars(parser.parse_args())
 
     os.environ["CUDA_DEVICE_ORDER"]="PCI_BUS_ID"
@@ -49,7 +52,12 @@ def main():
     mask_list_test = sorted(glob(
         config.dataset_path + 'test/masks/*'))
     
-    model = build_model(config)
+    model = None
+    if args['unet']:
+        model = build_unet3D_model(config)
+    else:
+        model = build_model(config)
+
     model_path = f"{training_folder}/model_trained_architecture.hdf5"
     model.load_weights(model_path)
     times = {}

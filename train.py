@@ -398,7 +398,7 @@ def main():
     end_path = '/train/masks'
     image_files = [file for file in glob.glob(config.dataset_path + end_path + '/*') if file.endswith('.npy')]
     utils.write_dict_to_txt(utils.calculate_information_number(image_files=image_files, classes=STRUCTURES), config.dataset_path + 'order.txt')
-    exit()
+    # exit()
 
     # Mirrored strategy for parallel training
     mirrored_strategy = tf.distribute.MultiWorkerMirroredStrategy()
@@ -414,7 +414,6 @@ def main():
         print("Resulting weights: ", weights)
         if (weights == False):
             print("Please check the path")
-            exit()
         utils.write_list_to_txt(weights, config.dataset_path + 'weights.txt')
         # utils.write_dict_to_txt(label_to_frequency_dict, config.dataset_path + 'weights_dicti.txt')
         print("Weights calculated")

@@ -198,4 +198,4 @@ if __name__ == "__main__":
 
     training_folder = 'trainings/' + args['folder_name']
 
-    creating_excel(training_folder + '/reports')
+    creating_excel(training_folder)

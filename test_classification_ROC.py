@@ -190,12 +190,12 @@ def main():
     # utils.write_dict_to_txt(times, training_folder + deep_folder + '/times.txt')
 
 if __name__ == "__main__":
-    main()
-    # parser = argparse.ArgumentParser(description='Process some integers.')
-    # parser.add_argument('--folder_name', metavar='folder', type=str,
-    #                     help='Insert the folder for insights')
-    # args = vars(parser.parse_args())
+    # main()
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('--folder_name', metavar='folder', type=str,
+                        help='Insert the folder for insights')
+    args = vars(parser.parse_args())
 
-    # training_folder = 'trainings/' + args['folder_name']
+    training_folder = 'trainings/' + args['folder_name']
 
-    # creating_excel(training_folder + '/reports')
+    creating_excel(training_folder + '/reports')
